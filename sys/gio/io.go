@@ -219,6 +219,22 @@ func CopyEx(dst io.Writer, dstWriteCb SetDeadlineCallback, src io.Reader, srcRea
 	return written, err
 }
 
+func ReaderToBytes(rd io.Reader) ([]byte, error) {
+	b, err := ioutil.ReadAll(rd)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func ReaderToString(rd io.Reader) (string, error) {
+	b, err := ReaderToBytes(rd)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
 func ReadCloserToBytes(rd io.ReadCloser) ([]byte, error) {
 	b, err := ioutil.ReadAll(rd)
 	if err != nil {

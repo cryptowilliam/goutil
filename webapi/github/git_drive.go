@@ -84,7 +84,7 @@ func (gp *GitPartition) LastUpdateTime() (time.Time, error) {
 
 // Download repository as zip file, and unzip it to specify save directory
 func (gp *GitPartition) ReadAsZip() ([]byte, error) {
-	r, _, err := gp.drv.gc.Repositories.DownloadContents(context.Background(), "", gp.partition, "", nil)
+	r, err := gp.drv.gc.Repositories.DownloadContents(context.Background(), "", gp.partition, "", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (gp *GitPartition) ReadAsZip() ([]byte, error) {
 }
 
 func (gp *GitPartition) ReadFile(file string) ([]byte, error) {
-	r, _, err := gp.drv.gc.Repositories.DownloadContents(context.Background(), "", gp.partition, file, nil)
+	r, err := gp.drv.gc.Repositories.DownloadContents(context.Background(), "", gp.partition, file, nil)
 	if err != nil {
 		return nil, err
 	}

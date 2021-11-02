@@ -1,9 +1,12 @@
 package netdrive
 
+// FIXME: This module is not finished
+
 import (
 	"context"
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/sys/gio"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
 	"io"
@@ -27,8 +30,16 @@ func newGoogleDrive(apiKey string) (*googleDrive, error) {
 	return &googleDrive{srv: srv}, nil
 }
 
-func (gd *googleDrive) DownloadFile(pathToFile string) ([]byte, error) {
-	return nil, nil
+func (gd *googleDrive) DownloadFile(filePath string) ([]byte, error) {
+	_, rd, err := gd.getReaderByFilePath(filePath)
+	if err != nil {
+		return nil, err
+	}
+	b, err := gio.ReaderToBytes(rd)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }
 
 func (gd *googleDrive) UploadFile(pathToFile string, buf []byte) error {
