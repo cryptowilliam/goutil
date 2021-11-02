@@ -75,7 +75,7 @@ func (c *Client) DownloadRepoFile(filepath string) ([]byte, error) {
 	repo := ss[1]
 	subPath := strings.Join(ss[2:], "/")
 	fmt.Println(user, repo, subPath)
-	r, _, err := c.api.cli.Repositories.DownloadContents(context.Background(), user, repo, subPath, nil)
+	r, err := c.api.cli.Repositories.DownloadContents(context.Background(), user, repo, subPath, nil)
 	if err != nil {
 		return nil, err
 	}
