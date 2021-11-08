@@ -10,9 +10,9 @@ import (
 
 type (
 	Interval struct {
-		Min *gdecimal.Decimal
+		Min        *gdecimal.Decimal
 		IncludeMin bool
-		Max *gdecimal.Decimal
+		Max        *gdecimal.Decimal
 		IncludeMax bool
 	}
 )
@@ -31,10 +31,10 @@ func Parse(s string) (*Interval, error) {
 	if !gstring.EndWith(ss[1], "]") && !gstring.EndWith(ss[1], ")") {
 		return nil, defErr
 	}
-	if strings.Contains(ss[0], "∞") && ss[0] != "(-∞"{
+	if strings.Contains(ss[0], "∞") && ss[0] != "(-∞" {
 		return nil, defErr
 	}
-	if strings.Contains(ss[1], "∞") && ss[1] != "+∞)"{
+	if strings.Contains(ss[1], "∞") && ss[1] != "+∞)" {
 		return nil, defErr
 	}
 
@@ -163,9 +163,9 @@ func (i *Interval) String() string {
 		s = "(-∞"
 	} else {
 		if i.IncludeMin {
-			s = "["+i.Min.String()
+			s = "[" + i.Min.String()
 		} else {
-			s = "("+i.Min.String()
+			s = "(" + i.Min.String()
 		}
 	}
 
@@ -175,9 +175,9 @@ func (i *Interval) String() string {
 		s += "+∞)"
 	} else {
 		if i.IncludeMax {
-			s += i.Max.String()+"]"
+			s += i.Max.String() + "]"
 		} else {
-			s += i.Max.String()+")"
+			s += i.Max.String() + ")"
 		}
 	}
 

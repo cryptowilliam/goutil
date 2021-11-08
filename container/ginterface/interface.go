@@ -84,7 +84,7 @@ func TypeEx(x interface{}) (string, error) {
 
 	if sliceMemType != nil {
 		return "[]" + *sliceMemType, nil
-	}else{
+	} else {
 		return s, nil
 	}
 }

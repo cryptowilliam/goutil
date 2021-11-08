@@ -11,7 +11,7 @@ import (
 func TestClient_Load(t *testing.T) {
 	type Sample struct {
 		AEncryptMe string
-		B string
+		B          string
 	}
 
 	s1 := Sample{AEncryptMe: "A", B: "B"}

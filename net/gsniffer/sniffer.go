@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/net/gsocks5"
+	"github.com/cryptowilliam/goutil/net/gsocks5/socks5internal"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/hpack"
 	"io"
@@ -163,18 +163,18 @@ func tryGetSocks5Request(r io.Reader) (socks5target string, err error) {
 		return "", err
 	}
 
-	if buf[0] != gsocks5.Version {
+	if buf[0] != socks5internal.Version {
 		return "", errNotSocks5
 	}
 
-	if gsocks5.Command(buf[1]) < gsocks5.CommandMin || gsocks5.Command(buf[1]) > gsocks5.CommandMax {
+	if socks5internal.Command(buf[1]) < socks5internal.CommandMin || socks5internal.Command(buf[1]) > socks5internal.CommandMax {
 		return "", gerrors.Errorf("invalid command %d", buf[1])
 	}
 
-	addrType := gsocks5.AddressType(buf[3])
+	addrType := socks5internal.AddressType(buf[3])
 
 	switch addrType {
-	case gsocks5.AddrIPv4:
+	case socks5internal.AddrIPv4:
 		buf = make([]byte, 4+2)
 		if _, err := io.LimitReader(r, 4+2).Read(buf); err != nil {
 			return "", err
@@ -183,7 +183,7 @@ func tryGetSocks5Request(r io.Reader) (socks5target string, err error) {
 		ipAddr := net.IPv4(buf[0], buf[1], buf[2], buf[3])
 		port := uint16(buf[4])<<8 | uint16(buf[5])
 		return fmt.Sprintf("%s:%d", ipAddr.String(), port), nil
-	case gsocks5.AddrDomainName:
+	case socks5internal.AddrDomainName:
 		bufLen := make([]byte, 1)
 		_, err := r.Read(bufLen) // Read 1 byte.
 		if err != nil {

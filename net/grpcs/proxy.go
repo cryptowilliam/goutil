@@ -15,10 +15,10 @@ type (
 	Proxy struct {
 		c            *Client
 		s            *Server
-		allowFns map[string]struct{}
+		allowFns     map[string]struct{}
 		cacheFns     map[string]bool
 		cacheReplies map[string]*Reply
-		mu      sync.RWMutex
+		mu           sync.RWMutex
 	}
 )
 

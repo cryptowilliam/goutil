@@ -1,4 +1,4 @@
-package gsocks5
+package socks5internal
 
 /**
 
@@ -61,7 +61,6 @@ X’07’ Command not supported
 X’08’ Address type not supported
 X’09’ to X’FF’ unassigned
 */
-
 
 const (
 	Version = uint8(5)

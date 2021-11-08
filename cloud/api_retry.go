@@ -183,7 +183,6 @@ func (c *Retry) EcDeleteVps(regionId string, vpsIds []string, force bool) (err e
 	return err
 }
 
-
 func (c *Retry) ObsIsBucketExist(regionId, bucketName string) (exist bool, err error) {
 	for i := 0; i < c.retry; i++ {
 		exist, err = c.cloud.ObsIsBucketExist(regionId, bucketName)

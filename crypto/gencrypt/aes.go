@@ -15,7 +15,7 @@ import (
 // because random number used in encrypt process, please DON'T use it when you need same output for unchanging input.
 
 type (
-	AesGcm256 struct {}
+	AesGcm256 struct{}
 )
 
 func NewAesGcm256() *AesGcm256 {

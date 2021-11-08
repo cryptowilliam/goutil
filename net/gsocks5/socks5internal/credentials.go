@@ -1,4 +1,4 @@
-package gsocks5
+package socks5internal
 
 // CredentialStore is used to support user/pass authentication
 type CredentialStore interface {

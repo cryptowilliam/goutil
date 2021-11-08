@@ -77,7 +77,7 @@ func ParseAnySys(numberSystemDigits []rune, s string) (*big.Int, error) {
 		if currN == nil {
 			return nil, gerrors.New("can't parse char '%c'", s[i])
 		}
-		res = res.Add(res, big.NewInt(int64(math.Pow(float64(base), float64(len(s)-i-1)) * float64(*currN))))
+		res = res.Add(res, big.NewInt(int64(math.Pow(float64(base), float64(len(s)-i-1))*float64(*currN))))
 	}
 
 	if !isPositive {

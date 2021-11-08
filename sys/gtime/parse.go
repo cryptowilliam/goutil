@@ -217,7 +217,7 @@ func ParseDateRangeString(s string, strict bool) (DateRange, error) {
 
 func ParseTimeStringStrict(s string) (time.Time, error) {
 	formats := []string{
-		LayoutRFC3339Nano, // Formatted by MarshalJSON, like '2021-01-03T17:09:06.686235+08:00' and '2020-12-23T12:00:00+08:00'
+		LayoutRFC3339Nano,        // Formatted by MarshalJSON, like '2021-01-03T17:09:06.686235+08:00' and '2020-12-23T12:00:00+08:00'
 		LayoutRFC3339GoExtension, // Formatted by time.String(), like '2020-12-04 18:00:00 +0800 CST'
 		//time.RFC3339,
 		//time.RFC1123Z,

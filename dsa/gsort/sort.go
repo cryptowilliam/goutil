@@ -143,7 +143,7 @@ func quickSort(data sort.Interface) {
 		j := regionRight
 		baselineIndex := regionLeft
 		rightTurn := true
-		for ; i < j; {
+		for i < j {
 			if rightTurn {
 				if data.Less(j, baselineIndex) {
 					data.Swap(j, baselineIndex)

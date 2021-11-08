@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/basic/glog"
+	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/fasthttpproxy"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,9 +15,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"github.com/cryptowilliam/goutil/basic/glog"
-	"github.com/valyala/fasthttp"
-	"github.com/valyala/fasthttp/fasthttpproxy"
 )
 
 var fastHttpClient fasthttp.Client

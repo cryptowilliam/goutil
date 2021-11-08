@@ -68,7 +68,6 @@ func TestParse(t *testing.T) {
 	}
 }
 
-
 func TestInterval_IsOverlap(t *testing.T) {
 	cl := gtest.NewCaseList()
 
@@ -112,7 +111,6 @@ func TestInterval_IsOverlap(t *testing.T) {
 	cl.New().Input("[-2,2]").Input("(-1, 1)").Expect(true)
 	cl.New().Input("[-2,2]").Input("(-6,-4)").Expect(false)
 	cl.New().Input("[-2,2]").Input("( 4, 6)").Expect(false)
-
 
 	// B
 	cl.New().Input("(-2,2]").Input("[-2, 2]").Expect(true)
@@ -374,7 +372,6 @@ func TestInterval_IsOverlap(t *testing.T) {
 		}
 	}
 }
-
 
 func TestInterval_Contains(t *testing.T) {
 	cl := gtest.NewCaseList()

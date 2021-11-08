@@ -105,7 +105,7 @@ func Join(baseUrl string, relUrl string) (absUrl string, err error) {
 type UrlHost struct {
 	Domain string // like "163.com"
 	IP     string // like "8.8.8.8"
-	Port   int // like "443"
+	Port   int    // like "443"
 }
 
 type UrlAuth struct {
@@ -132,11 +132,11 @@ func (ua *UrlAuth) String() string {
 }
 
 type AddrSlice struct {
-	Scheme string // like "http", "ftp"
-	Domain Domain // like "google.com"
+	Scheme string  // like "http", "ftp"
+	Domain Domain  // like "google.com"
 	Auth   UrlAuth // like "usr:pwd"
 	Host   UrlHost // like "google.com:443"
-	Path   Path // like "?article=1260&lang=en#comment"
+	Path   Path    // like "?article=1260&lang=en#comment"
 }
 
 // Addr returns IP address or domain, without port.

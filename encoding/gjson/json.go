@@ -92,7 +92,7 @@ func iterateMap(jsonMap *map[string]interface{}, iterFn IterFn) error {
 			if err := iterateMap(&vMap, iterFn); err != nil {
 				return err
 			}
-		} else if reflect.TypeOf(v) != nil && reflect.TypeOf(v).Kind() == reflect.Slice{
+		} else if reflect.TypeOf(v) != nil && reflect.TypeOf(v).Kind() == reflect.Slice {
 			vSlice := v.([]interface{})
 			for _, vEntry := range vSlice {
 				if reflect.TypeOf(vEntry).Kind() == reflect.Map {

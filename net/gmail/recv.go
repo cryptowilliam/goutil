@@ -2,12 +2,12 @@ package gmail
 
 import (
 	"encoding/base64"
-	"github.com/emersion/go-imap"
-	"github.com/emersion/go-imap/client"
-	"github.com/emersion/go-message/mail"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/cryptowilliam/goutil/i18n/gcharset"
+	"github.com/emersion/go-imap"
+	"github.com/emersion/go-imap/client"
+	"github.com/emersion/go-message/mail"
 	"io"
 	"io/ioutil"
 	"strings"

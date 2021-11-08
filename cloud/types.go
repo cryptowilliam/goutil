@@ -20,9 +20,9 @@ type (
 
 	// Instance specification.
 	VpsSpec struct {
-		RegionId string
+		RegionId         string
 		Id               string
-		IsCredit bool 	// Is credit instance(突发性能实例) or normal instance.
+		IsCredit         bool // Is credit instance(突发性能实例) or normal instance.
 		Currency         string
 		LogicalCpuNum    int
 		MemoryVolume     gvolume.Volume
@@ -32,10 +32,10 @@ type (
 	}
 
 	VpsSpecEx struct {
-		RegionId 		 string
+		RegionId         string
 		ZoneId           string
 		Id               string
-		IsCredit bool 	// Is credit instance(突发性能实例) or normal instance.
+		IsCredit         bool // Is credit instance(突发性能实例) or normal instance.
 		Currency         string
 		LogicalCpuNum    int
 		MemoryVolume     gvolume.Volume
@@ -116,18 +116,18 @@ type (
 	}
 
 	SecurityPermission struct {
-		Description string
-		Direction string // "in", "out"
-		Protocol string // "tcp","udp"...
+		Description  string
+		Direction    string // "in", "out"
+		Protocol     string // "tcp","udp"...
 		SrcPortRange [2]int
-		SrcCidrIP string
+		SrcCidrIP    string
 		DstPortRange [2]int
-		DstCidrIP string
+		DstCidrIP    string
 	}
 
 	SecurityGroup struct {
-		Id string
-		Name string
+		Id          string
+		Name        string
 		Permissions []SecurityPermission
 	}
 )
@@ -160,10 +160,10 @@ func (vsl *VpsSpecList) ToSpecExList() *VpsSpecExList {
 	for _, spec := range vsl.Specs {
 		for zoneId, spotPrice := range spec.SpotPricePerHour {
 			entry := VpsSpecEx{
-				RegionId:		  spec.RegionId,
+				RegionId:         spec.RegionId,
 				ZoneId:           zoneId,
 				Id:               spec.Id,
-				IsCredit: 		  spec.IsCredit,
+				IsCredit:         spec.IsCredit,
 				Currency:         spec.Currency,
 				LogicalCpuNum:    spec.LogicalCpuNum,
 				MemoryVolume:     spec.MemoryVolume,

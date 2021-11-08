@@ -1,4 +1,4 @@
-package gsocks5
+package socks5internal
 
 import (
 	"fmt"

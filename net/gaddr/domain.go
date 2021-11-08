@@ -6,11 +6,11 @@ package gaddr
 //判断两个域名是不是同一个所有人，比如news.baidu和www.baidu.com就是同一个所有者
 
 import (
-	"github.com/domainr/whois"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/cryptowilliam/goutil/sys/gsysinfo"
+	"github.com/domainr/whois"
 	"github.com/globalsign/publicsuffix"
 	"github.com/joeguo/tldextract"
 	"github.com/liamcurry/domains"

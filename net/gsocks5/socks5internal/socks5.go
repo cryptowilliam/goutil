@@ -1,4 +1,4 @@
-package gsocks5
+package socks5internal
 
 import (
 	"bufio"
@@ -9,8 +9,6 @@ import (
 
 	"golang.org/x/net/context"
 )
-
-
 
 // Config is used to setup and configure a Server
 type Config struct {

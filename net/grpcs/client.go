@@ -54,10 +54,10 @@ func (c *Client) Call(name string, args Request, reply *Reply) error {
 
 	return nil
 	/*
-	if isOriginReplyNil {
-		return nil
-	}
-	return c.checker.VerifyOut(name, reply, true)*/
+		if isOriginReplyNil {
+			return nil
+		}
+		return c.checker.VerifyOut(name, reply, true)*/
 }
 
 func (c *Client) Close() error {

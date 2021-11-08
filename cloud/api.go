@@ -152,7 +152,7 @@ func GetAllVps(cloud Cloud) ([]VpsInfo, error) {
 
 type (
 	CheapestSpotVpsScanner struct {
-		cli Cloud
+		cli    Cloud
 		tmpRes map[string]*VpsSpecExList
 	}
 )

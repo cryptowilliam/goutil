@@ -95,4 +95,3 @@ func (l *LogItem) clear() {
 
 	l.Text = strings.Join(result, "\n")
 }
-

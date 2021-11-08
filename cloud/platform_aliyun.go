@@ -145,7 +145,7 @@ func (ac *AliyunClient) EcListOnDemandSpecs(regionId string) (*VpsSpecList, erro
 			return nil, err
 		}
 		entry := VpsSpec{
-			RegionId: regionId,
+			RegionId:      regionId,
 			Id:            instanceType.InstanceTypeId,
 			LogicalCpuNum: instanceType.CpuCoreCount,
 			MemoryVolume:  memoryVolume,
@@ -240,7 +240,7 @@ func (ac *AliyunClient) EcListSpotSpecs(regionId string) (*VpsSpecList, error) {
 			return nil, err
 		}
 		entry := VpsSpec{
-			RegionId: regionId,
+			RegionId:      regionId,
 			Id:            instanceType.InstanceTypeId,
 			LogicalCpuNum: instanceType.CpuCoreCount,
 			MemoryVolume:  memoryVolume,
@@ -438,8 +438,8 @@ func (ac *AliyunClient) EcListSecurityGroups(regionId string) ([]SecurityGroup, 
 	var res []SecurityGroup
 	for _, v := range niResp.SecurityGroups.SecurityGroup {
 		item := SecurityGroup{
-			Id:               v.SecurityGroupId,
-			Name:             v.SecurityGroupName,
+			Id:   v.SecurityGroupId,
+			Name: v.SecurityGroupName,
 		}
 		gaReq := ecs.CreateDescribeSecurityGroupAttributeRequest()
 		gaReq.SecurityGroupId = v.SecurityGroupId

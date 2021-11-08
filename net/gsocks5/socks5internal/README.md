@@ -1,4 +1,5 @@
-Port from https://github.com/cloudfoundry/go-socks5 at 2021/01/27
+Port from `github.com/cloudfoundry/go-socks5` at 2021/01/27
+and I found that `github.com/cloudfoundry/go-socks5` seems forked from `github.com/armon/go-socks5`
 
 go-socks5 [![Build Status](https://travis-ci.org/armon/go-socks5.png)](https://travis-ci.org/armon/go-socks5)
 =========
