@@ -3,11 +3,11 @@ package gsmux
 import (
 	"github.com/cryptowilliam/goutil/net/gmux"
 	"github.com/xtaci/smux"
-	"net"
+	"io"
 	"time"
 )
 
-func NewSmuxClient(conn net.Conn, muxBufferSize, muxkeepAliveSeconds int) (*smux.Session, error) {
+func NewSmuxClient(conn io.ReadWriteCloser, muxBufferSize, muxkeepAliveSeconds int) (*smux.Session, error) {
 	smuxConfig := smux.DefaultConfig()
 	smuxConfig.MaxReceiveBuffer = muxBufferSize
 	smuxConfig.KeepAliveInterval = time.Duration(muxkeepAliveSeconds) * time.Second
@@ -15,7 +15,7 @@ func NewSmuxClient(conn net.Conn, muxBufferSize, muxkeepAliveSeconds int) (*smux
 	return smux.Client(conn, smuxConfig)
 }
 
-func NewSmuxServer(conn net.Conn, muxBufferSize, muxkeepAliveSeconds int) (*smux.Session, error) {
+func NewSmuxServer(conn io.ReadWriteCloser, muxBufferSize, muxkeepAliveSeconds int) (*smux.Session, error) {
 	smuxConfig := smux.DefaultConfig()
 	smuxConfig.MaxReceiveBuffer = muxBufferSize
 	smuxConfig.KeepAliveInterval = time.Duration(muxkeepAliveSeconds) * time.Second
