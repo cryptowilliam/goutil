@@ -11,6 +11,8 @@ import (
 	"github.com/klauspost/compress/zstd"
 	"github.com/klauspost/pgzip"
 	"io"
+	"net"
+	"time"
 )
 
 type (
@@ -19,31 +21,42 @@ type (
 		gio.Flusher
 	}
 
-	CompStream struct {
+	CompIOStream struct {
 		algo  CompAlgo
 		param *CompParam
-		conn  io.ReadWriteCloser
-		w     WriterFlusher
+		rwc   io.ReadWriteCloser
 		r     io.Reader
+		w     WriterFlusher
+	}
+
+	CompNetStream struct {
+		conn     net.Conn
+		ioStream *CompIOStream
 	}
 )
 
-func (c *CompStream) Read(p []byte) (n int, err error) {
+func (c *CompIOStream) Read(p []byte) (n int, err error) {
 	return c.r.Read(p)
 }
 
-func (c *CompStream) Write(p []byte) (n int, err error) {
+func (c *CompIOStream) Write(p []byte) (n int, err error) {
 	n, err = c.w.Write(p)
-	err = c.w.Flush()
-	return n, err
+	if err != nil {
+		return 0, err
+	}
+	if err := c.w.Flush(); err != nil {
+		return 0, err
+	}
+
+	return n, nil
 }
 
-func (c *CompStream) Close() error {
-	return c.conn.Close()
+func (c *CompIOStream) Close() error {
+	return c.rwc.Close()
 }
 
-func NewStream(compAlgo CompAlgo, param *CompParam, conn io.ReadWriteCloser) (io.ReadWriteCloser, error) {
-	rst := new(CompStream)
+func NewIOStream(compAlgo CompAlgo, param *CompParam, rwc io.ReadWriteCloser) (*CompIOStream, error) {
+	rst := new(CompIOStream)
 	rst.algo = compAlgo
 	if param != nil {
 		*rst.param = *param
@@ -51,58 +64,101 @@ func NewStream(compAlgo CompAlgo, param *CompParam, conn io.ReadWriteCloser) (io
 			return nil, err
 		}
 	}
-	rst.conn = conn
+	rst.rwc = rwc
 	switch compAlgo {
 	case CompAlgoSnappy:
-		rst.r = snappy.NewReader(conn)
-		rst.w = snappy.NewBufferedWriter(conn)
+		rst.r = snappy.NewReader(rwc)
+		rst.w = snappy.NewBufferedWriter(rwc)
 	case CompAlgoS2:
-		rst.r = s2.NewReader(conn)
-		rst.w = s2.NewWriter(conn)
+		rst.r = s2.NewReader(rwc)
+		rst.w = s2.NewWriter(rwc)
 	case CompAlgoGzip:
 		err := error(nil)
-		rst.r, err = gzip.NewReader(conn)
+		rst.r, err = gzip.NewReader(rwc)
 		if err != nil {
 			return nil, err
 		}
-		rst.w = gzip.NewWriter(conn)
+		rst.w = gzip.NewWriter(rwc)
 	case CompAlgoPgZip:
 		err := error(nil)
-		rst.r, err = pgzip.NewReader(conn)
+		rst.r, err = pgzip.NewReader(rwc)
 		if err != nil {
 			return nil, err
 		}
-		rst.w = pgzip.NewWriter(conn)
+		rst.w = pgzip.NewWriter(rwc)
 	case CompAlgoZStd:
 		err := error(nil)
-		rst.r, err = zstd.NewReader(conn)
+		rst.r, err = zstd.NewReader(rwc)
 		if err != nil {
 			return nil, err
 		}
-		rst.w, err = zstd.NewWriter(conn)
+		rst.w, err = zstd.NewWriter(rwc)
 		if err != nil {
 			return nil, err
 		}
 	case CompAlgoZLib:
 		err := error(nil)
-		rst.r, err = zlib.NewReader(conn)
+		rst.r, err = zlib.NewReader(rwc)
 		if err != nil {
 			return nil, err
 		}
-		rst.w = zlib.NewWriter(conn)
+		rst.w = zlib.NewWriter(rwc)
 	case CompAlgoFlate:
-		rst.r = flate.NewReader(conn)
+		rst.r = flate.NewReader(rwc)
 		level := -1 // default level: -1
 		if param != nil {
 			level = param.Level
 		}
 		err := error(nil)
-		rst.w, err = flate.NewWriter(conn, level)
+		rst.w, err = flate.NewWriter(rwc, level)
 		if err != nil {
 			return nil, err
 		}
 	default:
 		return nil, gerrors.New("unsupported compress algorithm %s", compAlgo)
 	}
+	return rst, nil
+}
+
+func (c *CompNetStream) Read(p []byte) (n int, err error) {
+	return c.ioStream.Read(p)
+}
+
+func (c *CompNetStream) Write(p []byte) (n int, err error) {
+	return c.ioStream.Write(p)
+}
+
+func (c *CompNetStream) Close() error {
+	return c.ioStream.Close()
+}
+
+func (c *CompNetStream) LocalAddr() net.Addr {
+	return c.conn.LocalAddr()
+}
+
+func (c *CompNetStream) RemoteAddr() net.Addr {
+	return c.conn.RemoteAddr()
+}
+
+func (c *CompNetStream) SetDeadline(t time.Time) error {
+	return c.conn.SetDeadline(t)
+}
+
+func (c *CompNetStream) SetReadDeadline(t time.Time) error {
+	return c.conn.SetReadDeadline(t)
+}
+
+func (c *CompNetStream) SetWriteDeadline(t time.Time) error {
+	return c.conn.SetWriteDeadline(t)
+}
+
+func NewNetStream(compAlgo CompAlgo, param *CompParam, conn net.Conn) (*CompNetStream, error) {
+	rst := new(CompNetStream)
+	ioStream, err := NewIOStream(compAlgo, param, conn)
+	if err != nil {
+		return nil, err
+	}
+	rst.ioStream = ioStream
+	rst.conn = conn
 	return rst, nil
 }
