@@ -11,7 +11,6 @@ type KcpConn struct {
 	server *Server
 	rw     io.ReadWriteCloser
 	sess   *kcp.UDPSession
-	coms   *compStream
 	addr   string
 }
 
@@ -32,19 +31,11 @@ func (c *KcpConn) SetDeadline(t time.Time) error {
 }
 
 func (c *KcpConn) SetReadDeadline(t time.Time) error {
-	if c.server.opt.NoComp {
-		return c.sess.SetReadDeadline(t)
-	} else {
-		return c.coms.conn.SetReadDeadline(t)
-	}
+	return c.sess.SetReadDeadline(t)
 }
 
 func (c *KcpConn) SetWriteDeadline(t time.Time) error {
-	if c.server.opt.NoComp {
-		return c.sess.SetWriteDeadline(t)
-	} else {
-		return c.coms.conn.SetWriteDeadline(t)
-	}
+	return c.sess.SetWriteDeadline(t)
 }
 
 func (c *KcpConn) LocalAddr() net.Addr {
@@ -56,10 +47,6 @@ func (c *KcpConn) RemoteAddr() net.Addr {
 }
 
 func (c *KcpConn) Close() error {
-	if c.server.opt.NoComp {
-		_ = c.sess.Close()
-	} else {
-		_ = c.coms.Close()
-	}
+	_ = c.sess.Close()
 	return c.rw.Close()
 }

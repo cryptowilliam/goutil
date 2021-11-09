@@ -24,7 +24,6 @@ type Option struct {
 	Crypt       string `json:"crypt"`       /* Must be the same between c-s */
 	DataShard   int    `json:"datashard"`   /* Must be the same between c-s */
 	ParityShard int    `json:"parityshard"` /* Must be the same between c-s */
-	NoComp      bool   `json:"nocomp"`      /* Must be the same between c-s */
 	MTU         int    `json:"mtu"`
 	SndWnd      int    `json:"sndwnd"`
 	RcvWnd      int    `json:"rcvwnd"`
@@ -106,7 +105,6 @@ func DefaultOption(clientSide bool) Option {
 	opt.DataShard = 10
 	opt.ParityShard = 3
 	opt.DSCP = 0
-	opt.NoComp = true
 	opt.AckNodelay = true
 	opt.NoDelay = 0
 	opt.Interval = 50

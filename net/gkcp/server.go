@@ -63,13 +63,8 @@ func (s *Server) Accept() (net.Conn, error) {
 	var uc KcpConn
 	uc.server = s
 	uc.addr = c.RemoteAddr().String()
-	if s.opt.NoComp {
-		uc.sess = c
-		uc.rw = uc.sess
-	} else {
-		uc.coms = newCompStream(c)
-		uc.rw = uc.coms
-	}
+	uc.sess = c
+	uc.rw = uc.sess
 	return &uc, nil
 }
 
