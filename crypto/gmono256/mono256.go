@@ -83,16 +83,16 @@ func randAlphabet() string {
 }
 
 // Encode plaintext data to ciphertext.
-func (cipher *Mono256Cipher) Encode(bs []byte) {
-	for i, v := range bs {
-		bs[i] = cipher.encAlphabet[v]
+func (cipher *Mono256Cipher) Encode(b []byte) {
+	for i, v := range b {
+		b[i] = cipher.encAlphabet[v]
 	}
 }
 
 // Decode from ciphertext data to plaintext.
-func (cipher *Mono256Cipher) Decode(bs []byte) {
-	for i, v := range bs {
-		bs[i] = cipher.decAlphabet[v]
+func (cipher *Mono256Cipher) Decode(b []byte) {
+	for i, v := range b {
+		b[i] = cipher.decAlphabet[v]
 	}
 }
 
