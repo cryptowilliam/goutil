@@ -118,3 +118,8 @@ func NewMono256(encAlphabet *alphabet) *Mono256Cipher {
 		decAlphabet: decAlphabet,
 	}
 }
+
+// NewRandKeyBase64 generates random key in base64 format.
+func NewRandKeyBase64() string {
+	return randAlphabet()
+}
