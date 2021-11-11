@@ -26,10 +26,12 @@ type (
 	}
 )
 
+// Read implements io.ReadWriteCloser.
 func (c *CompReadWriteCloser) Read(p []byte) (n int, err error) {
 	return c.r.Read(p)
 }
 
+// Write implements io.ReadWriteCloser.
 func (c *CompReadWriteCloser) Write(p []byte) (n int, err error) {
 	n, err = c.w.Write(p)
 	if err != nil {
@@ -42,10 +44,12 @@ func (c *CompReadWriteCloser) Write(p []byte) (n int, err error) {
 	return n, nil
 }
 
+// Close implements io.ReadWriteCloser.
 func (c *CompReadWriteCloser) Close() error {
 	return c.rwc.Close()
 }
 
+// NewCompReadWriteCloser create compress-orient ReadWriteCloser.
 func NewCompReadWriteCloser(compAlgo CompAlgo, param *CompParam, rwc io.ReadWriteCloser) (*CompReadWriteCloser, error) {
 	rst := new(CompReadWriteCloser)
 	rst.algo = compAlgo
