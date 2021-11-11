@@ -1,3 +1,5 @@
+// IO enhancements to compression algorithms.
+
 package gcompress
 
 import (
@@ -11,27 +13,16 @@ import (
 	"github.com/klauspost/compress/zstd"
 	"github.com/klauspost/pgzip"
 	"io"
-	"net"
-	"time"
 )
 
 type (
-	WriteFlusher interface {
-		io.Writer
-		gio.Flusher
-	}
-
+	// CompReadWriteCloser implements io.ReadWriteCloser
 	CompReadWriteCloser struct {
 		algo  CompAlgo
 		param *CompParam
 		rwc   io.ReadWriteCloser
 		r     io.Reader
-		w     WriteFlusher
-	}
-
-	CompStream struct {
-		conn            net.Conn
-		readWriteCloser *CompReadWriteCloser
+		w     gio.WriteFlusher
 	}
 )
 
@@ -117,48 +108,5 @@ func NewCompReadWriteCloser(compAlgo CompAlgo, param *CompParam, rwc io.ReadWrit
 	default:
 		return nil, gerrors.New("unsupported compress algorithm %s", compAlgo)
 	}
-	return rst, nil
-}
-
-func (c *CompStream) Read(p []byte) (n int, err error) {
-	return c.readWriteCloser.Read(p)
-}
-
-func (c *CompStream) Write(p []byte) (n int, err error) {
-	return c.readWriteCloser.Write(p)
-}
-
-func (c *CompStream) Close() error {
-	return c.readWriteCloser.Close()
-}
-
-func (c *CompStream) LocalAddr() net.Addr {
-	return c.conn.LocalAddr()
-}
-
-func (c *CompStream) RemoteAddr() net.Addr {
-	return c.conn.RemoteAddr()
-}
-
-func (c *CompStream) SetDeadline(t time.Time) error {
-	return c.conn.SetDeadline(t)
-}
-
-func (c *CompStream) SetReadDeadline(t time.Time) error {
-	return c.conn.SetReadDeadline(t)
-}
-
-func (c *CompStream) SetWriteDeadline(t time.Time) error {
-	return c.conn.SetWriteDeadline(t)
-}
-
-func NewCompStream(compAlgo CompAlgo, param *CompParam, conn net.Conn) (*CompStream, error) {
-	rst := new(CompStream)
-	readWriteCloser, err := NewCompReadWriteCloser(compAlgo, param, conn)
-	if err != nil {
-		return nil, err
-	}
-	rst.readWriteCloser = readWriteCloser
-	rst.conn = conn
 	return rst, nil
 }
