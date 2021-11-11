@@ -16,9 +16,13 @@ type (
 
 // Read implements io.ReadWriteCloser
 func (cipher *ElcRwc) Read(p []byte) (n int, err error) {
-	cipher.rwc.Read(p)
-	err = cipher.cipher.Decrypt(p)
-	return len(p), err
+	nRead, errRead := cipher.rwc.Read(p)
+
+	errDecrypt := error(nil)
+	if nRead > 0 {
+		errDecrypt = cipher.cipher.Decrypt(p[:nRead])
+	}
+	return nRead, gerrors.Join(errRead, errDecrypt)
 }
 
 // Write implements io.ReadWriteCloser
@@ -28,18 +32,12 @@ func (cipher *ElcRwc) Write(p []byte) (n int, err error) {
 		return 0, err
 	}
 
-	wLen, err := cipher.rwc.Write(p)
+	wLen, errWrite := cipher.rwc.Write(p)
+	errDecrypt := error(nil)
 	if wLen < len(p) {
-		errDecrypt := cipher.cipher.Decrypt(p[wLen:]) // restore unsuccessfully written data
-		if errDecrypt != nil {
-			if err == nil {
-				err = errDecrypt
-			} else {
-				err = gerrors.Wrap(err, errDecrypt.Error())
-			}
-		}
+		errDecrypt = cipher.cipher.Decrypt(p[wLen:]) // restore unsuccessfully written data
 	}
-	return wLen, err
+	return wLen, gerrors.Join(errWrite, errDecrypt)
 }
 
 // Close implements io.ReadWriteCloser.
