@@ -41,10 +41,10 @@ func TestMono256Cipher(t *testing.T) {
 	copy(tmp, org)
 	t.Log(tmp)
 	// encode tmp
-	cipher.Encode(tmp)
+	cipher.Encrypt(tmp)
 	t.Log(tmp)
 	// decode tmp
-	cipher.Decode(tmp)
+	cipher.Decrypt(tmp)
 	t.Log(tmp)
 	if !reflect.DeepEqual(org, tmp) {
 		t.Error("Data does not correspond after decoding.")
@@ -58,7 +58,7 @@ func BenchmarkMono256Cipher_Encode(b *testing.B) {
 	bs := make([]byte, _MB_)
 	b.ResetTimer()
 	rand.Read(bs)
-	cipher.Encode(bs)
+	cipher.Encrypt(bs)
 }
 
 func BenchmarkMono256Cipher_Decode(b *testing.B) {
@@ -68,5 +68,5 @@ func BenchmarkMono256Cipher_Decode(b *testing.B) {
 	bs := make([]byte, _MB_)
 	b.ResetTimer()
 	rand.Read(bs)
-	cipher.Decode(bs)
+	cipher.Decrypt(bs)
 }

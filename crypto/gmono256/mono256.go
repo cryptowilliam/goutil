@@ -4,7 +4,7 @@ package gmono256
 This package implements monoalphabetic cipher for single byte, each byte may contain 256 numbers,
 monoalphabetic cipher is also called simple substitution cipher.
 Reference: https://en.wikipedia.org/wiki/Substitution_cipher
-This is a simple encryption algorithm that can be used in applications with low security requirements.
+This is a simple encryption algorithm that can be used in short or low security requirements message transmission.
 */
 
 import (
@@ -15,11 +15,14 @@ import (
 	"time"
 )
 
+// length of codec alphabet, its elements are [0, 255]
 const alphabetLen = 256
 
 type (
+	// codec alphabet
 	alphabet [alphabetLen]byte
 
+	// Mono256Cipher is monoalphabetic cipher codec
 	Mono256Cipher struct {
 		encAlphabet *alphabet // alphabet for encoding
 		decAlphabet *alphabet // alphabet for decoding
@@ -31,14 +34,17 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
+// Len implements sort.Interface
 func (abt *alphabet) Len() int {
 	return alphabetLen
 }
 
+// Less implements sort.Interface
 func (abt *alphabet) Less(i, j int) bool {
 	return abt[i] < abt[j]
 }
 
+// Swap implements sort.Interface
 func (abt *alphabet) Swap(i, j int) {
 	abt[i], abt[j] = abt[j], abt[i]
 }
@@ -82,18 +88,22 @@ func randAlphabet() string {
 	return abt.ToBase64()
 }
 
-// Encode plaintext data to ciphertext.
-func (cipher *Mono256Cipher) Encode(b []byte) {
+// Encrypt plaintext data to ciphertext.
+// It implements `EqualLengthCipher` interface.
+func (cipher *Mono256Cipher) Encrypt(b []byte) error {
 	for i, v := range b {
 		b[i] = cipher.encAlphabet[v]
 	}
+	return nil
 }
 
-// Decode from ciphertext data to plaintext.
-func (cipher *Mono256Cipher) Decode(b []byte) {
+// Decrypt from ciphertext data to plaintext.
+// It implements `EqualLengthCipher` interface.
+func (cipher *Mono256Cipher) Decrypt(b []byte) error {
 	for i, v := range b {
 		b[i] = cipher.decAlphabet[v]
 	}
+	return nil
 }
 
 // NewMono256 create new monoalphabetic cipher codec.
