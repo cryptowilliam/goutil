@@ -114,6 +114,33 @@ func Wrap(err error, message string) gerror {
 	}
 }
 
+// Join combine multiple errors to one error.
+func Join(err error, errs ...error) error {
+	errCount := 0
+	errJoin := ""
+	errLast := error(nil)
+	if err != nil {
+		errCount++
+		errJoin += New("error[%d]:%s;", errCount, err.Error()).Error()
+		errLast = err
+	}
+	for _, v := range errs {
+		if v != nil {
+			errCount++
+			errJoin += New("error[%d]:%s;", errCount, v.Error()).Error()
+			errLast = v
+		}
+	}
+
+	if errCount == 0 {
+		return nil
+	}
+	if errCount == 1 {
+		return errLast
+	}
+	return New(errJoin)
+}
+
 func removeFirstLines(src string, count int) string {
 	if count <= 0 {
 		return src
