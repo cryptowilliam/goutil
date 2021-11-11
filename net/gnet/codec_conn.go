@@ -1,6 +1,7 @@
 package gnet
 
 import (
+	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"io"
 	"net"
 	"time"
@@ -38,8 +39,9 @@ func (c *CodecConn) Write(p []byte) (n int, err error) {
 
 // Close implements net.Conn.
 func (c *CodecConn) Close() error {
-	_ = c.codecReadWriteCloser.Close()
-	return c.conn.Close()
+	errCodec := c.codecReadWriteCloser.Close()
+	errConn := c.conn.Close()
+	return gerrors.Join(errCodec, errConn)
 }
 
 // LocalAddr implements net.Conn.
