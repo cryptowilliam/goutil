@@ -13,6 +13,8 @@ func Dial(network, address string) (net.Conn, error) {
 	switch strings.ToLower(network) {
 	case "tcp":
 		return net.Dial("tcp", address)
+	case "udp":
+		return net.Dial("udp", address)
 	case "kcp":
 		return gkcp.Dial(address)
 	case "quic":
