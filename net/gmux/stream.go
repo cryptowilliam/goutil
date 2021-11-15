@@ -12,6 +12,7 @@ import (
 // Stream implements net.Conn
 type Stream struct {
 	id   uint32
+	name string
 	sess *Session
 
 	buffers [][]byte
@@ -47,9 +48,10 @@ type Stream struct {
 }
 
 // newStream initiates a Stream struct
-func newStream(id uint32, frameSize int, sess *Session) *Stream {
+func newStream(id uint32, streamName string, frameSize int, sess *Session) *Stream {
 	s := new(Stream)
 	s.id = id
+	s.name = streamName
 	s.chReadEvent = make(chan struct{}, 1)
 	s.chUpdate = make(chan struct{}, 1)
 	s.frameSize = frameSize
@@ -63,6 +65,11 @@ func newStream(id uint32, frameSize int, sess *Session) *Stream {
 // ID returns the unique stream ID.
 func (s *Stream) ID() uint32 {
 	return s.id
+}
+
+// Name returns the stream name.
+func (s *Stream) Name() string {
+	return s.name
 }
 
 // Read implements net.Conn

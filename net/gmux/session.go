@@ -111,7 +111,7 @@ func newSession(config *Config, conn io.ReadWriteCloser, client bool) *Session {
 }
 
 // OpenStream is used to create a new stream
-func (s *Session) OpenStream() (*Stream, error) {
+func (s *Session) OpenStream(streamName string) (*Stream, error) {
 	if s.IsClosed() {
 		return nil, io.ErrClosedPipe
 	}
@@ -132,9 +132,11 @@ func (s *Session) OpenStream() (*Stream, error) {
 	}
 	s.nextStreamIDLock.Unlock()
 
-	stream := newStream(sid, s.config.MaxFrameSize, s)
+	stream := newStream(sid, streamName, s.config.MaxFrameSize, s)
 
-	if _, err := s.writeFrame(newFrame(byte(s.config.Version), cmdSYN, sid)); err != nil {
+	synFrame := newFrame(byte(s.config.Version), cmdSYN, sid)
+	synFrame.data = []byte(streamName) // set stream name
+	if _, err := s.writeFrame(synFrame); err != nil {
 		return nil, err
 	}
 
@@ -154,8 +156,8 @@ func (s *Session) OpenStream() (*Stream, error) {
 }
 
 // Open returns a generic ReadWriteCloser
-func (s *Session) Open() (io.ReadWriteCloser, error) {
-	return s.OpenStream()
+func (s *Session) Open(streamName string) (io.ReadWriteCloser, error) {
+	return s.OpenStream(streamName)
 }
 
 // AcceptStream is used to block until the next available stream
@@ -327,9 +329,21 @@ func (s *Session) recvLoop() {
 			switch hdr.Cmd() {
 			case cmdNOP:
 			case cmdSYN:
+				// read stream name
+				streamName := ""
+				if hdr.Length() > 0 {
+					newbuf := defaultAllocator.Get(int(hdr.Length()))
+					if _, err := io.ReadFull(s.conn, newbuf); err == nil {
+						streamName = string(newbuf)
+					} else {
+						s.notifyReadError(err)
+						return
+					}
+				}
+
 				s.streamLock.Lock()
 				if _, ok := s.streams[sid]; !ok {
-					stream := newStream(sid, s.config.MaxFrameSize, s)
+					stream := newStream(sid, streamName, s.config.MaxFrameSize, s)
 					s.streams[sid] = stream
 					select {
 					case s.chAccepts <- stream:

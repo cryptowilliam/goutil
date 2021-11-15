@@ -17,9 +17,6 @@ type Mux interface {
 type MuxStream interface {
 	io.ReadWriteCloser
 	ID() uint32
+	Name() string
 	RemoteAddr() net.Addr
 }
-/*
-var (
-	ErrInvalidProtocol = gerrors.New("invalid protocol")
-)*/

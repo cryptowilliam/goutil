@@ -37,6 +37,7 @@ const (
 )
 
 // Frame defines a packet from or to be multiplexed into a single connection
+// Frame is friendly to upper layer users, but when sending data over the network, the data is not organized by Frame, but by rawHeader.
 type Frame struct {
 	ver  byte
 	cmd  byte
