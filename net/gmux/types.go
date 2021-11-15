@@ -14,7 +14,7 @@ type Mux interface {
 	Close() error
 }
 
-type MuxStream interface {
+type StreamIF interface {
 	io.ReadWriteCloser
 	ID() uint32
 	Name() string
