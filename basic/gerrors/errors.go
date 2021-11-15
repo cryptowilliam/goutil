@@ -141,6 +141,21 @@ func Join(err error, errs ...error) error {
 	return New(errJoin)
 }
 
+func JoinArray(errs []error) error {
+	var errsNotNil []error
+	for _, v := range errs {
+		if v == nil {
+			continue
+		}
+		errsNotNil = append(errsNotNil, v)
+	}
+
+	if len(errsNotNil) == 0 {
+		return nil
+	}
+	return Join(errsNotNil[0], errsNotNil[1:]...)
+}
+
 func removeFirstLines(src string, count int) string {
 	if count <= 0 {
 		return src
