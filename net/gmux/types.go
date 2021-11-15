@@ -6,7 +6,7 @@ import (
 )
 
 type Mux interface {
-	Open() (io.ReadWriteCloser, error)
+	Open(streamName string) (io.ReadWriteCloser, error)
 	Accept() (io.ReadWriteCloser, error)
 	IsClosed() bool
 	NumStreams() int
