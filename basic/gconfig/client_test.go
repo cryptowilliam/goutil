@@ -16,19 +16,19 @@ func TestClient_Load(t *testing.T) {
 
 	s1 := Sample{AEncryptMe: "A", B: "B"}
 	s2 := Sample{}
-	randStr := uuid.New().String()
+	randStr := uuid.New().String()+".json"
 
 	cc, err := NewClient("")
 	gtest.Assert(t, err)
 
 	defer func() {
-		_ = os.Remove(cc.getConfigFilename(randStr, randStr+".json"))
+		_ = os.Remove(cc.getConfigFilePath(randStr))
 	}()
 
 	cc.SetPassword("pwd", "nonce")
-	err = cc.Store(randStr, randStr+".json", &s1)
+	err = cc.Store(randStr, &s1)
 	gtest.Assert(t, err)
-	err = cc.Load(randStr, randStr+".json", &s2, false)
+	err = cc.Load(randStr, &s2, false)
 	gtest.Assert(t, err)
 	if gjson.MarshalStringDefault(s1, false) != gjson.MarshalStringDefault(s2, false) {
 		gtest.PrintlnExit(t, "gconfig.Marshal != gconfig.Unmarshal")

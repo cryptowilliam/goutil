@@ -24,6 +24,7 @@ type (
 	}
 )
 
+// NewClient creates new config client.
 func NewClient(customConfigDir string) (*Client, error) {
 	c := &Client{configs: map[string]string{}}
 
@@ -59,10 +60,12 @@ func NewClient(customConfigDir string) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) getConfigFilename(prefix, key string) string {
-	return filepath.Join(c.cfgDir, prefix+"."+key)
+// getConfigFilePath returns config file full path.
+func (c *Client) getConfigFilePath(configFileName string) string {
+	return filepath.Join(c.cfgDir, configFileName)
 }
 
+// SetPassword sets password for config.
 func (c *Client) SetPassword(password, salt string) {
 	c.password = password
 	c.salt = salt
@@ -104,7 +107,9 @@ func (c *Client) decryptFn(key string, val interface{}) (newVal interface{}, mod
 	return c.cryptFn("decrypt", key, val)
 }
 
-func (c *Client) Store(prefix, key string, v interface{}) error {
+// Store writes config content `v` into file `configFileName`.
+// configFileName is config file short name with suffix, for example `myapp.json`.
+func (c *Client) Store(configFileName string, v interface{}) error {
 	if v == nil || reflect.TypeOf(v) == nil {
 		return gerrors.New("can't marshal nil value")
 	}
@@ -112,62 +117,72 @@ func (c *Client) Store(prefix, key string, v interface{}) error {
 	// Marshal and encrypt from structure.
 	str := ""
 	err := error(nil)
-	if gstring.EndWith(key, ".json") {
+	if gstring.EndWith(configFileName, ".json") {
 		str, err = gjson.MarshalString(v, true)
 		if err != nil {
 			return err
 		}
 		err = gjson.Iterate(&str, true, c.encryptFn) // Encrypt JSON string if necessary.
-	} else if gstring.EndWith(key, ".csv") {
+	} else if gstring.EndWith(configFileName, ".csv") {
 		str, err = gocsv.MarshalString(v)
 	} else {
-		return gerrors.New("unsupported suffix of key %s", key)
+		return gerrors.New("unsupported suffix of config %s", configFileName)
 	}
 	if err != nil {
 		return err
 	}
 
 	// Store into cache and storage.
-	c.configs[strings.Join([]string{prefix, key}, ".")] = str
-	return gfs.StringToFile(str, filepath.Join(c.cfgDir, prefix+"."+key))
+	c.configs[configFileName] = str
+	return gfs.StringToFile(str, filepath.Join(c.cfgDir, configFileName))
 }
 
-func (c *Client) Load(prefix, key string, v interface{}, allowEmpty bool) error {
+// Load loads config and Unmarshal it into `v`.
+// configFileName is config file short name with suffix, for example `myapp.json`.
+func (c *Client) Load(configFileName string, v interface{}, allowEmpty bool) error {
 	// Load config string.
-	cfgVal, ok := c.configs[strings.Join([]string{prefix, key}, ".")]
+	cfgVal, ok := c.configs[configFileName]
 	if (!ok || cfgVal == "") && !allowEmpty {
-		return gerrors.New("can't find config with prefix %s key %s", prefix, key)
+		return gerrors.New("can't find config with %s", configFileName)
 	}
 
 	// Decrypt and unmarshal into output structure.
 	if ok && cfgVal != "" {
-		if gstring.EndWith(strings.ToLower(key), ".json") {
+		if gstring.EndWith(strings.ToLower(configFileName), ".json") {
 			cfgValCopy := cfgVal
 			if err := gjson.Iterate(&cfgValCopy, true, c.decryptFn); err != nil { // Decrypt JSON string if necessary.
 				return err
 			}
 			return json.Unmarshal([]byte(cfgValCopy), v)
-		} else if gstring.EndWith(strings.ToLower(key), ".csv") {
+		} else if gstring.EndWith(strings.ToLower(configFileName), ".csv") {
 			return gocsv.UnmarshalBytes([]byte(cfgVal), v)
 		} else {
-			return gerrors.New("unsupported suffix of key %s", key)
+			return gerrors.New("unsupported suffix of config %s", configFileName)
 		}
 	}
 
 	return nil
 }
 
-// Load config from config file first, then encrypt and store config to disk.
-func (c *Client) LoadAndStore(prefix, key string, v interface{}, allowEmpty bool) error {
-	if err := c.Load(prefix, key, v, allowEmpty); err != nil {
+// LoadAndStore loads config from config file first, then encrypt and store config to disk.
+// configFileName is config file short name with suffix, for example `myapp.json`.
+func (c *Client) LoadAndStore(configFileName string, v interface{}, allowEmpty bool) error {
+	if err := c.Load(configFileName, v, allowEmpty); err != nil {
 		return err
 	}
-	if err := c.Store(prefix, key, v); err != nil {
+	if err := c.Store(configFileName, v); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c *Client) GetConfigDir() string {
+// ConfigFileExists returns true if config file exists.
+// configFileName is config file short name with suffix, for example `myapp.json`.
+func (c *Client) ConfigFileExists(configFileName string) bool {
+	fileName := filepath.Join(c.cfgDir, configFileName)
+	return gfs.FileExits(fileName)
+}
+
+func (c *Client) ConfigDir() string {
 	return c.cfgDir
 }
