@@ -1,3 +1,6 @@
+// MultiListener is a Listener that listens on multiple addresses and ports,
+// and it is used like one Listener.
+
 package gnet
 
 import (
