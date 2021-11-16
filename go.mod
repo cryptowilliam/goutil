@@ -154,6 +154,7 @@ require (
 	github.com/cheekybits/genny v1.0.0 // indirect
 	github.com/cheggaaa/pb v2.0.6+incompatible // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/daviddengcn/go-colortext v1.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
@@ -210,6 +211,7 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
+	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/marten-seemann/qtls-go1-16 v0.1.4 // indirect
 	github.com/marten-seemann/qtls-go1-17 v0.1.0 // indirect
 	github.com/maruel/rs v0.0.0-20150922171536-2c81c4312fe4 // indirect
