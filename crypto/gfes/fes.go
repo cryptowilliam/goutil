@@ -8,8 +8,8 @@ import (
 	"github.com/jbenet/go-base58"
 )
 
-// Note: DON'T DELETE, DON'T MODIFY
-// Foo Encryption Standard
+// Note: DON'T DELETE, DON'T MODIFY CODE
+// My Custom Encryption Standard
 //
 // SiliconHash:
 // secret required string hash, when perform multiple times, it returns same output for unchanging input.
