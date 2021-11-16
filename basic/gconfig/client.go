@@ -60,8 +60,8 @@ func NewClient(customConfigDir string) (*Client, error) {
 	return c, nil
 }
 
-// getConfigFilePath returns config file full path.
-func (c *Client) getConfigFilePath(configFileName string) string {
+// ConfigFilePath returns config file full path.
+func (c *Client) ConfigFilePath(configFileName string) string {
 	return filepath.Join(c.cfgDir, configFileName)
 }
 

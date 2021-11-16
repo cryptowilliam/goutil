@@ -22,7 +22,7 @@ func TestClient_Load(t *testing.T) {
 	gtest.Assert(t, err)
 
 	defer func() {
-		_ = os.Remove(cc.getConfigFilePath(randStr))
+		_ = os.Remove(cc.ConfigFilePath(randStr))
 	}()
 
 	cc.SetPassword("pwd", "nonce")
