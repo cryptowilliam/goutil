@@ -26,13 +26,10 @@ func NewInteract() *Interact {
 	return &Interact{pt: promptui.Prompt{}}
 }
 
-func (t *Interact) Select(first string, others ...string) (string, error) {
-	prompt := promptui.Select{
-		Label: "Select Day",
-		Items: []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
-			"Saturday", "Sunday"},
-	}
-
-	_, result, err := prompt.Run()
+func (t *Interact) Select(label string, options ...string) (string, error) {
+	_, result, err := (&promptui.Select{
+		Label: label,
+		Items: append([]string{}, options...),
+	}).Run()
 	return result, err
 }
