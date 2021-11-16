@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"encoding/binary"
 	"errors"
+	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"io"
 	"net"
 	"sync"
@@ -21,6 +22,8 @@ var (
 	ErrGoAway          = errors.New("stream id overflows, should start a new connection")
 	ErrTimeout         = errors.New("timeout")
 	ErrWouldBlock      = errors.New("operation would block on IO")
+	ErrInvalidCommand  = "invalid command 0x%x"
+	ErrInvalidVersion  = "invalid version %d"
 )
 
 type writeRequest struct {
@@ -322,7 +325,8 @@ func (s *Session) recvLoop() {
 		if _, err := io.ReadFull(s.conn, hdr[:]); err == nil {
 			atomic.StoreInt32(&s.dataReady, 1)
 			if hdr.Version() != byte(s.config.Version) {
-				s.notifyProtoError(ErrInvalidProtocol)
+				// s.notifyProtoError(ErrInvalidProtocol)
+				s.notifyProtoError(gerrors.New(ErrInvalidVersion, hdr.Version()))
 				return
 			}
 			sid := hdr.StreamID()
@@ -386,7 +390,8 @@ func (s *Session) recvLoop() {
 					return
 				}
 			default:
-				s.notifyProtoError(ErrInvalidProtocol)
+				// s.notifyProtoError(ErrInvalidProtocol)
+				s.notifyProtoError(gerrors.New(ErrInvalidCommand, hdr.Cmd()))
 				return
 			}
 		} else {
