@@ -66,7 +66,7 @@ type Session struct {
 	socketReadErrorOnce  sync.Once
 	socketWriteErrorOnce sync.Once
 
-	// smux protocol errors
+	// protocol errors
 	protoError     atomic.Value
 	chProtoError   chan struct{}
 	protoErrorOnce sync.Once
@@ -138,7 +138,9 @@ func (s *Session) OpenStream(streamName string) (*Stream, error) {
 	stream := newStream(sid, streamName, s.config.MaxFrameSize, s)
 
 	synFrame := newFrame(byte(s.config.Version), cmdSYN, sid)
-	synFrame.data = []byte(streamName) // set stream name
+	if len(streamName) > 0 {
+		synFrame.data = []byte(streamName) // set stream name
+	}
 	if _, err := s.writeFrame(synFrame); err != nil {
 		return nil, err
 	}
