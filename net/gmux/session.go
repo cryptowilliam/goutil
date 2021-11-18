@@ -348,6 +348,7 @@ func (s *Session) recvLoop() {
 						return
 					}
 				}
+				fmt.Println(fmt.Sprintf("recv streamName:%s", streamName))
 
 				s.streamLock.Lock()
 				if _, ok := s.streams[sid]; !ok {
