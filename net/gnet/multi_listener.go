@@ -34,9 +34,14 @@ type (
 	}
 )
 
+const acceptBacklog = 4096
+
 // NewMultiListener creates new MultiListener.
 func NewMultiListener() *MultiListener {
-	return &MultiListener{}
+	return &MultiListener{
+		chAccepts: make(chan mlAccepted, acceptBacklog),
+		chDie: make(chan struct{}),
+	}
 }
 
 func (ml *MultiListener) listenRoutine(ln Listener) {
