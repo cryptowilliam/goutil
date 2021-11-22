@@ -4,7 +4,6 @@ import (
 	"container/heap"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"io"
 	"net"
@@ -329,7 +328,7 @@ func (s *Session) recvLoop() {
 			atomic.StoreInt32(&s.dataReady, 1)
 			if hdr.Version() != byte(s.config.Version) {
 				// s.notifyProtoError(ErrInvalidProtocol)
-				fmt.Println(fmt.Sprintf("recv ver:%d, cmd:%d, data-len:%d, sid:%d", hdr.Version(), hdr.Cmd(), hdr.Length(), hdr.StreamID()))
+				//fmt.Println(fmt.Sprintf("recv ver:%d, cmd:%d, data-len:%d, sid:%d", hdr.Version(), hdr.Cmd(), hdr.Length(), hdr.StreamID()))
 				s.notifyProtoError(gerrors.New(ErrInvalidVersion, hdr.Version()))
 				return
 			}
@@ -348,7 +347,7 @@ func (s *Session) recvLoop() {
 						return
 					}
 				}
-				fmt.Println(fmt.Sprintf("recv streamName:%s", streamName))
+				//fmt.Println(fmt.Sprintf("recv streamName:%s", streamName))
 
 				s.streamLock.Lock()
 				if _, ok := s.streams[sid]; !ok {
@@ -481,7 +480,7 @@ func (s *Session) sendLoop() {
 			buf[1] = request.frame.cmd
 			binary.LittleEndian.PutUint16(buf[2:], uint16(len(request.frame.data)))
 			binary.LittleEndian.PutUint32(buf[4:], request.frame.sid)
-			fmt.Println(fmt.Sprintf("send ver:%d, cmd:%d, data-len:%d, sid:%d", buf[0], buf[1], binary.LittleEndian.Uint16(buf[2:]), binary.LittleEndian.Uint32(buf[4:])))
+			//fmt.Println(fmt.Sprintf("send ver:%d, cmd:%d, data-len:%d, sid:%d", buf[0], buf[1], binary.LittleEndian.Uint16(buf[2:]), binary.LittleEndian.Uint32(buf[4:])))
 
 			if len(vec) > 0 {
 				vec[0] = buf[:headerSize]
