@@ -10,6 +10,7 @@ type Mux interface {
 	Accept() (io.ReadWriteCloser, error)
 	IsClosed() bool
 	NumStreams() int
+	LocalAddr() net.Addr
 	RemoteAddr() net.Addr
 	Close() error
 }
@@ -18,5 +19,6 @@ type StreamIF interface {
 	io.ReadWriteCloser
 	ID() uint32
 	Name() string
+	LocalAddr() net.Addr
 	RemoteAddr() net.Addr
 }
