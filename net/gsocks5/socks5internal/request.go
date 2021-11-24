@@ -2,6 +2,7 @@ package socks5internal
 
 import (
 	"fmt"
+	"github.com/cryptowilliam/goutil/net/gaddr"
 	"io"
 	"net"
 	"strconv"
@@ -174,6 +175,15 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 			return net.Dial(net_, addr)
 		}
 	}
+
+	// add host info into context
+	hostInfo := gaddr.UrlHost{
+		Domain: req.realDestAddr.FQDN,
+		IP:     req.realDestAddr.IP.String(),
+		Port:   req.realDestAddr.Port,
+	}
+	context.WithValue(ctx, "host-info", hostInfo)
+
 	target, err := dial(ctx, "tcp", req.realDestAddr.Address())
 	if err != nil {
 		msg := err.Error()
