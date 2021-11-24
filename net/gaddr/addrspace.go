@@ -157,3 +157,7 @@ func CheckIP(ip net.IP) IpType {
 func IsIPString(s string) bool {
 	return CheckIPString(s) != NotIP
 }
+
+func LookupIP(host string) ([]net.IP, error) {
+	return net.LookupIP(host)
+}
