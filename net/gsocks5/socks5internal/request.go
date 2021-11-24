@@ -2,6 +2,8 @@ package socks5internal
 
 import (
 	"fmt"
+	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/container/ginterface"
 	"github.com/cryptowilliam/goutil/net/gaddr"
 	"io"
 	"net"
@@ -201,8 +203,19 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 	defer target.Close()
 
 	// Send success
-	local := target.LocalAddr().(*net.TCPAddr)
-	bind := AddrSpec{IP: local.IP, Port: local.Port}
+	// Both TCP and UDP supported for request connection
+	localIP := net.IP{}
+	localPort := 0
+	if ginterface.Type(target.LocalAddr()) == ginterface.Type(&net.TCPAddr{}) {
+		localIP = target.LocalAddr().(*net.TCPAddr).IP
+		localPort = target.LocalAddr().(*net.TCPAddr).Port
+	} else if ginterface.Type(target.LocalAddr()) == ginterface.Type(&net.UDPAddr{}) {
+		localIP = target.LocalAddr().(*net.UDPAddr).IP
+		localPort = target.LocalAddr().(*net.UDPAddr).Port
+	} else {
+		return gerrors.New("unsupported target connection addr %s", ginterface.Type(target.LocalAddr()))
+	}
+	bind := AddrSpec{IP: localIP, Port: localPort}
 	if err := sendReply(conn, successReply, &bind); err != nil {
 		return fmt.Errorf("Failed to send reply: %v", err)
 	}
