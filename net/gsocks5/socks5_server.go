@@ -2,14 +2,14 @@ package gsocks5
 
 import (
 	"github.com/cryptowilliam/goutil/net/gnet"
-	socks5internal "github.com/cryptowilliam/goutil/net/gsocks5/socks5internal"
+	"github.com/cryptowilliam/goutil/net/gsocks5/socks5internal"
 	"net"
 )
 
 type (
 	Server struct {
-		lis net.Listener
-		srv *socks5internal.Server
+		lis        net.Listener
+		srv        *socks5internal.Server
 		listenAddr string
 		dialer     gnet.DialWithCtxFunc
 	}
