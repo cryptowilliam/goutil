@@ -182,7 +182,7 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 		IP:     req.realDestAddr.IP.String(),
 		Port:   req.realDestAddr.Port,
 	}
-	context.WithValue(ctx, "host-info", hostInfo)
+	ctx = context.WithValue(ctx, "host-info", hostInfo)
 
 	target, err := dial(ctx, "tcp", req.realDestAddr.Address())
 	if err != nil {
