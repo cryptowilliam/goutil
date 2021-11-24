@@ -86,8 +86,8 @@ func VerifyConfig(config *Config) error {
 	return nil
 }
 
-// Server is used to initialize a new server-side connection.
-func Server(conn io.ReadWriteCloser, config *Config) (*Session, error) {
+// NewServer is used to initialize a new server-side connection.
+func NewServer(conn io.ReadWriteCloser, config *Config) (*Session, error) {
 	if config == nil {
 		config = DefaultConfig()
 	}
@@ -97,8 +97,9 @@ func Server(conn io.ReadWriteCloser, config *Config) (*Session, error) {
 	return newSession(config, conn, false), nil
 }
 
-// Client is used to initialize a new client-side connection.
-func Client(conn io.ReadWriteCloser, config *Config) (*Session, error) {
+// NewClient is used to initialize a new client-side connection.
+// It wraps client side underlying net.Conn to upper level multiplexing connection.
+func NewClient(conn io.ReadWriteCloser, config *Config) (*Session, error) {
 	if config == nil {
 		config = DefaultConfig()
 	}
