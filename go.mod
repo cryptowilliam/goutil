@@ -64,10 +64,13 @@ require (
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/kbinani/screenshot v0.0.0-20210720154843-7d3a670d8329
 	github.com/kenshaw/baseconv v0.1.1
+	github.com/klauspost/compress v1.13.6
+	github.com/klauspost/pgzip v1.2.5
 	github.com/liamcurry/domains v0.0.0-20140814060910-2d799f6e350b
 	github.com/likexian/whois v1.12.4
 	github.com/lucas-clemente/quic-go v0.24.0
 	github.com/mailru/easyjson v0.7.7
+	github.com/manifoldco/promptui v0.9.0
 	github.com/marcsauter/single v0.0.0-20201009143647-9f8d81240be2
 	github.com/markcheno/go-talib v0.0.0-20190307022042-cd53a9264d70
 	github.com/matcornic/hermes/v2 v2.1.0
@@ -101,7 +104,9 @@ require (
 	github.com/takama/daemon v1.0.0
 	github.com/taruti/langdetect v0.0.0-20160316071627-327bfa898307
 	github.com/tealeg/xlsx v1.0.5
+	github.com/templexxx/xorsimd v0.4.1
 	github.com/tidwall/gjson v1.10.2
+	github.com/tjfoc/gmsm v1.4.1
 	github.com/tkuchiki/parsetime v0.3.0
 	github.com/tuotoo/qrcode v0.0.0-20190222102259-ac9c44189bf2
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
@@ -144,7 +149,6 @@ require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/aokoli/goutils v1.0.1 // indirect
-	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/azr/backoff v0.0.0-20160115115103-53511d3c7330 // indirect
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
@@ -203,15 +207,12 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
-	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.6 // indirect
-	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/klauspost/reedsolomon v1.9.13 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
-	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/marten-seemann/qtls-go1-16 v0.1.4 // indirect
 	github.com/marten-seemann/qtls-go1-17 v0.1.0 // indirect
 	github.com/maruel/rs v0.0.0-20150922171536-2c81c4312fe4 // indirect
@@ -252,10 +253,8 @@ require (
 	github.com/templexxx/cpu v0.0.1 // indirect
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
 	github.com/templexxx/xor v0.0.0-20191217153810-f85b25db303b // indirect
-	github.com/templexxx/xorsimd v0.4.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/tkuchiki/go-timezone v0.2.2 // indirect
