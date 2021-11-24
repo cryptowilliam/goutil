@@ -41,6 +41,7 @@ type buffersWriter interface {
 	WriteBuffers(v [][]byte) (n int, err error)
 }
 
+// TODO: rename to MuxConn
 // Session defines a multiplexed connection for streams
 type Session struct {
 	conn io.ReadWriteCloser
@@ -83,6 +84,7 @@ type Session struct {
 	writes chan writeRequest
 }
 
+// newSession wraps underlying net.Conn to upper level multiplexing connection.
 func newSession(config *Config, conn io.ReadWriteCloser, client bool) *Session {
 	s := new(Session)
 	s.die = make(chan struct{})

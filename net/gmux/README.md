@@ -21,7 +21,9 @@
 
 ## Introduction
 
-Nmux ( **N**amed **MU**ltiple**X**ing) is a multiplexing library for Golang. It relies on an underlying connection to provide reliability and ordering, such as TCP or [KCP](https://github.com/xtaci/kcp-go), and provides stream-oriented multiplexing. The original intention of this library is to power the connection management for [kcp-go](https://github.com/xtaci/kcp-go).
+gmux makes underlying net.Conn to upper level multiplexing connection, and user could open thousands of logical streams from the upper level multiplexing connection.
+
+gmux ( **N**amed **MU**ltiple**X**ing) is a multiplexing library for Golang. It relies on an underlying connection to provide reliability and ordering, such as TCP or [KCP](https://github.com/xtaci/kcp-go), and provides stream-oriented multiplexing. The original intention of this library is to power the connection management for [kcp-go](https://github.com/xtaci/kcp-go).
 
 ## Features
 

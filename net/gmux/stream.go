@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Stream implements net.Conn
+// Stream implements net.Conn, it is a logical stream.
 type Stream struct {
 	id   uint32
 	name string
