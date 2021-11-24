@@ -203,7 +203,7 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 	defer target.Close()
 
 	// Send success
-	// Both TCP and UDP supported for request connection
+	// Both TCP and UDP supported for request connection, sometimes UDP used when requesting like HTTP3(QUIC).
 	localIP := net.IP{}
 	localPort := 0
 	if ginterface.Type(target.LocalAddr()) == ginterface.Type(&net.TCPAddr{}) {
