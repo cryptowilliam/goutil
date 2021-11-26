@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 import (
 	"strings"

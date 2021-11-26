@@ -1,8 +1,8 @@
-package gaddr_test
+package gnet_test
 
 import (
 	"fmt"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"testing"
 )
 
@@ -21,17 +21,17 @@ import (
 // "ss://method:password@ip:port"
 // "jet://method:password@ip:port"
 func TestParseUrl(t *testing.T) {
-	_, err := gaddr.ParseUrl("socks://127.0.0.1:1086")
+	_, err := gnet.ParseUrl("socks://127.0.0.1:1086")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	_, err = gaddr.ParseUrl("ss://method:password@163.com:1633")
+	_, err = gnet.ParseUrl("ss://method:password@163.com:1633")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	us, err := gaddr.ParseUrl("ss://admin@network:password@me@13.209.69.159:9292")
+	us, err := gnet.ParseUrl("ss://admin@network:password@me@13.209.69.159:9292")
 	if err != nil {
 		t.Error(err)
 		return

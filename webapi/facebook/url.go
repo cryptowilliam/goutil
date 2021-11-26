@@ -3,7 +3,7 @@ package facebook
 import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/container/gstring"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"strings"
 )
 
@@ -18,7 +18,7 @@ const (
 )
 
 func ParseAccountInUrl(urlstr string) string {
-	us, err := gaddr.ParseUrl(urlstr)
+	us, err := gnet.ParseUrl(urlstr)
 	if err != nil || strings.ToLower(us.Domain.SiteDomain) != "facebook.com" {
 		fmt.Println(err)
 		return ""
@@ -38,7 +38,7 @@ func ParseUrl(urlstr string) (ut UrlType, accountName string) {
 		return UrlTypePost, ""
 	}
 
-	us, err := gaddr.ParseUrl(urlstr)
+	us, err := gnet.ParseUrl(urlstr)
 	if err != nil || strings.ToLower(us.Domain.SiteDomain) != "facebook.com" {
 		fmt.Println(err)
 		return UrlTypeUnknown, ""

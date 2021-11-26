@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 // Email such like "HOSTNAME" / "DOMAIN" / "IP" / ":PORT" / "HOSTNAME:PORT" / "DOMAIN:PORT" / "IP:PORT"
 

@@ -3,21 +3,21 @@ package gprobe
 import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/gnum"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"net"
 	"time"
 )
 
 func TCPing(host string, port int, timeout time.Duration) (opened bool, duration time.Duration, err error) {
-	if !gaddr.IsValidPort(port) {
+	if !gnet.IsValidPort(port) {
 		return false, 0, gerrors.Errorf("Invalid port " + gnum.ToString(port))
 	}
 
 	ip := ""
-	if gaddr.IsIPString(host) {
+	if gnet.IsIPString(host) {
 		ip = host
 	} else {
-		ipArr, err := gaddr.LookupIP(host)
+		ipArr, err := gnet.LookupIP(host)
 		if err != nil {
 			return false, 0, err
 		}

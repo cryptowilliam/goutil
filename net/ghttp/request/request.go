@@ -3,8 +3,8 @@ package request
 // Detect as much information as possible from http client request
 
 import (
-	"github.com/cryptowilliam/goutil/net/gaddr"
 	"github.com/cryptowilliam/goutil/net/ghttp"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"github.com/valyala/fasthttp"
 	"strings"
 )
@@ -94,7 +94,7 @@ func parseProxy(headers []Kv) (isViaProxy bool, clientRealIP string) {
 
 			f = strings.ToLower(f)
 			if strings.Contains(k, f) {
-				if gaddr.IsIPString(hd.Value) {
+				if gnet.IsIPString(hd.Value) {
 					clientRealIP = hd.Value
 					break
 				}
@@ -102,7 +102,7 @@ func parseProxy(headers []Kv) (isViaProxy bool, clientRealIP string) {
 
 			f = strings.Replace(f, "-", "_", -1)
 			if strings.Contains(k, f) {
-				if gaddr.IsIPString(hd.Value) {
+				if gnet.IsIPString(hd.Value) {
 					clientRealIP = hd.Value
 					break
 				}

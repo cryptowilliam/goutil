@@ -4,7 +4,7 @@ package gssh
 // https://github.com/yahoo/vssh
 
 import (
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"github.com/melbahja/goph"
 )
 
@@ -28,7 +28,7 @@ func Dial(address, username, password, privateKeyFile, passphrase string) (*Clie
 	}
 
 	// Parse address.
-	us, err := gaddr.ParseUrl(address)
+	us, err := gnet.ParseUrl(address)
 	if err != nil {
 		return nil, err
 	}

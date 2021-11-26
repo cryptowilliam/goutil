@@ -2,9 +2,10 @@ package gproxy
 
 import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/net/gnet"
+
 	// "github.com/GameXG/ProxyClient" // http client using socks5 proxy supported not well
 	"github.com/cryptowilliam/goutil/container/gspeed"
-	"github.com/cryptowilliam/goutil/net/gaddr"
 	"github.com/cryptowilliam/goutil/net/ghttp"
 	"time"
 )
@@ -24,7 +25,7 @@ func CheckProxy(hostAddr string, t string) (*ProxyQuality, error) {
 	if t == "unknown" {
 		return nil, gerrors.New("Unknown proxy type")
 	}
-	_, _, err := gaddr.ParseHostAddrOnline(hostAddr)
+	_, _, err := gnet.ParseHostAddrOnline(hostAddr)
 	if err != nil {
 		return nil, err
 	}

@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 //github.com/joeguo/tldextract
 //github.com/weppos/publicsuffix-go

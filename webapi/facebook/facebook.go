@@ -5,9 +5,9 @@ import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/gnum"
 	"github.com/cryptowilliam/goutil/container/gstring"
-	"github.com/cryptowilliam/goutil/net/gaddr"
 	"github.com/cryptowilliam/goutil/net/ghtml"
 	"github.com/cryptowilliam/goutil/net/ghttp"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"github.com/cryptowilliam/goutil/sys/gtime"
 	"strconv"
 	"time"
@@ -116,7 +116,7 @@ func fbPostGetImageUrls(html *string) ([]string, error) {
 	// https://www.facebook.com/CBSNews/posts/10156746780825950
 	if imageUrl, err := gstring.SubstrBetweenUTF8(*html, `<img class="scaledImageFitWidth img" src="`, `""`, false, true, false, false); err == nil {
 		if len(imageUrl) > 0 {
-			if imageUrl, err = gaddr.DecodeURL(imageUrl); err == nil {
+			if imageUrl, err = gnet.DecodeURL(imageUrl); err == nil {
 				r = append(r, imageUrl)
 			}
 		}
@@ -130,7 +130,7 @@ func fbPostGetVideo(html *string) ([]string, error) {
 	// https://www.facebook.com/CBSNews/videos/2180728382257435
 	if videoUrl, err := gstring.SubstrBetweenUTF8(*html, `<meta property="og:video" content="`, `" />`, false, true, false, false); err == nil {
 		if len(videoUrl) > 0 {
-			if videoUrl, err = gaddr.DecodeURL(videoUrl); err == nil {
+			if videoUrl, err = gnet.DecodeURL(videoUrl); err == nil {
 				r = append(r, videoUrl)
 			}
 		}

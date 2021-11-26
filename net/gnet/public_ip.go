@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
@@ -12,7 +12,7 @@ import (
 )
 
 // get my wan IPs by 3rd party service
-func GetWanIpOL(proxy string) (net.IP, error) {
+func GetPublicIPOL(proxy string) (net.IP, error) {
 	var ipstr string
 	var exist bool
 	var firstCheckWanOnline = true
@@ -40,9 +40,12 @@ func GetWanIpOL(proxy string) (net.IP, error) {
 		resp.Body.Close()
 		ipstr = strings.Trim(ipstr, "\r") // icanhazip.com 的返回结果会带换行符
 		ipstr = strings.Trim(ipstr, "\n")
-		t := CheckIPString(ipstr)
-		if t == IPv4_WAN {
-			return ParseIP(ipstr)
+		t, err := ParseIP(ipstr)
+		if err != nil {
+			return nil, err
+		}
+		if t.IsPublic() && t.IsV4() {
+			return t.Raw(), nil
 		}
 	}
 
@@ -54,9 +57,12 @@ func GetWanIpOL(proxy string) (net.IP, error) {
 	doc, err := ghtml.NewDocFromHtmlSrc(&htmlString)
 	if err == nil {
 		ipstr = doc.Text()
-		t := CheckIPString(ipstr)
-		if t == IPv4_WAN {
-			return ParseIP(ipstr)
+		t, err := ParseIP(ipstr)
+		if err != nil {
+			return nil, err
+		}
+		if t.IsPublic() && t.IsV4() {
+			return t.Raw(), nil
 		}
 	}
 	htmlString, err = ghttp.GetString("http://network-tools.com", proxy, time.Second*5)
@@ -67,9 +73,12 @@ func GetWanIpOL(proxy string) (net.IP, error) {
 	if err == nil {
 		ipstr, exist = doc.Find("#field").First().Attr("value")
 		if exist {
-			t := CheckIPString(ipstr)
-			if t == IPv4_WAN {
-				return ParseIP(ipstr)
+			t, err := ParseIP(ipstr)
+			if err != nil {
+				return nil, err
+			}
+			if t.IsPublic() && t.IsV4() {
+				return t.Raw(), nil
 			}
 		}
 	}

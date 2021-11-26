@@ -50,6 +50,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20211020200912-82fc2684cc48
 	github.com/golang/snappy v0.0.4
 	github.com/google/go-github v17.0.0+incompatible
+	github.com/google/gopacket v1.1.19
 	github.com/google/uuid v1.1.5
 	github.com/gorilla/websocket v1.4.2
 	github.com/goware/urlx v0.3.1

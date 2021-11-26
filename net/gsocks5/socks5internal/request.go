@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/ginterface"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"io"
 	"net"
 	"strconv"
@@ -179,7 +179,7 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 	}
 
 	// add host info into context
-	hostInfo := gaddr.UrlHost{
+	hostInfo := gnet.UrlHost{
 		Domain: req.realDestAddr.FQDN,
 		IP:     req.realDestAddr.IP.String(),
 		Port:   req.realDestAddr.Port,

@@ -5,7 +5,7 @@ import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	. "github.com/cryptowilliam/goutil/database/gdriver"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"github.com/jackc/pgx"
 	"net"
 	"strconv"
@@ -58,7 +58,7 @@ func Parse(s string) (*DSN, error) {
 
 	switch res.Driver {
 	case DragonDB:
-		as, err := gaddr.ParseUrl(s)
+		as, err := gnet.ParseUrl(s)
 		if err != nil {
 			return nil, err
 		}

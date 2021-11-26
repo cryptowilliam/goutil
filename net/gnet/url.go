@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 // http://www.baidu.com/news
 // socks5://username[:password]@host:port

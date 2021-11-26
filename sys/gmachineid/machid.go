@@ -4,7 +4,7 @@ import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/cryptowilliam/goutil/crypto/ghash"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -27,7 +27,7 @@ func MacosHardwareUUID() (string, error) {
 }
 
 func nonMacosPhysicalMACs() (string, error) {
-	ns, err := gaddr.GetAllNicNames()
+	ns, err := gnet.GetAllNicNames()
 	if err != nil {
 		return "", err
 	}
@@ -35,7 +35,7 @@ func nonMacosPhysicalMACs() (string, error) {
 	var macs string
 
 	for _, s := range ns {
-		ni, _ := gaddr.GetNicInfo(s)
+		ni, _ := gnet.GetNicInfo(s)
 		if !ni.IsPhysical {
 			continue
 		}

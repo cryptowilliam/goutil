@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 /*
 func TestCheckLocalPort(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/container/grand"
 	"github.com/cryptowilliam/goutil/container/gstring"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"github.com/cryptowilliam/goutil/safe/gchan"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/cryptowilliam/goutil/sys/gproc"
@@ -162,7 +162,7 @@ func addRecvChan(sess *wxweb.Session, name string, recvch chan RecvMsg) error {
 // recvch可以为空，表示忽略收到的消息
 // 此接口非阻塞
 func NewBot(mode LoginMode, recvch chan RecvMsg, logger glog.Interface) (*Bot, error) {
-	ip, err := gaddr.GetWanIpOL("")
+	ip, err := gnet.GetPublicIPOL("")
 	if err != nil {
 		return nil, err
 	}

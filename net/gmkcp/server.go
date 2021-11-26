@@ -5,7 +5,7 @@ package gmkcp
 
 import (
 	"context"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"net"
 	v2net "v2ray.com/core/common/net"
 	"v2ray.com/core/transport/internet"
@@ -23,7 +23,7 @@ func Listen(listenAddr string) (*Server, error) {
 
 	s.accepts = make(chan net.Conn, 1024)
 
-	lnNetIP, lnPort, err := gaddr.ParseHostAddrOnline(listenAddr)
+	lnNetIP, lnPort, err := gnet.ParseHostAddrOnline(listenAddr)
 	if err != nil {
 		return nil, err
 	}

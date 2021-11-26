@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 import (
 	"net"
@@ -6,7 +6,7 @@ import (
 )
 
 type NicAddr struct {
-	IP      net.IP
+	IP      IP
 	Netmask net.IPMask
 	CIDR    string
 }
@@ -43,7 +43,7 @@ func GetNicInfo(name string) (NicInfo, error) {
 	for _, addr := range addrs {
 		switch v := addr.(type) {
 		case *net.IPNet:
-			na.IP = v.IP
+			na.IP = IP(v.IP)
 			na.Netmask = v.Mask
 		}
 		na.CIDR = addr.String()
@@ -56,11 +56,11 @@ func GetNicInfo(name string) (NicInfo, error) {
 
 func GetAllNicNames() ([]string, error) {
 	var names []string
-	infs, err := net.Interfaces()
+	ifs, err := net.Interfaces()
 	if err != nil {
 		return nil, err
 	}
-	for _, inf := range infs {
+	for _, inf := range ifs {
 		names = append(names, inf.Name)
 	}
 	return names, nil
@@ -72,14 +72,14 @@ func GetAllLANIPv4CIDRs() ([]string, error) {
 		return nil, err
 	}
 
-	cidrs := []string{}
+	var cidrs []string
 	for _, v := range nics {
 		ni, err := GetNicInfo(v)
 		if err != nil {
 			return nil, err
 		}
 		for _, v := range ni.Addrs {
-			if isLANIPv4String(v.IP.String()) {
+			if v.IP.IsPrivate() && v.IP.IsV4() {
 				cidrs = append(cidrs, v.CIDR)
 			}
 		}

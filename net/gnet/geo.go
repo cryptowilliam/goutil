@@ -1,4 +1,4 @@
-package gaddr
+package gnet
 
 import (
 	"github.com/cryptowilliam/goutil/net/ghttp"
@@ -73,7 +73,7 @@ func (gf *GeoFinder) GetByIPString(s string) (*IpGeo, error) {
 	if err != nil {
 		return nil, err
 	}
-	return gf.GetByIP(ip)
+	return gf.GetByIP(ip.Raw())
 }
 
 func (gf *GeoFinder) Close() {

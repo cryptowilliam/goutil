@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/gstring"
-	"github.com/cryptowilliam/goutil/net/gaddr"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"strings"
 )
 
@@ -42,13 +42,13 @@ func (p Provider) String() string {
 // Get receive server: IMAP / POP3
 func (p *Provider) GetReceiveServer() (address string, port int, ssl bool, err error) {
 	if len(p.IMAPAddress) > 0 {
-		us, err := gaddr.ParseUrl(p.IMAPAddress)
+		us, err := gnet.ParseUrl(p.IMAPAddress)
 		if err != nil {
 			return "", 0, false, gerrors.Errorf("GetRecvServer error for %s", p.String())
 		}
 		return us.Host.Domain, us.Host.Port, p.IMAPIsSSL, nil
 	} else if len(p.POP3Address) > 0 {
-		us, err := gaddr.ParseUrl(p.POP3Address)
+		us, err := gnet.ParseUrl(p.POP3Address)
 		if err != nil {
 			return "", 0, false, gerrors.Errorf("GetRecvServer error for %s", p.String())
 		}
@@ -61,13 +61,13 @@ func (p *Provider) GetReceiveServer() (address string, port int, ssl bool, err e
 // Get send server: SMTP / IMAP
 func (p *Provider) GetSendServer() (address string, port int, ssl bool, err error) {
 	if len(p.SMTPAddress) > 0 {
-		us, err := gaddr.ParseUrl(p.SMTPAddress)
+		us, err := gnet.ParseUrl(p.SMTPAddress)
 		if err != nil {
 			return "", 0, false, gerrors.Errorf("GetSendServer error for %s", p.String())
 		}
 		return us.Host.Domain, us.Host.Port, p.SMTPIsSSL, nil
 	} else if len(p.IMAPAddress) > 0 {
-		us, err := gaddr.ParseUrl(p.IMAPAddress)
+		us, err := gnet.ParseUrl(p.IMAPAddress)
 		if err != nil {
 			return "", 0, false, gerrors.Errorf("GetSendServer error for %s", p.String())
 		}
