@@ -125,7 +125,11 @@ func (s *Scanner) scanIfi(ifi net.Interface) error {
 // receiveARP loops until 'chExit' is closed.
 func (s *Scanner) receiveARP(handle *pcap.Handle, ifi net.Interface, chExit chan struct{}) {
 	lookupAddrFirst := func(ip string) string {
-		addr, _ := net.LookupAddr(ip)
+		addr, err := net.LookupAddr(ip)
+		if err != nil {
+			glog.Erro(err)
+			return ""
+		}
 		if len(addr) > 0 {
 			return addr[0]
 		}
