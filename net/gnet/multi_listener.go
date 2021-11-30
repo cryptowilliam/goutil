@@ -13,24 +13,24 @@ import (
 type (
 	mlAccepted struct {
 		network string
-		addr string
-		conn net.Conn
-		err error
+		addr    string
+		conn    net.Conn
+		err     error
 	}
 
 	Listener struct {
-		network string // listening network
-		addr string // listen address
+		network  string       // listening network
+		addr     string       // listen address
 		listener net.Listener // raw listener
-		chDie chan struct{}
+		chDie    chan struct{}
 	}
 
 	MultiListener struct {
-		lns []Listener
-		lnsMtx sync.RWMutex
+		lns       []Listener
+		lnsMtx    sync.RWMutex
 		chAccepts chan mlAccepted
-		chDie chan struct{}
-		wgClose *sync.WaitGroup
+		chDie     chan struct{}
+		wgClose   *sync.WaitGroup
 	}
 )
 
@@ -40,7 +40,7 @@ const acceptBacklog = 4096
 func NewMultiListener() *MultiListener {
 	return &MultiListener{
 		chAccepts: make(chan mlAccepted, acceptBacklog),
-		chDie: make(chan struct{}),
+		chDie:     make(chan struct{}),
 	}
 }
 
@@ -57,7 +57,7 @@ func (ml *MultiListener) listenRoutine(ln Listener) {
 				network: ln.network,
 				addr:    ln.addr,
 				conn:    newConn,
-				err: err,
+				err:     err,
 			}
 			if err != nil {
 				return
@@ -89,9 +89,9 @@ func (ml *MultiListener) AddListen(network, addr string) error {
 // Accept waits for and returns the next connection to the listener.
 func (ml *MultiListener) Accept() (network string, addr string, conn net.Conn, err error) {
 	select {
-	case <- ml.chDie:
+	case <-ml.chDie:
 		return "", "", nil, nil
-	case accepted := <- ml.chAccepts:
+	case accepted := <-ml.chAccepts:
 		return accepted.network, accepted.addr, accepted.conn, accepted.err
 	}
 }

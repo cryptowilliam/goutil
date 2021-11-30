@@ -8,7 +8,8 @@ import (
 )
 
 type (
-	IP net.IP // IP address.
+	// IP address.
+	IP net.IP
 
 	// IPNet defines IP network, or IP range.
 	// Notice:

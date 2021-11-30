@@ -7,7 +7,6 @@ import (
 
 type (
 	Interface net.Interface
-
 )
 
 func WrapIfi(ifi net.Interface) Interface {
@@ -59,22 +58,21 @@ func (ifi *Interface) GetV4() (IP, *IPNet, error) {
 }
 
 func (ifi *Interface) IsUp() bool {
-	return ifi.Raw().Flags & net.FlagUp > 0
+	return ifi.Raw().Flags&net.FlagUp > 0
 }
 
 func (ifi *Interface) IsLoopBack() bool {
-	return ifi.Raw().Flags & net.FlagLoopback != 0
+	return ifi.Raw().Flags&net.FlagLoopback != 0
 }
 
 func (ifi *Interface) IsBroadcast() bool {
-	return ifi.Raw().Flags & net.FlagBroadcast != 0
+	return ifi.Raw().Flags&net.FlagBroadcast != 0
 }
 
 func (ifi *Interface) IsMulticast() bool {
-	return ifi.Raw().Flags & net.FlagMulticast != 0
+	return ifi.Raw().Flags&net.FlagMulticast != 0
 }
 
 func (ifi *Interface) IsPointToPoint() bool {
-	return ifi.Raw().Flags & net.FlagPointToPoint != 0
+	return ifi.Raw().Flags&net.FlagPointToPoint != 0
 }
-
