@@ -109,7 +109,11 @@ func (s *Server) Serve(l net.Listener) error {
 		if err != nil {
 			return err
 		}
-		go s.ServeConn(conn)
+		go func() {
+			if err := s.ServeConn(conn); err != nil {
+				s.config.Logger.Println(err.Error())
+			}
+		}()
 	}
 	return nil
 }
