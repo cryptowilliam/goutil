@@ -36,7 +36,7 @@ type (
 
 var (
 	// SysDNSResolver uses the system DNS to resolve host names
-	SysDNSResolver = NewDNSClient().CleanCustomServers()
+	SysDNSResolver = NewDNSClient().CleanCustomServers().UseSysDNSIfNoCustom(true)
 )
 
 func NewDNSClient() *DNSClient {
