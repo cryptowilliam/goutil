@@ -29,6 +29,8 @@ func Listen(network, address string) (net.Listener, error) {
 	switch strings.ToLower(network) {
 	case "tcp":
 		return net.Listen("tcp", address)
+	case "udp":
+		return net.Listen("udp", address)
 	case "kcp":
 		return gkcp.Listen(address)
 	case "quic":
