@@ -21,7 +21,6 @@ type (
 
 	dnsSrv struct {
 		host string
-		ip string
 		u upstream.Upstream
 	}
 
@@ -41,7 +40,9 @@ var (
 )
 
 func NewDNSClient() *DNSClient {
-	return &DNSClient{}
+	return &DNSClient{
+		customDNSServers: map[string]dnsSrv{},
+	}
 }
 
 // AddCustomDNSServer adds new custom DNS server.
@@ -50,20 +51,25 @@ func NewDNSClient() *DNSClient {
 // Plain: 8.8.4.4
 // Plain: 1.0.0.1
 // Plain: 1.1.1.1
+// Plain: IP:Port
 // DNS-over-TLS: tls://dns.adguard.com
+// DNS-over-HTTPS: https://8.8.8.8/dns-query
 // DNS-over-HTTPS: https://dns.adguard.com/dns-query
-// DNSCrypt stamp: sdns://AQIAAAAAAAAAFDE3Ni4xMDMuMTMwLjEzMDo1NDQzINErR_JS3PLCu_iZEIbq95zkSV2LFsigxDIuUso_OQhzIjIuZG5zY3J5cHQuZGVmYXVsdC5uczEuYWRndWFyZC5jb20
+// DNSCrypt-stamp: sdns://AQIAAAAAAAAAFDE3Ni4xMDMuMTMwLjEzMDo1NDQzINErR_JS3PLCu_iZEIbq95zkSV2LFsigxDIuUso_OQhzIjIuZG5zY3J5cHQuZGVmYXVsdC5uczEuYWRndWFyZC5jb20
 // DNS-over-QUIC: quic://dns.adguard.com
-func (dl *DNSClient) AddCustomDNSServer(host, ip string) error {
+//
+// More public DNS servers:
+// https://github.com/DNSCrypt/dnscrypt-resolvers/blob/master/v3/public-resolvers.md
+func (dl *DNSClient) AddCustomDNSServer(host string) error {
 	opts := &upstream.Options{
 		Timeout:            time.Duration(10) * time.Second,
 		InsecureSkipVerify: false, // don't set it true
 	}
 
-	if len(ip) > 0 {
-		netIP := net.ParseIP(ip)
-		if netIP != nil {
-			return gerrors.New("invalid IP %s", ip)
+	if IsIPString(host) {
+		netIP := net.ParseIP(host)
+		if netIP == nil {
+			return gerrors.New("invalid IP %s", host)
 		}
 		opts.ServerIPAddrs = []net.IP{netIP}
 	}
@@ -75,7 +81,6 @@ func (dl *DNSClient) AddCustomDNSServer(host, ip string) error {
 
 	dl.customDNSServers[host] = dnsSrv{
 		host: host,
-		ip:   ip,
 		u:    u,
 	}
 
