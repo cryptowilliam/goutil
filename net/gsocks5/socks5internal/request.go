@@ -125,15 +125,17 @@ func (s *Server) handleRequest(req *Request, conn conn) error {
 	// Resolve the address if we have a FQDN
 	dest := req.DestAddr
 	if dest.FQDN != "" {
-		ctx_, addr, err := s.config.Resolver.Resolve(ctx, dest.FQDN)
-		if err != nil {
-			if err := sendReply(conn, hostUnreachable, nil); err != nil {
-				return fmt.Errorf("Failed to send reply: %v", err)
-			}
-			return fmt.Errorf("Failed to resolve destination '%v': %v", dest.FQDN, err)
+		addrList, errResolve := s.config.Resolver.LookupIP(dest.FQDN)
+		if errResolve == nil && len(addrList) == 0 {
+			errResolve = gerrors.New("LookupIP(%s) returns none IP", dest.FQDN)
 		}
-		ctx = ctx_
-		dest.IP = addr
+		if errResolve != nil {
+			if errReply := sendReply(conn, hostUnreachable, nil); errReply != nil {
+				return fmt.Errorf("Failed to send reply: %v", errReply)
+			}
+			return fmt.Errorf("Failed to resolve destination '%v': %v", dest.FQDN, errResolve)
+		}
+		dest.IP = addrList[0]
 	}
 
 	// Apply any address rewrites

@@ -3,6 +3,7 @@ package socks5internal
 import (
 	"bufio"
 	"fmt"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"log"
 	"net"
 	"os"
@@ -23,8 +24,8 @@ type Config struct {
 	Credentials CredentialStore
 
 	// Resolver can be provided to do custom name resolution.
-	// Defaults to DNSResolver if not provided.
-	Resolver NameResolver
+	// Defaults to SysDNSResolver if not provided.
+	Resolver gnet.DNSResolver
 
 	// Rules is provided to enable custom logic around permitting
 	// various commands. If not provided, PermitAll is used.
@@ -66,7 +67,7 @@ func New(conf *Config) (*Server, error) {
 
 	// Ensure we have a DNS resolver
 	if conf.Resolver == nil {
-		conf.Resolver = DNSResolver{}
+		conf.Resolver = gnet.SysDNSResolver
 	}
 
 	// Ensure we have a rule set

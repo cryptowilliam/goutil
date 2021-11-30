@@ -12,6 +12,7 @@ type (
 		srv        *socks5internal.Server
 		listenAddr string
 		dialer     gnet.DialWithCtxFunc
+		dnsResolver gnet.DNSResolver
 	}
 )
 
@@ -22,31 +23,26 @@ func NewServer(listenAddr string) *Server {
 	return &Server{listenAddr: listenAddr}
 }
 
-// SetCustomDialer set custom dialer for requests.
+// SetCustomDialer sets custom dialer for requests.
 // This operation is optional.
 func (s *Server) SetCustomDialer(dialer gnet.DialWithCtxFunc) {
 	s.dialer = dialer
+}
+
+// SetCustomDNSResolver sets custom DNS resolver for requests.
+// This operation is optional.
+func (s *Server) SetCustomDNSResolver(dnsResolver gnet.DNSResolver) {
+	s.dnsResolver = dnsResolver
 }
 
 // ListenAndServe start a tcp socks5 proxy server.
 // For now, non-tcp socks5 proxy server is not necessary, so there is no "network" param.
 // listenAddr example: "127.0.0.1:8000"
 func (s *Server) ListenAndServe() error {
-	// Create a SOCKS5 server
-	conf := &socks5internal.Config{}
-	if s.dialer != nil {
-		conf.Dial = s.dialer
-	}
-	server, err := socks5internal.New(conf)
-	if err != nil {
+	if err := s.Listen(); err != nil {
 		return err
 	}
-
-	// Create SOCKS5 proxy on localhost port 8000
-	if err := server.ListenAndServe("tcp", s.listenAddr); err != nil {
-		return err
-	}
-	return nil
+	return s.Serve()
 }
 
 // Listen start a tcp listener.
@@ -55,6 +51,9 @@ func (s *Server) Listen() error {
 	conf := &socks5internal.Config{}
 	if s.dialer != nil {
 		conf.Dial = s.dialer
+	}
+	if s.dnsResolver != nil {
+		conf.Resolver = s.dnsResolver
 	}
 	err := error(nil)
 	s.srv, err = socks5internal.New(conf)
