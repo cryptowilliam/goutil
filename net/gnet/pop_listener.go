@@ -98,6 +98,12 @@ func (l *PopListener) readRoutine() {
 				conn.readBuf.PushBack(buf)
 				conn.Unlock()
 			}
+
+			if n > 0 {
+				time.Sleep(time.Millisecond * 20)
+			} else {
+				time.Sleep(time.Millisecond * 100)
+			}
 		}
 	}
 }
