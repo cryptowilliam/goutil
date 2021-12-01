@@ -19,14 +19,14 @@ type (
 	}
 
 	Listener struct {
-		network  string       // listening network
-		addr     string       // listen address
-		listener net.Listener // raw listener
-		chDie    chan struct{}
+		network string       // listening network
+		addr    string       // listen address
+		ln      net.Listener // raw listener like "tcp", "unix", "udp" ...
+		chDie   chan struct{}
 	}
 
 	MultiListener struct {
-		lns       []Listener
+		lns       []*Listener
 		lnsMtx    sync.RWMutex
 		chAccepts chan mlAccepted
 		chDie     chan struct{}
@@ -44,18 +44,18 @@ func NewMultiListener() *MultiListener {
 	}
 }
 
-func (ml *MultiListener) listenRoutine(ln Listener) {
+func (ml *MultiListener) listenRoutine(l *Listener) {
 	for {
 		select {
 		case <-ml.chDie:
 			return
-		case <-ln.chDie:
+		case <-l.chDie:
 			return
 		default:
-			newConn, err := ln.listener.Accept()
+			newConn, err := l.ln.Accept()
 			ml.chAccepts <- mlAccepted{
-				network: ln.network,
-				addr:    ln.addr,
+				network: l.network,
+				addr:    l.addr,
 				conn:    newConn,
 				err:     err,
 			}
@@ -68,16 +68,17 @@ func (ml *MultiListener) listenRoutine(ln Listener) {
 
 // AddListen add new listen address.
 func (ml *MultiListener) AddListen(network, addr string) error {
-	lnRaw, err := Listen(network, addr)
+	rawLn, err := ListenAny(network, addr)
 	if err != nil {
 		return err
 	}
-
-	ln := Listener{
-		network:  network,
-		addr:     addr,
-		listener: lnRaw,
+	ln := &Listener{
+		network: network,
+		addr:    addr,
+		ln:      rawLn,
+		chDie:   make(chan struct{}),
 	}
+
 	ml.lnsMtx.Lock()
 	ml.lns = append(ml.lns, ln)
 	ml.lnsMtx.Unlock()
@@ -103,7 +104,7 @@ func (ml *MultiListener) CloseOne(network, addr string) error {
 	for _, v := range ml.lns {
 		if v.network == network && v.addr == addr {
 			close(v.chDie)
-			err = v.listener.Close()
+			err = v.ln.Close()
 		}
 	}
 	ml.lnsMtx.RUnlock()
@@ -111,7 +112,7 @@ func (ml *MultiListener) CloseOne(network, addr string) error {
 }
 
 // Close closes all the listeners.
-// Any blocked Accept operations will be unblocked and return errors.
+// Any blocked 'Accept' operations will be unblocked and return errors.
 func (ml *MultiListener) Close() error {
 	close(ml.chDie)
 
@@ -119,8 +120,7 @@ func (ml *MultiListener) Close() error {
 	ml.lnsMtx.RLock()
 	for _, v := range ml.lns {
 		close(v.chDie)
-		err := v.listener.Close()
-		if err != nil {
+		if err := v.ln.Close(); err != nil {
 			errs = append(errs, err)
 		}
 	}
