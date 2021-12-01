@@ -2,9 +2,11 @@ package gnet
 
 import (
 	"container/list"
+	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/safe/gwg"
 	"github.com/cryptowilliam/goutil/sys/galloc"
+	"github.com/pkg/errors"
 	"net"
 	"strings"
 	"sync"
@@ -20,6 +22,8 @@ type (
 		localAddr  net.Addr
 		remoteAddr net.Addr
 		readBuf    *list.List
+		chReadEvent chan struct{}
+		readDeadline time.Time
 	}
 
 	// PopListener is packet-oriented protocols listener.
@@ -32,7 +36,7 @@ type (
 		connList  sync.Map
 		chDie     chan struct{}
 		chAccepts chan *PopConn
-		chErr     chan error
+		chReadErr     chan error
 		wg        *sync.WaitGroup
 	}
 )
@@ -43,6 +47,7 @@ func ListenPop(network, addr string) (*PopListener, error) {
 		addr:      addr,
 		chDie:     make(chan struct{}),
 		chAccepts: make(chan *PopConn, acceptBacklog),
+		chReadErr: make(chan error, 1),
 		alloc:     galloc.NewAllocator(),
 		wg:        gwg.New(),
 	}
@@ -64,6 +69,13 @@ func ListenPop(network, addr string) (*PopListener, error) {
 	return l, nil
 }
 
+func (l *PopListener) notifyReadEvent(pop *PopConn) {
+	select {
+	case pop.chReadEvent <- struct{}{}:
+	default:
+	}
+}
+
 func (l *PopListener) readRoutine() {
 	defer l.wg.Add(-1)
 
@@ -75,7 +87,7 @@ func (l *PopListener) readRoutine() {
 			buf := l.alloc.Get(2000)
 			n, rmtAddr, err := l.ls.ReadFrom(buf)
 			if err != nil {
-				l.chErr <- err
+				l.chReadErr <- err
 				return
 			}
 			buf = buf[:n] // NOTICE: fix buf length to 'n'
@@ -90,6 +102,7 @@ func (l *PopListener) readRoutine() {
 					conn.readBuf = list.New()
 					conn.localAddr = l.Addr()
 					conn.remoteAddr = rmtAddr
+					conn.chReadEvent = make(chan struct{}, 1)
 					conn.l = l
 					l.chAccepts <- conn
 				}
@@ -97,6 +110,7 @@ func (l *PopListener) readRoutine() {
 				conn.Lock()
 				conn.readBuf.PushBack(buf)
 				conn.Unlock()
+				l.notifyReadEvent(conn)
 			}
 
 			if n > 0 {
@@ -112,7 +126,7 @@ func (l *PopListener) Accept() (net.Conn, error) {
 	select {
 	case <-l.chDie:
 		return nil, nil
-	case err := <- l.chErr:
+	case err := <- l.chReadErr:
 		return nil, err
 	case newConn := <-l.chAccepts:
 		return newConn, nil
@@ -133,19 +147,39 @@ func (c *PopConn) Read(b []byte) (int, error) {
 	c.Lock()
 	defer c.Unlock()
 
-	if c.readBuf.Len() == 0 {
-		return 0, nil
-	}
+	for {
+		// deadline for current reading operation
+		var timeout *time.Timer
+		var chTimeout <-chan time.Time
+		if !c.readDeadline.IsZero() {
+			if time.Now().After(c.readDeadline) {
+				return 0, errors.WithStack(fmt.Errorf("read timeout"))
+			}
+			delay := time.Until(c.readDeadline)
+			timeout = time.NewTimer(delay)
+			chTimeout = timeout.C
+		}
 
-	frontBuf := c.readBuf.Front().Value.([]byte)
-	copyLen := copy(b, frontBuf)
-	if copyLen >= len(frontBuf) {
-		c.readBuf.Remove(c.readBuf.Front())
-		return copyLen, nil
-	} else {
-		frontBuf = frontBuf[copyLen:]
-		c.readBuf.Front().Value = frontBuf
-		return copyLen, nil
+		select {
+		case err := <-c.l.chReadErr:
+			return 0, err
+		case <-c.chReadEvent:
+			if c.readBuf.Len() == 0 {
+				return 0, nil
+			}
+			frontBuf := c.readBuf.Front().Value.([]byte)
+			copyLen := copy(b, frontBuf)
+			if copyLen >= len(frontBuf) {
+				c.readBuf.Remove(c.readBuf.Front())
+				return copyLen, nil
+			} else {
+				frontBuf = frontBuf[copyLen:]
+				c.readBuf.Front().Value = frontBuf
+				return copyLen, nil
+			}
+		case <-chTimeout:
+			return 0, errors.WithStack(fmt.Errorf("read timeout"))
+		}
 	}
 }
 
@@ -175,8 +209,10 @@ func (c *PopConn) SetDeadline(t time.Time) error {
 	return nil
 }
 
-// TODO
 func (c *PopConn) SetReadDeadline(t time.Time) error {
+	c.Lock()
+	defer c.Unlock()
+	c.readDeadline = t
 	return nil
 }
 
