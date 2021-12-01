@@ -8,6 +8,7 @@ import (
 	"github.com/miekg/dns"
 	"golang.org/x/net/context"
 	"net"
+	"strings"
 	"sync"
 	"time"
 )
@@ -108,6 +109,21 @@ func (dl *DNSClient) UseSysDNSIfNoCustom(use bool) *DNSClient {
 func (dl *DNSClient) LookupIP(host string) ([]net.IP, error) {
 	dl.RLock()
 	defer dl.RUnlock()
+
+	if IsIPString(host) {
+		ip := net.ParseIP(host)
+		if ip != nil {
+			return []net.IP{ip}, nil
+		}
+	}
+
+	if strings.ToLower(host) == "localhost" {
+		return []net.IP{net.ParseIP("127.0.0.1")}, nil
+	}
+
+	if strings.ToLower(host) == "::1" {
+		return []net.IP{net.ParseIP("::1")}, nil
+	}
 
 	if len(dl.customDNSServers) == 0 {
 		if dl.useSysDNSIfNoCustom {
