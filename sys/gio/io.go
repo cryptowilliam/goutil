@@ -2,7 +2,6 @@ package gio
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -132,7 +131,7 @@ func CopyBuffer(dst io.Writer, src io.Reader, buf []byte) (written int64, err er
 
 	for {
 		nr, er := src.Read(buf)
-		if nr > 0 {fmt.Println("read size - ", nr)
+		if nr > 0 {
 			nw, ew := dst.Write(buf[0:nr])
 			if nw > 0 {
 				written += int64(nw)
