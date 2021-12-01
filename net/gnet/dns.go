@@ -47,11 +47,10 @@ func NewDNSClient() *DNSClient {
 
 // AddCustomDNSServer adds new custom DNS server.
 // host samples:
-// Plain: 8.8.8.8
-// Plain: 8.8.4.4
-// Plain: 1.0.0.1
-// Plain: 1.1.1.1
-// Plain: IP:Port
+// Plain: 8.8.8.8:53
+// Plain: 8.8.4.4:53
+// Plain: 1.0.0.1:53
+// Plain: 1.1.1.1:53
 // DNS-over-TLS: tls://dns.adguard.com
 // DNS-over-HTTPS: https://8.8.8.8/dns-query
 // DNS-over-HTTPS: https://dns.adguard.com/dns-query
