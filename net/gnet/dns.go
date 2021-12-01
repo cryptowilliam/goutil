@@ -21,17 +21,17 @@ type (
 
 	dnsSrv struct {
 		host string
-		u upstream.Upstream
+		u    upstream.Upstream
 	}
 
 	DNSClient struct {
-		customDNSServers map[string]dnsSrv // specified DNS servers
+		customDNSServers    map[string]dnsSrv // specified DNS servers
 		useSysDNSIfNoCustom bool
 		sync.RWMutex
 	}
 
 	ResolveIPAddrWithCtxFunc = func(ctx context.Context, network, address string) (*net.IPAddr, error)
-	LookupIPWithCtxFunc = func(ctx context.Context, host string) ([]net.IP, error)
+	LookupIPWithCtxFunc      = func(ctx context.Context, host string) ([]net.IP, error)
 )
 
 var (
