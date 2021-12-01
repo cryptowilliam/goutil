@@ -25,7 +25,7 @@ type Config struct {
 
 	// Resolver can be provided to do custom name resolution.
 	// Defaults to SysDNSResolver if not provided.
-	Resolver gnet.DNSResolver
+	Resolver gnet.LookupIPWithCtxFunc
 
 	// Rules is provided to enable custom logic around permitting
 	// various commands. If not provided, PermitAll is used.
@@ -54,6 +54,11 @@ type Server struct {
 	authMethods map[uint8]Authenticator
 }
 
+func sysDNSLookup(ctx context.Context, host string) ([]net.IP, error) {
+	log.Println("system DNS lookup", host)
+	return net.LookupIP(host)
+}
+
 // New creates a new Server and potentially returns an error
 func New(conf *Config) (*Server, error) {
 	// Ensure we have at least one authentication method enabled
@@ -67,7 +72,7 @@ func New(conf *Config) (*Server, error) {
 
 	// Ensure we have a DNS resolver
 	if conf.Resolver == nil {
-		conf.Resolver = gnet.SysDNSResolver
+		conf.Resolver = sysDNSLookup
 	}
 
 	// Ensure we have a rule set

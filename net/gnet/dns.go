@@ -1,12 +1,12 @@
 package gnet
 
 import (
+	"context"
 	"github.com/AdguardTeam/dnsproxy/upstream"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/ginterface"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 	"net"
 	"strings"
 	"sync"
@@ -31,8 +31,7 @@ type (
 		sync.RWMutex
 	}
 
-	ResolveIPAddrWithCtxFunc = func(ctx context.Context, network, address string) (*net.IPAddr, error)
-	LookupIPWithCtxFunc      = func(ctx context.Context, host string) ([]net.IP, error)
+	LookupIPWithCtxFunc = func(ctx context.Context, host string) ([]net.IP, error)
 )
 
 var (

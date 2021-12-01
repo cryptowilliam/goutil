@@ -125,7 +125,7 @@ func (s *Server) handleRequest(req *Request, conn conn) error {
 	// Resolve the address if we have a FQDN
 	dest := req.DestAddr
 	if dest.FQDN != "" {
-		addrList, errResolve := s.config.Resolver.LookupIP(dest.FQDN)
+		addrList, errResolve := s.config.Resolver(ctx, dest.FQDN)
 		if errResolve == nil && len(addrList) == 0 {
 			errResolve = gerrors.New("LookupIP(%s) returns none IP", dest.FQDN)
 		}

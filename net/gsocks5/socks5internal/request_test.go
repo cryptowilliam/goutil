@@ -3,7 +3,6 @@ package socks5internal
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/cryptowilliam/goutil/net/gnet"
 	"io"
 	"log"
 	"net"
@@ -52,7 +51,7 @@ func TestRequest_Connect(t *testing.T) {
 	// Make server
 	s := &Server{config: &Config{
 		Rules:    PermitAll(),
-		Resolver: gnet.SysDNSResolver,
+		Resolver: sysDNSLookup,
 		Logger:   log.New(os.Stdout, "", log.LstdFlags),
 	}}
 
@@ -127,7 +126,7 @@ func TestRequest_Connect_RuleFail(t *testing.T) {
 	// Make server
 	s := &Server{config: &Config{
 		Rules:    PermitNone(),
-		Resolver: gnet.SysDNSResolver,
+		Resolver: sysDNSLookup,
 		Logger:   log.New(os.Stdout, "", log.LstdFlags),
 	}}
 

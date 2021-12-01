@@ -12,7 +12,7 @@ type (
 		srv        *socks5internal.Server
 		listenAddr string
 		dialer     gnet.DialWithCtxFunc
-		dnsResolver gnet.DNSResolver
+		dnsResolver gnet.LookupIPWithCtxFunc
 	}
 )
 
@@ -31,7 +31,7 @@ func (s *Server) SetCustomDialer(dialer gnet.DialWithCtxFunc) {
 
 // SetCustomDNSResolver sets custom DNS resolver for requests.
 // This operation is optional.
-func (s *Server) SetCustomDNSResolver(dnsResolver gnet.DNSResolver) {
+func (s *Server) SetCustomDNSResolver(dnsResolver gnet.LookupIPWithCtxFunc) {
 	s.dnsResolver = dnsResolver
 }
 
