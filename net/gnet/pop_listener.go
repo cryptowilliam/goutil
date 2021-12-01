@@ -25,7 +25,6 @@ type (
 	// PopListener is packet-oriented protocols listener.
 	// It implements net.Listener, makes PacketConn used like a net.Listener.
 	PopListener struct {
-		sync.RWMutex
 		network   string
 		addr      string
 		ls        net.PacketConn
@@ -73,12 +72,13 @@ func (l *PopListener) readRoutine() {
 		case <-l.chDie:
 			return
 		default:
-			buf := l.alloc.Get(3000)
+			buf := l.alloc.Get(2000)
 			n, rmtAddr, err := l.ls.ReadFrom(buf)
 			if err != nil {
 				l.chErr <- err
 				return
 			}
+			buf = buf[:n] // NOTICE: fix buf length to 'n'
 
 			var conn *PopConn = nil
 			if n > 0 {
@@ -94,7 +94,9 @@ func (l *PopListener) readRoutine() {
 					l.chAccepts <- conn
 				}
 
+				conn.Lock()
 				conn.readBuf.PushBack(buf)
+				conn.Unlock()
 			}
 		}
 	}
@@ -104,6 +106,8 @@ func (l *PopListener) Accept() (net.Conn, error) {
 	select {
 	case <-l.chDie:
 		return nil, nil
+	case err := <- l.chErr:
+		return nil, err
 	case newConn := <-l.chAccepts:
 		return newConn, nil
 	}
