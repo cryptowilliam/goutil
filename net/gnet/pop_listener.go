@@ -27,7 +27,7 @@ type (
 	PopListener struct {
 		sync.RWMutex
 		network   string
-		address   string
+		addr      string
 		ls        net.PacketConn
 		alloc     *galloc.Allocator
 		connList  sync.Map
@@ -38,10 +38,10 @@ type (
 	}
 )
 
-func ListenPop(network, address string) (*PopListener, error) {
+func ListenPop(network, addr string) (*PopListener, error) {
 	l := &PopListener{
 		network:   network,
-		address:   address,
+		addr:      addr,
 		chDie:     make(chan struct{}),
 		chAccepts: make(chan *PopConn, acceptBacklog),
 		alloc:     galloc.NewAllocator(),
@@ -51,7 +51,7 @@ func ListenPop(network, address string) (*PopListener, error) {
 
 	switch strings.ToLower(network) {
 	case "udp", "udp4", "udp6", "unixgram", "ip:1", "ip:icmp":
-		l.ls, err = net.ListenPacket("udp", address)
+		l.ls, err = net.ListenPacket(network, addr)
 	default:
 		err = gerrors.New("unsupported network %s", network)
 	}
