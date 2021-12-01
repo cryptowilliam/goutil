@@ -35,7 +35,7 @@ var (
 )
 
 func Listen(rpcType RpcType, network, address string) (*Server, error) {
-	netSer, err := gnet.Listen(network, address)
+	netSer, err := gnet.ListenCop(network, address)
 	if err != nil {
 		return nil, err
 	}
