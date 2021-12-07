@@ -6,10 +6,10 @@ import (
 )
 
 type (
-	// ElcRwc wraps io.ReadWriteCloser and EqualLengthCipher
+	// ElcRwc wraps io.ReadWriteCloser and EqLenCipher
 	// and it implements io.ReadWriteCloser
 	ElcRwc struct {
-		cipher EqualLengthCipher
+		cipher EqLenCipher
 		rwc io.ReadWriteCloser
 	}
 )
@@ -46,7 +46,7 @@ func (cipher *ElcRwc) Close() error {
 }
 
 // NewElcRwc create new plaintext ciphertext equal length cipher codec wrapping a `io.ReadWriteCloser`.
-func NewElcRwc(elc EqualLengthCipher, rwc io.ReadWriteCloser) *ElcRwc {
+func NewElcRwc(elc EqLenCipher, rwc io.ReadWriteCloser) *ElcRwc {
 	return &ElcRwc{
 		cipher: elc,
 		rwc:  rwc,
