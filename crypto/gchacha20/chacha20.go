@@ -26,8 +26,8 @@ type (
 
 	// ChaCha20Maker is a stream style ChaCha20-poly-1305 codec generator.
 	ChaCha20Maker struct {
-		chaR *chacha20.Cipher
-		chaW *chacha20.Cipher
+		chaR chacha20.Cipher
+		chaW chacha20.Cipher
 		key []byte
 	}
 
@@ -155,8 +155,8 @@ func NewMakerWithKey(key []byte) (gcrypto.CipherRWCMaker, error) {
 
 	result := &ChaCha20Maker{}
 	result.key = key
-	result.chaR = chaR
-	result.chaW = chaW
+	result.chaR = *chaR
+	result.chaW = *chaW
 	return result, nil
 }
 
@@ -165,14 +165,16 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser) (gcrypto.CipherRWC, error) 
 	if rwc == nil {
 		return nil, gerrors.New("nil rwc")
 	}
+	chaR := m.chaR
+	chaW := m.chaW
 
 	s := &ChaCha20RWC{
 		csr: &cipher.StreamReader{
-			S: m.chaR,
+			S: &chaR,
 			R: rwc,
 		},
 		csw: &cipher.StreamWriter{
-			S: m.chaW,
+			S: &chaW,
 			W: rwc,
 		},
 	}
