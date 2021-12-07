@@ -1,17 +1,33 @@
 package gcrypto
 
+import "io"
+
 type (
 	// Cipher is an algorithm for performing encryption or decryption in cryptography.
 	Cipher string
 
-	// EqualLengthCipher defines the interface for encryption algorithms where
+	// EqLenCipher defines the interface for encryption algorithms where
 	// plaintext and ciphertext have the same length.
-	EqualLengthCipher interface {
-		Encrypt(p []byte) error
-		Decrypt(p []byte) error
+	EqLenCipher interface {
+		Encrypt(b []byte) error
+		Decrypt(b []byte) error
+	}
+
+	// VarLenCipher defines the interface for encryption algorithms where
+	// plaintext and ciphertext have different length.
+	VarLenCipher interface {
+		Encrypt(b []byte) ([]byte, error)
+		Decrypt(b []byte) ([]byte, error)
+	}
+
+	// VarLenCipherStream defines the interface for encryption algorithms where
+	// plaintext and ciphertext have different length.
+	VarLenCipherStream interface {
+		io.ReadWriteCloser
 	}
 )
 
 var (
 	CipherMono256 Cipher = "mono256"
+	CipherChaCha20 Cipher = "chacha20"
 )
