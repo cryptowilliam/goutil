@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/crypto/gcrypto"
 	"golang.org/x/crypto/chacha20"
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/scrypt"
@@ -122,7 +123,7 @@ func (c ChaCha20Cipher) Decrypt(b []byte) ([]byte, error) {
 }
 
 // NewChaCha20Maker creates ChaCha20-poly-1305 stream codec with string passphrase.
-func NewChaCha20Maker(passphrase string) (*ChaCha20Maker, error) {
+func NewChaCha20Maker(passphrase string) (gcrypto.CipherRWCMaker, error) {
 	if len(passphrase) == 0 {
 		return nil, fmt.Errorf("passphrase is required")
 	}
@@ -132,7 +133,7 @@ func NewChaCha20Maker(passphrase string) (*ChaCha20Maker, error) {
 }
 
 // NewMakerWithKey creates ChaCha20-poly-1305 stream codec with bytes key.
-func NewMakerWithKey(key []byte) (*ChaCha20Maker, error) {
+func NewMakerWithKey(key []byte) (gcrypto.CipherRWCMaker, error) {
 	if len(key) != 32 {
 		return nil, fmt.Errorf("invalid key")
 	}
@@ -153,7 +154,7 @@ func NewMakerWithKey(key []byte) (*ChaCha20Maker, error) {
 	return result, nil
 }
 
-func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser) (*ChaCha20RWC, error) {
+func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser) (gcrypto.CipherRWC, error) {
 	// wraps io.ReadWriteCloser
 	if rwc == nil {
 		return nil, gerrors.New("nil rwc")

@@ -10,6 +10,8 @@ This is a simple encryption algorithm that can be used in short or low security 
 import (
 	"encoding/base64"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/crypto/gcrypto"
+	"io"
 	"math/rand"
 	"strings"
 	"time"
@@ -26,6 +28,10 @@ type (
 	Mono256Cipher struct {
 		encAlphabet *alphabet // alphabet for encoding
 		decAlphabet *alphabet // alphabet for decoding
+	}
+
+	Mono256Maker struct {
+		cipher *Mono256Cipher
 	}
 )
 
@@ -122,4 +128,12 @@ func NewMono256(encAlphabet *alphabet) *Mono256Cipher {
 // NewRandKeyBase64 generates random key in base64 format.
 func NewRandKeyBase64() string {
 	return randAlphabet()
+}
+
+func NewCipherRWCMaker(encAlphabet *alphabet) gcrypto.CipherRWCMaker {
+	return &Mono256Maker{cipher: NewMono256(encAlphabet)}
+}
+
+func (m *Mono256Maker) Make(rwc io.ReadWriteCloser) (gcrypto.CipherRWC, error) {
+	return gcrypto.NewEqLenCipherRWC(m.cipher, rwc), nil
 }
