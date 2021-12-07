@@ -20,9 +20,9 @@ type (
 		Decrypt(b []byte) ([]byte, error)
 	}
 
-	// VarLenCipherStream defines the interface for encryption algorithms where
+	// CipherReadWriteCloser defines the interface for encryption algorithms where
 	// plaintext and ciphertext have different length.
-	VarLenCipherStream interface {
+	CipherReadWriteCloser interface {
 		io.ReadWriteCloser
 	}
 )
