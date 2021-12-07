@@ -6,16 +6,16 @@ import (
 )
 
 type (
-	// ElcRwc wraps io.ReadWriteCloser and EqLenCipher
+	// EqLenCipherRwc wraps io.ReadWriteCloser and EqLenCipher
 	// and it implements io.ReadWriteCloser
-	ElcRwc struct {
+	EqLenCipherRwc struct {
 		cipher EqLenCipher
 		rwc io.ReadWriteCloser
 	}
 )
 
 // Read implements io.ReadWriteCloser
-func (cipher *ElcRwc) Read(p []byte) (n int, err error) {
+func (cipher *EqLenCipherRwc) Read(p []byte) (n int, err error) {
 	nRead, errRead := cipher.rwc.Read(p)
 
 	errDecrypt := error(nil)
@@ -26,7 +26,7 @@ func (cipher *ElcRwc) Read(p []byte) (n int, err error) {
 }
 
 // Write implements io.ReadWriteCloser
-func (cipher *ElcRwc) Write(p []byte) (n int, err error) {
+func (cipher *EqLenCipherRwc) Write(p []byte) (n int, err error) {
 	err = cipher.cipher.Encrypt(p)
 	if err != nil {
 		return 0, err
@@ -41,13 +41,13 @@ func (cipher *ElcRwc) Write(p []byte) (n int, err error) {
 }
 
 // Close implements io.ReadWriteCloser.
-func (cipher *ElcRwc) Close() error {
+func (cipher *EqLenCipherRwc) Close() error {
 	return cipher.rwc.Close()
 }
 
-// NewElcRwc create new plaintext ciphertext equal length cipher codec wrapping a `io.ReadWriteCloser`.
-func NewElcRwc(elc EqLenCipher, rwc io.ReadWriteCloser) *ElcRwc {
-	return &ElcRwc{
+// NewEqLenCipherRWC create new plaintext ciphertext equal length cipher codec wrapping a `io.ReadWriteCloser`.
+func NewEqLenCipherRWC(elc EqLenCipher, rwc io.ReadWriteCloser) *EqLenCipherRwc {
+	return &EqLenCipherRwc{
 		cipher: elc,
 		rwc:  rwc,
 	}
