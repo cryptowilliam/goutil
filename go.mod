@@ -3,6 +3,7 @@ module github.com/cryptowilliam/goutil
 go 1.17
 
 require (
+	github.com/AdguardTeam/dnsproxy v0.39.10
 	github.com/ChimeraCoder/anaconda v2.0.0+incompatible
 	github.com/Cubox-/libping v0.0.0-20181204104622-3011f76aad09
 	github.com/Pallinder/go-randomdata v1.2.0
@@ -77,6 +78,7 @@ require (
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 	github.com/melbahja/goph v1.2.1
+	github.com/miekg/dns v1.1.43
 	github.com/mikaa123/imapmq v0.0.0-20161104140140-bd5a5602fd52
 	github.com/mohong122/ip2region v0.0.0-20190505055455-f4ef24f6b03d
 	github.com/mssola/user_agent v0.5.3
@@ -117,6 +119,7 @@ require (
 	github.com/wumansgy/goEncrypt v0.0.0-20210730092718-e359121aa81e
 	github.com/xtaci/kcp-go v5.4.20+incompatible
 	github.com/xtaci/smux v1.5.16
+	github.com/yl2chen/cidranger v1.0.2
 	github.com/zgs225/youdao v1.0.0
 	go.mongodb.org/mongo-driver v1.7.3
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
@@ -134,7 +137,6 @@ require (
 
 require (
 	cloud.google.com/go v0.97.0 // indirect
-	github.com/AdguardTeam/dnsproxy v0.39.10 // indirect
 	github.com/AdguardTeam/golibs v0.10.3 // indirect
 	github.com/ChimeraCoder/tokenbucket v0.0.0-20131201223612-c5a927568de7 // indirect
 	github.com/Masterminds/semver v1.4.2 // indirect
@@ -146,7 +148,6 @@ require (
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/aead/poly1305 v0.0.0-20180717145839-3fee0db0b635 // indirect
 	github.com/ameshkov/dnscrypt/v2 v2.2.3 // indirect
-	github.com/ameshkov/dnslookup v1.5.1 // indirect
 	github.com/ameshkov/dnsstamps v1.0.3 // indirect
 	github.com/anacrolix/envpprof v1.1.1 // indirect
 	github.com/anacrolix/missinggo v1.3.0 // indirect
@@ -230,7 +231,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mattn/go-sqlite3 v1.14.8 // indirect
 	github.com/mdp/qrterminal v0.0.0-20180608133721-ba5dc6cf021f // indirect
-	github.com/miekg/dns v1.1.43 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
