@@ -20,9 +20,13 @@ type (
 		Decrypt(b []byte) ([]byte, error)
 	}
 
-	// CipherReadWriteCloser defines the interface for encryption algorithms where
+	CipherIOMaker interface {
+		Wrap(rwc io.ReadWriteCloser) (CipherIO, error)
+	}
+
+	// CipherIO defines the interface for encryption algorithms where
 	// plaintext and ciphertext have different length.
-	CipherReadWriteCloser interface {
+	CipherIO interface {
 		io.ReadWriteCloser
 	}
 )

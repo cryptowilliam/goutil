@@ -23,9 +23,14 @@ type (
 		key []byte
 	}
 
-	// ChaCha20CipherStream is a stream style ChaCha20-poly-1305 codec.
-	ChaCha20CipherStream struct {
+	// ChaCha20CipherIOMaker is a stream style ChaCha20-poly-1305 codec generator.
+	ChaCha20CipherIOMaker struct {
+		cha *chacha20.Cipher
 		key []byte
+	}
+
+	// ChaCha20CipherIO is a stream style ChaCha20-poly-1305 codec.
+	ChaCha20CipherIO struct {
 		csr *cipher.StreamReader
 		csw *cipher.StreamWriter
 	}
@@ -116,51 +121,59 @@ func (c ChaCha20Cipher) Decrypt(b []byte) ([]byte, error) {
 	return rawData, nil
 }
 
-// NewChaCha20Stream creates ChaCha20-poly-1305 stream codec with string passphrase.
-func NewChaCha20Stream(passphrase string, rwc io.ReadWriteCloser) (*ChaCha20CipherStream, error) {
+// NewChaCha20CipherIOMaker creates ChaCha20-poly-1305 stream codec with string passphrase.
+func NewChaCha20CipherIOMaker(passphrase string) (*ChaCha20CipherIOMaker, error) {
 	if len(passphrase) == 0 {
 		return nil, fmt.Errorf("passphrase is required")
 	}
 	key := passphraseToKey(passphrase)
 
-	return NewChaCha20StreamWithPassKey(key, rwc)
+	return NewChaCha20CipherIOMakerWithPassKey(key)
 }
 
-// NewChaCha20StreamWithPassKey creates ChaCha20-poly-1305 stream codec with bytes key.
-func NewChaCha20StreamWithPassKey(key []byte, rwc io.ReadWriteCloser) (*ChaCha20CipherStream, error) {
+// NewChaCha20CipherIOMakerWithPassKey creates ChaCha20-poly-1305 stream codec with bytes key.
+func NewChaCha20CipherIOMakerWithPassKey(key []byte) (*ChaCha20CipherIOMaker, error) {
 	if len(key) != 32 {
 		return nil, fmt.Errorf("invalid key")
 	}
-	result := &ChaCha20CipherStream{}
-	result.key = key
 
-	// wraps io.ReadWriteCloser
-	if rwc == nil {
-		return result, nil
-	}
 	block, err := chacha20poly1305.NewX(key)
 	if err != nil {
 		return nil, err
 	}
 	nonce := randomBytes(uint16(block.NonceSize()))
-	chacha, err := chacha20.NewUnauthenticatedCipher(key, nonce)
+	cha, err := chacha20.NewUnauthenticatedCipher(key, nonce)
 	if err != nil {
 		return nil, err
 	}
-	result.csr = &cipher.StreamReader{
-		S: chacha,
-		R: rwc,
-	}
-	result.csw = &cipher.StreamWriter{
-		S: chacha,
-		W: rwc,
-	}
 
+	result := &ChaCha20CipherIOMaker{}
+	result.key = key
+	result.cha = cha
 	return result, nil
 }
 
+func (m *ChaCha20CipherIOMaker) Wrap(rwc io.ReadWriteCloser) (*ChaCha20CipherIO, error) {
+	// wraps io.ReadWriteCloser
+	if rwc == nil {
+		return nil, gerrors.New("nil rwc")
+	}
+
+	s := &ChaCha20CipherIO{
+		csr: &cipher.StreamReader{
+			S: m.cha,
+			R: rwc,
+		},
+		csw: &cipher.StreamWriter{
+			S: m.cha,
+			W: rwc,
+		},
+	}
+	return s, nil
+}
+
 // Read decrypts cipher data and write plain data into output buffer.
-func (s ChaCha20CipherStream) Read(b []byte) (int, error) {
+func (s *ChaCha20CipherIO) Read(b []byte) (int, error) {
 	if s.csr == nil {
 		return 0, gerrors.New("uninitialized cipher.StreamReader")
 	}
@@ -168,14 +181,14 @@ func (s ChaCha20CipherStream) Read(b []byte) (int, error) {
 }
 
 // Write encrypts plain data and write cipher data into CipherStreamWriter.
-func (s ChaCha20CipherStream) Write(b []byte) (int, error) {
+func (s *ChaCha20CipherIO) Write(b []byte) (int, error) {
 	if s.csw == nil {
 		return 0, gerrors.New("uninitialized cipher.StreamWriter")
 	}
 	return s.csw.Write(b)
 }
 
-func (s ChaCha20CipherStream) Close() error {
+func (s *ChaCha20CipherIO) Close() error {
 	return s.csw.Close()
 }
 
