@@ -89,7 +89,7 @@ func randAlphabet() string {
 }
 
 // Encrypt plaintext data to ciphertext.
-// It implements `EqualLengthCipher` interface.
+// It implements `EqLenCipher` interface.
 func (cipher *Mono256Cipher) Encrypt(b []byte) error {
 	for i, v := range b {
 		b[i] = cipher.encAlphabet[v]
@@ -98,7 +98,7 @@ func (cipher *Mono256Cipher) Encrypt(b []byte) error {
 }
 
 // Decrypt from ciphertext data to plaintext.
-// It implements `EqualLengthCipher` interface.
+// It implements `EqLenCipher` interface.
 func (cipher *Mono256Cipher) Decrypt(b []byte) error {
 	for i, v := range b {
 		b[i] = cipher.decAlphabet[v]
