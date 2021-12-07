@@ -130,8 +130,13 @@ func NewRandKeyBase64() string {
 	return randAlphabet()
 }
 
-func NewCipherRWCMaker(encAlphabet *alphabet) gcrypto.CipherRWCMaker {
-	return &Mono256Maker{cipher: NewMono256(encAlphabet)}
+func NewCipherRWCMaker(b64alphabet string) (gcrypto.CipherRWCMaker, error) {
+	encAlphabet, err := Base64ToAlphabet(b64alphabet)
+	if err != nil {
+		return nil, err
+	}
+	
+	return &Mono256Maker{cipher: NewMono256(encAlphabet)}, nil
 }
 
 func (m *Mono256Maker) Make(rwc io.ReadWriteCloser) (gcrypto.CipherRWC, error) {
