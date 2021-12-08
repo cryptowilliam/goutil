@@ -95,7 +95,7 @@ func ScreenshotPhantomJS(urlStr, path string, offscreen bool) error {
 	defer os.Remove(jsFile)
 	app := "phantomjs"
 	if offscreen {
-		app = "QT_QPA_PLATFORM=offscreen phantomjs"
+		app = "QT_QPA_PLATFORM=offscreen; phantomjs"
 	}
 	return gcmd.ExecWaitPrintScreen(app, jsFile, urlStr, path)
 }
