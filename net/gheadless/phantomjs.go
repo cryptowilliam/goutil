@@ -19,9 +19,9 @@ Fix problem with run `QT_QPA_PLATFORM=offscreen phantomjs` instead of `phantomjs
 import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/container/grand"
-	"github.com/cryptowilliam/goutil/sys/gcmd"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"os"
+	"os/exec"
 )
 
 const (
@@ -95,9 +95,7 @@ func ScreenshotPhantomJS(urlStr, path string, offscreen bool) error {
 	defer os.Remove(jsFile)
 	app := "phantomjs"
 	if offscreen {
-		if err := gcmd.ExecWaitPrintScreen("export QT_QPA_PLATFORM=offscreen"); err != nil {
-			return err
-		}
+		app = "QT_QPA_PLATFORM=offscreen phantomjs"
 	}
-	return gcmd.ExecWaitPrintScreen(app, jsFile, urlStr, path)
+	return exec.Command("bash", "-c", fmt.Sprintf("%s %s %s %s", app, jsFile, urlStr, path)).Wait()
 }
