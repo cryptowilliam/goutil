@@ -116,7 +116,7 @@ func ScreenshotPhantomJS(urlStr, path, proxy string, offscreen bool, log glog.In
 
 	cmdline := fmt.Sprintf("phantomjs %s %s %s", jsFile, urlStr, path)
 	if offscreen {
-		cmdline = "QT_QPA_PLATFORM=offscreen phantomjs" + cmdline
+		cmdline = "QT_QPA_PLATFORM=offscreen " + cmdline
 	}
 	if proxyType != "" && proxyHost != "" {
 		cmdline += fmt.Sprintf(" --proxy-type=%s --proxy=%s", proxyType, proxyHost)
