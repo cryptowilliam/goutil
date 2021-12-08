@@ -18,10 +18,13 @@ Fix problem with run `QT_QPA_PLATFORM=offscreen phantomjs` instead of `phantomjs
 
 import (
 	"fmt"
+	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/container/grand"
 	"github.com/cryptowilliam/goutil/sys/gcmd"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"os"
+	"strings"
 )
 
 const (
@@ -86,16 +89,40 @@ if (system.args.length < 3 || system.args.length > 5) {
 }`
 )
 
-func ScreenshotPhantomJS(urlStr, path string, offscreen bool) error {
-	fmt.Println(urlStr)
+func ScreenshotPhantomJS(urlStr, path, proxy string, offscreen bool, log glog.Interface) error {
+	proxyType := ""
+	proxyHost := ""
+	if proxy != "" {
+		errUnknownProxy := gerrors.New("unsupported proxy %s", proxy)
+		ss := strings.Split(proxy, "://")
+		if len(ss) != 2 {
+			return errUnknownProxy
+		}
+		if strings.ToLower(ss[0]) == "http" ||
+			strings.ToLower(ss[0]) == "https" ||
+			strings.ToLower(ss[0]) == "socks5" {
+			proxyType = strings.ToLower(ss[0])
+			proxyHost = strings.ToLower(ss[1])
+		} else {
+			return errUnknownProxy
+		}
+	}
+
 	jsFile := grand.RandomString(10) + ".js"
 	if err := gfs.StringToFile(rasterizeJS, jsFile); err != nil {
 		return err
 	}
 	defer os.Remove(jsFile)
-	app := "phantomjs"
+
+	cmdline := fmt.Sprintf("phantomjs %s %s %s", jsFile, urlStr, path)
 	if offscreen {
-		app = "QT_QPA_PLATFORM=offscreen phantomjs"
+		cmdline = "QT_QPA_PLATFORM=offscreen phantomjs" + cmdline
 	}
-	return gcmd.ExecWaitPrintScreen("bash", "-c", fmt.Sprintf("%s %s %s %s", app, jsFile, urlStr, path))
+	if proxyType != "" && proxyHost != "" {
+		cmdline += fmt.Sprintf(" --proxy-type=%s --proxy=%s", proxyType, proxyHost)
+	}
+
+	log.Infof("run cmd: %s", cmdline)
+
+	return gcmd.ExecWaitPrintScreen("bash", "-c", cmdline)
 }

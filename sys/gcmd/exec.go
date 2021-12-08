@@ -93,6 +93,7 @@ func ExecWaitReturn(name string, arg ...string) ([]byte, error) {
 	return exec.Command(name, arg...).CombinedOutput()
 }
 
+// ExecShell run command line just like in the terminal.
 func ExecShell(shellCommand string) ([]byte, error) {
 	return exec.Command("sh", "-c", shellCommand).CombinedOutput()
 }
