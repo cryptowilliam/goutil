@@ -1,6 +1,8 @@
 package gcrypto
 
-import "io"
+import (
+	"io"
+)
 
 type (
 	// Cipher is an algorithm for performing encryption or decryption in cryptography.
@@ -21,7 +23,7 @@ type (
 	}
 
 	CipherRWCMaker interface {
-		Make(rwc io.ReadWriteCloser) (CipherRWC, error)
+		Make(rwc io.ReadWriteCloser, readNonce bool, nonceCodec EqLenCipher) (CipherRWC, error)
 	}
 
 	// CipherRWC defines the interface for encryption algorithms where

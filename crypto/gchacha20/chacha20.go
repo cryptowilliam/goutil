@@ -1,5 +1,12 @@
 package gchacha20
 
+/**
+Attention should be paid to the fact that not only the same passphrase
+should be used for decryption, but also the same random number (nonce).
+If the random number used for decryption is different from that used for
+encryption, it will not be decrypted correctly.
+*/
+
 import (
 	"bufio"
 	"bytes"
@@ -45,11 +52,11 @@ func NewChaCha20(passphrase string) (*ChaCha20Cipher, error) {
 	}
 	key := passphraseToKey(passphrase)
 
-	return NewChaCha20WithPassKey(key)
+	return NewChaCha20WithKey(key)
 }
 
-// NewChaCha20WithPassKey creates ChaCha20-poly-1305 codec with bytes key.
-func NewChaCha20WithPassKey(key []byte) (*ChaCha20Cipher, error) {
+// NewChaCha20WithKey creates ChaCha20-poly-1305 codec with bytes key.
+func NewChaCha20WithKey(key []byte) (*ChaCha20Cipher, error) {
 	if len(key) != 32 {
 		return nil, fmt.Errorf("invalid key")
 	}
@@ -139,42 +146,69 @@ func NewMakerWithKey(key []byte) (gcrypto.CipherRWCMaker, error) {
 		return nil, fmt.Errorf("invalid key")
 	}
 
-	block, err := chacha20poly1305.NewX(key)
-	if err != nil {
-		return nil, err
-	}
-	nonce := randomBytes(uint16(block.NonceSize()))
-	chaR, err := chacha20.NewUnauthenticatedCipher(key, nonce)
-	if err != nil {
-		return nil, err
-	}
-	chaW, err := chacha20.NewUnauthenticatedCipher(key, nonce)
-	if err != nil {
-		return nil, err
-	}
-
 	result := &ChaCha20Maker{}
 	result.key = key
-	result.chaR = *chaR
-	result.chaW = *chaW
 	return result, nil
 }
 
 // Make wraps io.ReadWriteCloser and generate a CipherRWC.
-func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser) (gcrypto.CipherRWC, error) {
+func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce bool, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
 	if rwc == nil {
 		return nil, gerrors.New("nil rwc")
 	}
-	chaR := m.chaR
-	chaW := m.chaW
+
+	// read or write nonce
+	correctNonceSize, err := getNonceSize(m.key)
+	if err != nil {
+		return nil, err
+	}
+	var nonce []byte
+	if readNonce { // Read nonce from writer side.
+		nonce = make([]byte, correctNonceSize)
+		_, err = io.ReadFull(rwc, nonce)
+		if err != nil {
+			return nil, err
+		}
+		if nonceCodec != nil {
+			if err := nonceCodec.Decrypt(nonce); err != nil {
+				return nil, err
+			}
+		}
+	} else { // Don't read nonce, should generate and write nonce.
+		nonce, err = generateNonce(m.key)
+		if err != nil {
+			return nil, err
+		}
+		if nonceCodec != nil {
+			if err := nonceCodec.Encrypt(nonce); err != nil {
+				return nil, err
+			}
+		}
+		n, err := rwc.Write(nonce[:correctNonceSize])
+		if err != nil {
+			return nil, err
+		}
+		if n != correctNonceSize {
+			return nil, gerrors.New("write nonce size %d != correct nonce size %d", n, correctNonceSize)
+		}
+	}
+
+	chaR, err := chacha20.NewUnauthenticatedCipher(m.key, nonce)
+	if err != nil {
+		return nil, err
+	}
+	chaW, err := chacha20.NewUnauthenticatedCipher(m.key, nonce)
+	if err != nil {
+		return nil, err
+	}
 
 	s := &ChaCha20RWC{
 		csr: &cipher.StreamReader{
-			S: &chaR,
+			S: chaR,
 			R: rwc,
 		},
 		csw: &cipher.StreamWriter{
-			S: &chaW,
+			S: chaW,
 			W: rwc,
 		},
 	}
@@ -221,4 +255,20 @@ func passphraseToKey(passphrase string) []byte {
 		panic("invalid key length after hashing")
 	}
 	return key
+}
+
+func getNonceSize(key []byte) (int, error) {
+	block, err := chacha20poly1305.NewX(key)
+	if err != nil {
+		return 0, err
+	}
+	return block.NonceSize(), nil
+}
+
+func generateNonce(key []byte) ([]byte, error) {
+	block, err := chacha20poly1305.NewX(key)
+	if err != nil {
+		return nil, err
+	}
+	return randomBytes(uint16(block.NonceSize())), nil
 }
