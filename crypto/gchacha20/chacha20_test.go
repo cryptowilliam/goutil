@@ -9,8 +9,6 @@ import (
 )
 
 func TestChaCha20RWC_Read_Write(t *testing.T) {
-
-
 	plain := "0123456789"
 	filepath := "chacha20_test.bin"
 	passphrase := "this-is-a-passphrase"
