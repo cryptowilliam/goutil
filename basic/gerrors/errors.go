@@ -102,6 +102,10 @@ func Errorf(format string, args ...interface{}) gerror {
 
 // Wrap error to GErr.
 func Wrap(err error, message string) gerror {
+	if err == nil {
+		return nil
+	}
+
 	if IsGerror(err) {
 		return err.(gerror)
 	} else {
