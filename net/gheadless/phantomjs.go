@@ -1,5 +1,21 @@
 package gheadless
 
+/**
+If run `phantomjs` report error:
+qt.qpa.xcb: could not connect to display
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: eglfs, linuxfb, minimal, minimalegl, offscreen, vnc, xcb.
+
+PhantomJS has crashed. Please read the bug reporting guide at
+<http://phantomjs.org/bug-reporting.html> and file a bug report.
+Aborted (core dumped)
+
+
+Fix problem with run `QT_QPA_PLATFORM=offscreen phantomjs` instead of `phantomjs`.
+*/
+
 import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/container/grand"
@@ -70,12 +86,16 @@ if (system.args.length < 3 || system.args.length > 5) {
 }`
 )
 
-func ScreenshotPhantomJS(urlStr, path string) error {
+func ScreenshotPhantomJS(urlStr, path string, offscreen bool) error {
 	fmt.Println(urlStr)
 	jsFile := grand.RandomString(10) + ".js"
 	if err := gfs.StringToFile(rasterizeJS, jsFile); err != nil {
 		return err
 	}
 	defer os.Remove(jsFile)
-	return gcmd.ExecWaitPrintScreen("phantomjs", jsFile, urlStr, path)
+	app := "phantomjs"
+	if offscreen {
+		app = "QT_QPA_PLATFORM=offscreen phantomjs"
+	}
+	return gcmd.ExecWaitPrintScreen(app, jsFile, urlStr, path)
 }
