@@ -5,8 +5,8 @@ package gheadless
 import (
 	"context"
 	"github.com/chromedp/chromedp"
+	"github.com/cryptowilliam/goutil/basic/glog"
 	"io/ioutil"
-	"log"
 	"strings"
 )
 
@@ -19,7 +19,7 @@ func NewChrome() *ChromeHeadless {
 	return &ChromeHeadless{}
 }
 
-func (ch *ChromeHeadless) Screenshot(urlStr, proxy, pathToSavePNG string) error {
+func (ch *ChromeHeadless) Screenshot(urlStr, pathToSavePNG, proxy string, log glog.Interface) error {
 	// fix urlStr, chromedp doesn't accept URL without "http://" or "https://"
 	if !strings.HasPrefix(strings.ToLower(urlStr), "http://") && !strings.HasPrefix(strings.ToLower(urlStr), "https://") {
 		urlStr = "http://"+urlStr
@@ -44,8 +44,10 @@ func (ch *ChromeHeadless) Screenshot(urlStr, proxy, pathToSavePNG string) error 
 	defer cancel()
 
 	// log the protocol messages to understand how it works.
-	ctx, cancel = chromedp.NewContext(ctx, chromedp.WithDebugf(log.Printf))
-	defer cancel()
+	if log != nil {
+		ctx, cancel = chromedp.NewContext(ctx, chromedp.WithDebugf(log.Debgf))
+		defer cancel()
+	}
 
 	// capture entire browser viewport, returning png with quality=90
 	var buf []byte
