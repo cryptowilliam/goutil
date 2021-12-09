@@ -40,6 +40,7 @@ var (
 	ErrNotFound       = stdErr.New("not found") // This is not a really run error, it means Database/Collection not exist in mongodb.
 	ErrNotSupport     = stdErr.New("not support")
 	ErrNotImplemented = stdErr.New("not implemented")
+	ErrTimeout		  = stdErr.New("timeout")
 )
 
 // Implements error interface, stack will not display in output.
