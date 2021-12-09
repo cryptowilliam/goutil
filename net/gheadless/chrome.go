@@ -44,10 +44,16 @@ func (ch *ChromeHeadless) Screenshot(urlStr, pathToSavePNG, proxy string, log gl
 	defer cancel()
 
 	// log the protocol messages to understand how it works.
+	debugFunc := func(string, ...interface{}) {}
 	if log != nil {
-		ctx, cancel = chromedp.NewContext(ctx, chromedp.WithDebugf(log.Debgf))
-		defer cancel()
+		debugFunc = log.Debgf
 	}
+	// Note:
+	// If remove two lines code below, Screenshot() will report "invalid context",
+	// so if input "log" is nil, we give it a fake debug callback,
+	// I don't know why.
+	ctx, cancel = chromedp.NewContext(ctx, chromedp.WithDebugf(debugFunc))
+	defer cancel()
 
 	// capture entire browser viewport, returning png with quality=90
 	var buf []byte
