@@ -69,7 +69,7 @@ func (ch *ChromeHeadless) Screenshot(urlStr, pathToSavePNG, proxy string, log gl
 			chDone <- err
 			return
 		}
-		chDone <- nil
+		close(chDone) // "chan error" returns nil after close() action
 	}()
 
 	// wait screenshot result
