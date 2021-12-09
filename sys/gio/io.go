@@ -2,7 +2,6 @@ package gio
 
 import (
 	"bytes"
-	"github.com/cryptowilliam/goutil/basic/glog"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -13,7 +12,9 @@ import (
 type SetDeadlineCallback func(t time.Time) error
 type CopiedSizeCallback func(size int64)
 
-func StreamExchange(s1, s2 io.ReadWriteCloser, log glog.Interface) {
+type ErrNotify func(err error)
+
+func StreamExchange(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
 	// Memory optimized io.Copy function specified for this library
 	const bufSize = 4096
 	genericCopy := func(dst io.Writer, src io.Reader) (written int64, err error) {
@@ -36,7 +37,7 @@ func StreamExchange(s1, s2 io.ReadWriteCloser, log glog.Interface) {
 	streamCopy := func(dst io.Writer, src io.ReadCloser) {
 		if _, err := genericCopy(dst, src); err != nil {
 			if err != nil {
-				log.Erro(err)
+				errNotify(err)
 			}
 		}
 		s1.Close()
