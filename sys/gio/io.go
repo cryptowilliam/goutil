@@ -2,6 +2,7 @@ package gio
 
 import (
 	"bytes"
+	"github.com/cryptowilliam/goutil/basic/glog"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -11,6 +12,40 @@ import (
 
 type SetDeadlineCallback func(t time.Time) error
 type CopiedSizeCallback func(size int64)
+
+func StreamExchange(s1, s2 io.ReadWriteCloser, log glog.Interface) {
+	// Memory optimized io.Copy function specified for this library
+	const bufSize = 4096
+	genericCopy := func(dst io.Writer, src io.Reader) (written int64, err error) {
+		// If the reader has a WriteTo method, use it to do the copy.
+		// Avoids an allocation and a copy.
+		if wt, ok := src.(io.WriterTo); ok {
+			return wt.WriteTo(dst)
+		}
+		// Similarly, if the writer has a ReadFrom method, use it to do the copy.
+		if rt, ok := dst.(io.ReaderFrom); ok {
+			return rt.ReadFrom(src)
+		}
+
+		// fallback to standard io.CopyBuffer
+		buf := make([]byte, bufSize)
+		return io.CopyBuffer(dst, src, buf)
+	}
+
+	// start tunnel & wait for tunnel termination
+	streamCopy := func(dst io.Writer, src io.ReadCloser) {
+		if _, err := genericCopy(dst, src); err != nil {
+			if err != nil {
+				log.Erro(err)
+			}
+		}
+		s1.Close()
+		s2.Close()
+	}
+
+	go streamCopy(s2, s1)
+	streamCopy(s1, s2)
+}
 
 // Forked from standard library io.Copy
 func CopyTimeout(dst io.Writer, dstWriteCb SetDeadlineCallback, src io.Reader, srcReadCb SetDeadlineCallback, timeout time.Duration) (written int64, err error) {
