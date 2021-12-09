@@ -5,9 +5,11 @@ package gheadless
 import (
 	"context"
 	"github.com/chromedp/chromedp"
+	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/glog"
 	"io/ioutil"
 	"strings"
+	"time"
 )
 
 type (
@@ -19,7 +21,7 @@ func NewChrome() *ChromeHeadless {
 	return &ChromeHeadless{}
 }
 
-func (ch *ChromeHeadless) Screenshot(urlStr, pathToSavePNG, proxy string, log glog.Interface) error {
+func (ch *ChromeHeadless) Screenshot(urlStr, pathToSavePNG, proxy string, log glog.Interface, timeout time.Duration) error {
 	// fix urlStr, chromedp doesn't accept URL without "http://" or "https://"
 	if !strings.HasPrefix(strings.ToLower(urlStr), "http://") && !strings.HasPrefix(strings.ToLower(urlStr), "https://") {
 		urlStr = "http://"+urlStr
@@ -56,15 +58,32 @@ func (ch *ChromeHeadless) Screenshot(urlStr, pathToSavePNG, proxy string, log gl
 	defer cancel()
 
 	// capture entire browser viewport, returning png with quality=90
-	var buf []byte
-	if err := chromedp.Run(ctx, fullScreenshot(urlStr, 90, &buf)); err != nil {
-		return err
-	}
-	if err := ioutil.WriteFile(pathToSavePNG, buf, 0o644); err != nil {
-		return err
-	}
+	chDone := make(chan error, 1)
+	go func() {
+		var buf []byte
+		if err := chromedp.Run(ctx, fullScreenshot(urlStr, 90, &buf)); err != nil {
+			chDone <- err
+			return
+		}
+		if err := ioutil.WriteFile(pathToSavePNG, buf, 0o644); err != nil {
+			chDone <- err
+			return
+		}
+		chDone <- nil
+	}()
 
-	return nil
+	// wait screenshot result
+	if timeout > 0 {
+		ticker := time.NewTicker(timeout)
+		select {
+		case <-ticker.C:
+			return gerrors.ErrTimeout
+		case err := <-chDone:
+			return err
+		}
+	} else {
+		return <-chDone
+	}
 }
 
 // fullScreenshot takes a screenshot of the entire browser viewport.
