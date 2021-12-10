@@ -175,7 +175,7 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	htmlTemplate := `<html>
 <head>
     <meta charset="UTF-8">
-    <title>fullPage</title>
+    <title></title>
     <style>
         * {
             margin: 0;
@@ -186,7 +186,6 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
             height: 100%;
         }
         .fullpage {
-            background-color: #abc;
             color: white;
             font-size: 35px;
             text-align: center;
