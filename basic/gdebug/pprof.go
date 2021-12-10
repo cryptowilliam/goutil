@@ -196,7 +196,7 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	<div class="fullpage">%s</div>
 </body>
 </html>`
-	htmlSrc := fmt.Sprintf(htmlTemplate, svgHtml)
+	htmlSrc := strings.Replace(htmlTemplate, "%s", svgHtml, 1)
 	_, err = w.Write([]byte(htmlSrc))
 	if err != nil {
 		c.log.Erro(err)
