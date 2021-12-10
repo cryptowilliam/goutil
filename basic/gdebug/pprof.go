@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/glog"
-	"github.com/cryptowilliam/goutil/crypto/gbase"
+	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/cryptowilliam/goutil/sys/gcmd"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/cryptowilliam/goutil/sys/gproc"
@@ -162,13 +162,18 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "execute shell error")
 		return
 	}
-	svgBuf, err := gfs.FileToBytes(svgPath)
+	svgStr, err := gfs.FileToString(svgPath)
 	if err != nil {
 		c.replyError(w, err, "read svg error")
 		return
 	}
-	htmlTemplate := `<html><body><img src='data:image/svg;base64,/%s'/></body></html>`
-	htmlSrc := fmt.Sprintf(htmlTemplate, gbase.Base64Encode(svgBuf))
+	svgHtml, err := gstring.SubstrBetween(svgStr, "<svg", "/svg>", true, false, true, true)
+	if err != nil {
+		c.replyError(w, err, "handle svg error")
+		return
+	}
+	htmlTemplate := `<html><body>%s</body></html>`
+	htmlSrc := fmt.Sprintf(htmlTemplate, svgHtml)
 	_, err = w.Write([]byte(htmlSrc))
 	if err != nil {
 		c.log.Erro(err)
