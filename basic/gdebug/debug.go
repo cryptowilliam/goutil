@@ -27,7 +27,12 @@ func ListenAndServe(listen string) error {
 	}
 	us.Host.Port++
 	vp := newVisualizePprof(us.String(), glog.DefaultLogger)
-	r.HandleFunc("/debug/visual-pprof", vp.serveVisualPprof)
+	r.HandleFunc("/debug/visual-pprof/"+ProfileCPU.String(), vp.serveVisualPprof)
+	r.HandleFunc("/debug/visual-pprof/"+ProfileHeap.String(), vp.serveVisualPprof)
+	r.HandleFunc("/debug/visual-pprof/"+ProfileBlock.String(), vp.serveVisualPprof)
+	r.HandleFunc("/debug/visual-pprof/"+ProfileMutex.String(), vp.serveVisualPprof)
+	r.HandleFunc("/debug/visual-pprof/"+ProfileGoRoutine.String(), vp.serveVisualPprof)
+	r.HandleFunc("/debug/visual-pprof/"+ProfileThreadCreate.String(), vp.serveVisualPprof)
 
 	// index page
 	http.Handle("/", r)

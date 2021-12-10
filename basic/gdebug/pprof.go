@@ -109,7 +109,7 @@ func newVisualizePprof(listen string, log glog.Interface) *VisualizePprof {
 
 func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
 	c.log.Infof("accept visual pprof request %s", r.URL.String())
-	ss := strings.Split(r.URL.Path, "debug/visual-pprof/")
+	ss := strings.Split(r.URL.Path, "debug/visual-pprof")
 	if len(ss) == 0 {
 		err := gerrors.New("invalid path %s", r.URL.Path)
 		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
