@@ -2,7 +2,6 @@ package gdebug
 
 import (
 	"github.com/cryptowilliam/goutil/basic/glog"
-	"github.com/cryptowilliam/goutil/net/gnet"
 	"net/http"
 	"net/http/pprof"
 )
@@ -21,12 +20,15 @@ func ListenAndServe(listen string) error {
 	r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	// visual profile
-	us, err := gnet.ParseUrl(listen)
+	/*us, err := gnet.ParseUrl(listen)
 	if err != nil {
 		return err
 	}
-	us.Host.Port++
-	vp := newVisualizePprof(us.String(), glog.DefaultLogger)
+	us.Host.Port++*/
+	vp, err := newVisualizePprof(glog.DefaultLogger)
+	if err != nil {
+		return err
+	}
 	r.HandleFunc("/debug/visual-pprof/"+ProfileCPU.String(), vp.serveVisualPprof)
 	r.HandleFunc("/debug/visual-pprof/"+ProfileHeap.String(), vp.serveVisualPprof)
 	r.HandleFunc("/debug/visual-pprof/"+ProfileBlock.String(), vp.serveVisualPprof)

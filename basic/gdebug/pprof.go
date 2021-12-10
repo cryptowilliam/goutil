@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/glog"
+	"github.com/cryptowilliam/goutil/crypto/gbase"
+	"github.com/cryptowilliam/goutil/sys/gcmd"
+	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/cryptowilliam/goutil/sys/gproc"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"runtime"
 	"runtime/pprof"
 	"strings"
@@ -22,10 +24,10 @@ type (
 
 	// VisualizePprof uses official `go tool pprof` web UI to show visualized pprof data.
 	VisualizePprof struct {
-		listen string
 		log glog.Interface
 		historyPidList []int
 		mu sync.RWMutex
+		selfPath string
 	}
 )
 
@@ -107,9 +109,24 @@ func convertProfile(s string) (Profile, error) {
 	}
 }
 
-func newVisualizePprof(listen string, log glog.Interface) *VisualizePprof {
-	log.Debgf("visual pprof listen at %s", listen)
-	return &VisualizePprof{listen: listen, log: log}
+func newVisualizePprof(log glog.Interface) (*VisualizePprof, error) {
+	selfPid := gproc.GetPidOfMyself()
+	selfPath, err := gproc.GetExePathFromPid(int(selfPid))
+	if err != nil {
+		return nil, err
+	}
+	return &VisualizePprof{log: log, selfPath: selfPath}, nil
+}
+
+func (c *VisualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg string) {
+	if err  == nil {
+		return
+	}
+	err = gerrors.Wrap(err, wrapMsg)
+	if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
+		c.log.Erro(err)
+		c.log.Erro(errWrite)
+	}
 }
 
 func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
@@ -124,31 +141,42 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	ss := strings.Split(r.URL.Path, "debug/visual-pprof/")
 	if len(ss) == 0 {
 		err := gerrors.New("invalid path %s", r.URL.Path)
-		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
-			c.log.Erro(err)
-		}
+		c.replyError(w, err, "")
 		return
 	}
 	profile, err := convertProfile(strings.ToLower(ss[len(ss)-1]))
 	if err != nil {
-		err = gerrors.Wrap(err, "convert profile error")
-		c.log.Erro(err)
-		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
-			c.log.Erro(err)
-		}
+		c.replyError(w, err, "convert profile error")
 		return
 	}
-	filePath, err := captureProfile(profile, 10 * time.Second, 0)
+	profPath, err := captureProfile(profile, 10 * time.Second, 0)
 	if err != nil {
-		err = gerrors.Wrap(err, "capture profile error")
-		c.log.Erro(err)
-		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
-			c.log.Erro(err)
-		}
+		c.replyError(w, err, "capture profile error")
 		return
+	}
+	svgPath := profPath+".svg"
+
+	cmdline := fmt.Sprintf("go tool pprof -svg '%s' '%s' > '%s'", c.selfPath, profPath, svgPath)
+	_, err = gcmd.ExecShell(cmdline)
+	if err != nil {
+		c.replyError(w, err, "execute shell error")
+		return
+	}
+	svgBuf, err := gfs.FileToBytes(svgPath)
+	if err != nil {
+		c.replyError(w, err, "read svg error")
+		return
+	}
+	htmlTemplate := `<html><body><img src='data:image/svg;base64,%s'/></body></html>`
+	htmlSrc := fmt.Sprintf(htmlTemplate, gbase.Base64Encode(svgBuf))
+	_, err = w.Write([]byte(htmlSrc))
+	if err != nil {
+		c.log.Erro(err)
 	}
 
-	cmd := exec.Command("go", "tool", "pprof", "-http="+c.listen, filePath)
+	// Use go tool inside http UI server, it is more powerful but hard to manage,
+	// maybe it will be enabled later.
+	/*cmd := exec.Command("go", "tool", "pprof", "-http="+c.listen, filePath)
 	if err := cmd.Run(); err != nil {
 		err = gerrors.Wrap(err, "start pprof UI error")
 		c.log.Erro(err)
@@ -162,6 +190,5 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		if _, errWrite := w.Write([]byte(info)); errWrite != nil {
 			c.log.Erro(err)
 		}
-	}
-
+	}*/
 }
