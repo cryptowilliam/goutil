@@ -41,16 +41,15 @@ func newTemp() (*os.File, error) {
 //
 // If zero value is provided, it will include every blocking event
 // in the profile.
-func captureProfile(profile Profile, cpuCapDur *time.Duration, blockCapRate *int) (string, error) {
-	if profile == ProfileBlock && blockCapRate != nil && *blockCapRate > 0 {
-		runtime.SetBlockProfileRate(*blockCapRate)
+func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) (string, error) {
+	if profile == ProfileBlock && blockCapRate > 0 {
+		runtime.SetBlockProfileRate(blockCapRate)
 	}
 
 	switch profile {
 	case ProfileCPU:
-		if cpuCapDur == nil || *cpuCapDur == 0 {
-			tempDur := 30 * time.Second
-			cpuCapDur = &(tempDur)
+		if cpuCapDur <= 0 {
+			cpuCapDur = 30 * time.Second
 		}
 		f, err := newTemp()
 		if err != nil {
@@ -59,7 +58,7 @@ func captureProfile(profile Profile, cpuCapDur *time.Duration, blockCapRate *int
 		if err := pprof.StartCPUProfile(f); err != nil {
 			return "", err
 		}
-		time.Sleep(*cpuCapDur)
+		time.Sleep(cpuCapDur)
 		pprof.StopCPUProfile()
 		if err := f.Close(); err != nil {
 			return "", err
