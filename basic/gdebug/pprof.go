@@ -109,29 +109,29 @@ func newVisualizePprof(listen string, log glog.Interface) *VisualizePprof {
 
 func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
 	c.log.Infof("accept visual pprof request %s", r.URL.String())
-	ss := strings.Split(r.URL.Path, "/")
+	ss := strings.Split(r.URL.Path, "debug/visual-pprof/")
 	if len(ss) == 0 {
 		err := gerrors.New("invalid path %s", r.URL.Path)
 		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
 			c.log.Erro(err)
-			return
 		}
+		return
 	}
 	profile, err := convertProfile(strings.ToLower(ss[len(ss)-1]))
 	if err != nil {
 		c.log.Erro(err)
 		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
 			c.log.Erro(err)
-			return
 		}
+		return
 	}
 	filePath, err := captureProfile(profile, 10 * time.Second, 0)
 	if err != nil {
 		c.log.Erro(err)
 		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
 			c.log.Erro(err)
-			return
 		}
+		return
 	}
 
 	cmd := exec.Command("go", "tool", "pprof", "-http="+c.listen, filePath)
