@@ -5,6 +5,7 @@ import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/container/gstring"
+	"github.com/cryptowilliam/goutil/crypto/gbase"
 	"github.com/cryptowilliam/goutil/sys/gcmd"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/cryptowilliam/goutil/sys/gproc"
@@ -145,24 +146,41 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "capture profile error")
 		return
 	}
-	svgPath := profPath + ".svg"
 
-	cmdline := fmt.Sprintf("go tool pprof -svg '%s' '%s' > '%s'", c.selfPath, profPath, svgPath)
+	// convert .prof file to image
+	imgType := "png"
+	imgPath := profPath + "." + imgType
+	cmdline := fmt.Sprintf("go tool pprof -%s '%s' '%s' > '%s'", imgType, c.selfPath, profPath, imgPath)
 	result, err := gcmd.ExecShell(cmdline)
 	if err != nil {
 		c.replyError(w, err, fmt.Sprintf("execute shell returns %s, error", result))
 		return
 	}
-	svgStr, err := gfs.FileToString(svgPath)
+	imgBuf, err := gfs.FileToBytes(imgPath)
 	if err != nil {
 		c.replyError(w, err, "read svg error")
 		return
 	}
-	svgHtml, err := gstring.SubstrBetween(svgStr, "<svg", "/svg>", true, false, true, true)
-	if err != nil {
-		c.replyError(w, err, "handle svg error")
-		return
+
+	// convert image file to html source
+	imgHtml := ""
+	if imgType == "svg" {
+		imgHtml, err = gstring.SubstrBetween(string(imgBuf), "<svg", "/svg>", true, false, true, true)
+		if err != nil {
+			c.replyError(w, err, "handle svg error")
+			return
+		}
+	} else if imgType == "png" {
+		imgHtml = `<img width="100%" height="100%" src="data:image/png;base64,` + gbase.Base64Encode(imgBuf) + `" />`
+	} else {
+		err = gerrors.New("unknown image type %s", imgType)
+		if err != nil {
+			c.replyError(w, err, "handle svg error")
+			return
+		}
 	}
+
+	// insert image into html
 	htmlTemplate := `<html>
 <head>
     <meta charset="UTF-8">
@@ -187,7 +205,7 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	<div class="fullpage">%s</div>
 </body>
 </html>`
-	htmlSrc := strings.Replace(htmlTemplate, "%s", svgHtml, 1)
+	htmlSrc := strings.Replace(htmlTemplate, "%s", imgHtml, 1)
 	_, err = w.Write([]byte(htmlSrc))
 	if err != nil {
 		c.log.Erro(err)
