@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/glog"
+	"github.com/cryptowilliam/goutil/sys/gproc"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -22,6 +24,8 @@ type (
 	VisualizePprof struct {
 		listen string
 		log glog.Interface
+		historyPidList []int
+		mu sync.RWMutex
 	}
 )
 
@@ -109,6 +113,13 @@ func newVisualizePprof(listen string, log glog.Interface) *VisualizePprof {
 }
 
 func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	
+	for _, v := range c.historyPidList {
+		_ = gproc.Terminate(gproc.ProcId(v))
+	}
+
 	c.log.Infof("accept visual pprof request %s", r.URL.String())
 	ss := strings.Split(r.URL.Path, "debug/visual-pprof/")
 	if len(ss) == 0 {
@@ -145,10 +156,12 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 			c.log.Erro(err)
 		}
 	} else {
+		c.historyPidList = append(c.historyPidList, cmd.Process.Pid)
 		info := fmt.Sprintf("start pprof UI at %s", c.listen)
 		c.log.Infof(info)
 		if _, errWrite := w.Write([]byte(info)); errWrite != nil {
 			c.log.Erro(err)
 		}
 	}
+
 }
