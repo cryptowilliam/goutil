@@ -171,7 +171,7 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 			return
 		}
 	} else if imgType == "png" {
-		imgHtml = `<img width="100%" height="100%" src="data:image/png;base64,` + gbase.Base64Encode(imgBuf) + `" />`
+		imgHtml = `<img src="data:image/png;base64,` + gbase.Base64Encode(imgBuf) + `" />`
 	} else {
 		err = gerrors.New("unknown image type %s", imgType)
 		if err != nil {
