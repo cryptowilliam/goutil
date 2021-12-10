@@ -20,7 +20,7 @@ func ListenAndServe(listen string, duration time.Duration) error {
 	r.HandleFunc("/pprof/trace", pprof.Trace)
 
 	// index page
-	r.Handle("/", r)
+	http.Handle("/", r)
 
-	return http.ListenAndServe(listen, r)
+	return http.ListenAndServe(listen, nil)
 }
