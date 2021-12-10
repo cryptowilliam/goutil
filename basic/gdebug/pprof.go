@@ -64,6 +64,7 @@ func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) 
 			return "", err
 		}
 		return f.Name(), nil
+
 	case ProfileHeap, ProfileBlock, ProfileMutex, ProfileGoRoutine, ProfileThreadCreate:
 		f, err := newTemp()
 		if err != nil {
@@ -76,6 +77,7 @@ func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) 
 			return "", err
 		}
 		return f.Name(), nil
+
 	default:
 		return "", gerrors.New("unsupported profile %s", profile.String())
 	}

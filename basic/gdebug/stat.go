@@ -135,8 +135,8 @@ func getStats() *stats {
 
 // Handler returns activity status of Go.
 func statsHandler(w http.ResponseWriter, r *http.Request) {
-	var newLineTerm = false
-	var prettyPrint = false
+	var newLineTerm = true
+	var prettyPrint = true
 
 	values := r.URL.Query()
 	for _, c := range []string{"1", "true"} {

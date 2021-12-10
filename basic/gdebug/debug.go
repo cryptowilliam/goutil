@@ -1,21 +1,25 @@
 package gdebug
 
 import (
+	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/pprof"
 	"time"
 )
 
 func ListenAndServe(listen string, duration time.Duration) error {
+	r := mux.NewRouter()
+
 	// basic stats
-	http.HandleFunc("/stats", statsHandler)
+	r.HandleFunc("/stats", statsHandler)
 
 	// text profile
-	http.HandleFunc("/pprof/", pprof.Index)
-	http.HandleFunc("/pprof/cmdline", pprof.Cmdline)
-	http.HandleFunc("/pprof/profile", pprof.Profile)
-	http.HandleFunc("/pprof/symbol", pprof.Symbol)
-	http.HandleFunc("/pprof/trace", pprof.Trace)
-
+	r.HandleFunc("/pprof/", pprof.Index)
+	r.HandleFunc("/pprof/cmdline", pprof.Cmdline)
+	r.HandleFunc("/pprof/profile", pprof.Profile)
+	r.HandleFunc("/pprof/symbol", pprof.Symbol)
+	r.HandleFunc("/pprof/trace", pprof.Trace)
+	
+	r.Handle("/", r)
 	return http.ListenAndServe(listen, nil)
 }
