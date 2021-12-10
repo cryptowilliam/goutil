@@ -2,16 +2,26 @@ package gdebug
 
 import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/basic/glog"
 	"io/ioutil"
+	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
 	"runtime/pprof"
+	"strings"
 	"time"
 )
 
 type (
 	// Profile represents a pprof profile.
 	Profile string
+
+	// VisualizePprof uses official `go tool pprof` web UI to show visualized pprof data.
+	VisualizePprof struct {
+		listen string
+		log glog.Interface
+	}
 )
 
 var (
@@ -80,5 +90,52 @@ func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) 
 
 	default:
 		return "", gerrors.New("unsupported profile %s", profile.String())
+	}
+}
+
+func convertProfile(s string) (Profile, error) {
+	switch Profile(s) {
+	case ProfileCPU, ProfileHeap, ProfileBlock, ProfileMutex, ProfileGoRoutine, ProfileThreadCreate:
+		return Profile(s), nil
+	default:
+		return ProfileCPU, gerrors.New("invalid Profile %s", s)
+	}
+}
+
+func newVisualizePprof() *VisualizePprof {
+	return &VisualizePprof{}
+}
+
+func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
+	ss := strings.Split(r.URL.Path, "/")
+	if len(ss) == 0 {
+		err := gerrors.New("invalid path %s", r.URL.Path)
+		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
+			c.log.Erro(err)
+			return
+		}
+	}
+	profile, err := convertProfile(strings.ToLower(ss[len(ss)-1]))
+	if err != nil {
+		c.log.Erro(err)
+		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
+			c.log.Erro(err)
+			return
+		}
+	}
+	filePath, err := captureProfile(profile, 10 * time.Second, 0)
+	if err != nil {
+		c.log.Erro(err)
+		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
+			c.log.Erro(err)
+			return
+		}
+	}
+
+	cmd := exec.Command("go", "tool", "pprof", "-http="+c.listen, filePath)
+	if err := cmd.Run(); err != nil {
+		c.log.Erro(err, "Cannot start pprof UI")
+	} else {
+		c.log.Infof("start pprof UI at %s", c.listen)
 	}
 }

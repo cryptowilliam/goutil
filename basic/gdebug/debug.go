@@ -3,10 +3,9 @@ package gdebug
 import (
 	"net/http"
 	"net/http/pprof"
-	"time"
 )
 
-func ListenAndServe(listen string, duration time.Duration) error {
+func ListenAndServe(listen string) error {
 	r := http.NewServeMux()
 
 	// basic stats
@@ -18,6 +17,10 @@ func ListenAndServe(listen string, duration time.Duration) error {
 	r.HandleFunc("/debug/pprof/profile", pprof.Profile)
 	r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	r.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+	// visual profile
+	vp := newVisualizePprof()
+	r.HandleFunc("/debug/visual-pprof", vp.serveVisualPprof)
 
 	// index page
 	http.Handle("/", r)
