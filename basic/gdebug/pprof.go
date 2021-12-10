@@ -102,8 +102,9 @@ func convertProfile(s string) (Profile, error) {
 	}
 }
 
-func newVisualizePprof() *VisualizePprof {
-	return &VisualizePprof{}
+func newVisualizePprof(listen string, log glog.Interface) *VisualizePprof {
+	log.Debgf("visual pprof listen at %s", listen)
+	return &VisualizePprof{listen: listen, log: log}
 }
 
 func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
