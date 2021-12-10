@@ -115,7 +115,7 @@ func newVisualizePprof(listen string, log glog.Interface) *VisualizePprof {
 func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	for _, v := range c.historyPidList {
 		_ = gproc.Terminate(gproc.ProcId(v))
 	}
