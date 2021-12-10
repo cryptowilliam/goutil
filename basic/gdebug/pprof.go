@@ -14,7 +14,6 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -24,9 +23,7 @@ type (
 
 	// VisualizePprof uses official `go tool pprof` web UI to show visualized pprof data.
 	VisualizePprof struct {
-		log glog.Interface
-		historyPidList []int
-		mu sync.RWMutex
+		log      glog.Interface
 		selfPath string
 	}
 )
@@ -36,6 +33,7 @@ var (
 	ProfileHeap         = Profile("heap")
 	ProfileBlock        = Profile("block") // Stack traces that led to blocking on synchronization primitives.
 	ProfileMutex        = Profile("mutex") // Stack traces of holders of contended mutexes.
+	ProfileAllocs       = Profile("allocs")
 	ProfileGoRoutine    = Profile("goroutine")
 	ProfileThreadCreate = Profile("threadcreate") // Stack traces that led to the creation of new OS threads.
 )
@@ -82,7 +80,7 @@ func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) 
 		}
 		return f.Name(), nil
 
-	case ProfileHeap, ProfileBlock, ProfileMutex, ProfileGoRoutine, ProfileThreadCreate:
+	case ProfileHeap, ProfileBlock, ProfileMutex, ProfileAllocs, ProfileGoRoutine, ProfileThreadCreate:
 		f, err := newTemp()
 		if err != nil {
 			return "", err
@@ -102,7 +100,7 @@ func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) 
 
 func convertProfile(s string) (Profile, error) {
 	switch Profile(s) {
-	case ProfileCPU, ProfileHeap, ProfileBlock, ProfileMutex, ProfileGoRoutine, ProfileThreadCreate:
+	case ProfileCPU, ProfileHeap, ProfileBlock, ProfileMutex, ProfileAllocs, ProfileGoRoutine, ProfileThreadCreate:
 		return Profile(s), nil
 	default:
 		return ProfileCPU, gerrors.New("invalid Profile %s", s)
@@ -119,7 +117,7 @@ func newVisualizePprof(log glog.Interface) (*VisualizePprof, error) {
 }
 
 func (c *VisualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg string) {
-	if err  == nil {
+	if err == nil {
 		return
 	}
 	err = gerrors.Wrap(err, wrapMsg)
@@ -130,13 +128,6 @@ func (c *VisualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg st
 }
 
 func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	for _, v := range c.historyPidList {
-		_ = gproc.Terminate(gproc.ProcId(v))
-	}
-
 	c.log.Infof("accept visual pprof request %s", r.URL.String())
 	ss := strings.Split(r.URL.Path, "debug/visual-pprof/")
 	if len(ss) == 0 {
@@ -149,12 +140,12 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "convert profile error")
 		return
 	}
-	profPath, err := captureProfile(profile, 10 * time.Second, 0)
+	profPath, err := captureProfile(profile, 10*time.Second, 0)
 	if err != nil {
 		c.replyError(w, err, "capture profile error")
 		return
 	}
-	svgPath := profPath+".svg"
+	svgPath := profPath + ".svg"
 
 	cmdline := fmt.Sprintf("go tool pprof -svg '%s' '%s' > '%s'", c.selfPath, profPath, svgPath)
 	result, err := gcmd.ExecShell(cmdline)

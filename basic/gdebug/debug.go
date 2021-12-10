@@ -20,11 +20,6 @@ func ListenAndServe(listen string) error {
 	r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	// visual profile
-	/*us, err := gnet.ParseUrl(listen)
-	if err != nil {
-		return err
-	}
-	us.Host.Port++*/
 	vp, err := newVisualizePprof(glog.DefaultLogger)
 	if err != nil {
 		return err
@@ -33,6 +28,7 @@ func ListenAndServe(listen string) error {
 	r.HandleFunc("/debug/visual-pprof/"+ProfileHeap.String(), vp.serveVisualPprof)
 	r.HandleFunc("/debug/visual-pprof/"+ProfileBlock.String(), vp.serveVisualPprof)
 	r.HandleFunc("/debug/visual-pprof/"+ProfileMutex.String(), vp.serveVisualPprof)
+	r.HandleFunc("/debug/visual-pprof/"+ProfileAllocs.String(), vp.serveVisualPprof)
 	r.HandleFunc("/debug/visual-pprof/"+ProfileGoRoutine.String(), vp.serveVisualPprof)
 	r.HandleFunc("/debug/visual-pprof/"+ProfileThreadCreate.String(), vp.serveVisualPprof)
 
