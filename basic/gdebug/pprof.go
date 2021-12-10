@@ -167,7 +167,7 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "read svg error")
 		return
 	}
-	htmlTemplate := `<html><body><img src='data:image/svg;base64,%s'/></body></html>`
+	htmlTemplate := `<html><body><img src='data:image/svg;base64,/%s'/></body></html>`
 	htmlSrc := fmt.Sprintf(htmlTemplate, gbase.Base64Encode(svgBuf))
 	_, err = w.Write([]byte(htmlSrc))
 	if err != nil {
