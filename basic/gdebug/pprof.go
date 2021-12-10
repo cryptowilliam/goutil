@@ -1,6 +1,7 @@
 package gdebug
 
 import (
+	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/glog"
 	"io/ioutil"
@@ -119,6 +120,7 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	}
 	profile, err := convertProfile(strings.ToLower(ss[len(ss)-1]))
 	if err != nil {
+		err = gerrors.Wrap(err, "convert profile error")
 		c.log.Erro(err)
 		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
 			c.log.Erro(err)
@@ -127,6 +129,7 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	}
 	filePath, err := captureProfile(profile, 10 * time.Second, 0)
 	if err != nil {
+		err = gerrors.Wrap(err, "capture profile error")
 		c.log.Erro(err)
 		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
 			c.log.Erro(err)
@@ -136,8 +139,16 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 
 	cmd := exec.Command("go", "tool", "pprof", "-http="+c.listen, filePath)
 	if err := cmd.Run(); err != nil {
-		c.log.Erro(err, "Cannot start pprof UI")
+		err = gerrors.Wrap(err, "start pprof UI error")
+		c.log.Erro(err)
+		if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
+			c.log.Erro(err)
+		}
 	} else {
-		c.log.Infof("start pprof UI at %s", c.listen)
+		info := fmt.Sprintf("start pprof UI at %s", c.listen)
+		c.log.Infof(info)
+		if _, errWrite := w.Write([]byte(info)); errWrite != nil {
+			c.log.Erro(err)
+		}
 	}
 }
