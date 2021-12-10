@@ -157,9 +157,9 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	svgPath := profPath+".svg"
 
 	cmdline := fmt.Sprintf("go tool pprof -svg '%s' '%s' > '%s'", c.selfPath, profPath, svgPath)
-	_, err = gcmd.ExecShell(cmdline)
+	result, err := gcmd.ExecShell(cmdline)
 	if err != nil {
-		c.replyError(w, err, "execute shell error")
+		c.replyError(w, err, fmt.Sprintf("execute shell returns %s, error", result))
 		return
 	}
 	svgStr, err := gfs.FileToString(svgPath)
