@@ -172,7 +172,31 @@ func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "handle svg error")
 		return
 	}
-	htmlTemplate := `<html><body>%s</body></html>`
+	htmlTemplate := `<html>
+<head>
+    <meta charset="UTF-8">
+    <title>fullPage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        html, body, .fullpage {
+            width: 100%;
+            height: 100%;
+        }
+        .fullpage {
+            background-color: #abc;
+            color: white;
+            font-size: 35px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+	<div class="fullpage">%s</div>
+</body>
+</html>`
 	htmlSrc := fmt.Sprintf(htmlTemplate, svgHtml)
 	_, err = w.Write([]byte(htmlSrc))
 	if err != nil {
