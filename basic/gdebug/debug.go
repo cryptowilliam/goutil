@@ -9,51 +9,51 @@ import (
 
 type (
 	allPaths struct {
-		BasicStats              string
-		TextPprofIndex          string
-		TextPprofAllocs         string
-		TextPprofBlock          string
-		TextPprofCmdline        string
-		TextPprofGoroutine      string
-		TextPprofHeap           string
-		TextPprofMutex          string
-		TextPprofProfile        string
-		TextPprofThreadCreate   string
-		TextPprofTrace          string
-		TextPprofSymbol         string
-		FullGoroutineStackDump  string
-		VisualPprofCPU          string
-		VisualPprofHeap         string
-		VisualPprofBlock        string
-		VisualPprofMutex        string
-		VisualPprofAllocs       string
-		VisualPprofGoroutine    string
-		VisualPprofThreadCreate string
+		BasicStats                      string
+		TextPprofIndex                  string
+		TextPprofAllocs                 string
+		TextPprofBlock                  string
+		TextPprofCmdline                string
+		TextPprofGoroutine              string
+		TextPprofHeap                   string
+		TextPprofMutex                  string
+		TextPprofProfile                string
+		TextPprofThreadCreate           string
+		TextPprofTrace                  string
+		TextPprofSymbol                 string
+		TextPprofFullGoroutineStackDump string
+		VisualPprofCPU                  string
+		VisualPprofHeap                 string
+		VisualPprofBlock                string
+		VisualPprofMutex                string
+		VisualPprofAllocs               string
+		VisualPprofGoroutine            string
+		VisualPprofThreadCreate         string
 	}
 )
 
 var (
 	aps = allPaths{
-		BasicStats:              "/debug/stats",
-		TextPprofIndex:          "/debug/pprof/",
-		TextPprofAllocs:         "/debug/pprof/allocs?debug=1",
-		TextPprofBlock:          "/debug/pprof/block?debug=1",
-		TextPprofCmdline:        "/debug/pprof/cmdline?debug=1",
-		TextPprofGoroutine:      "/debug/pprof/goroutine?debug=1",
-		TextPprofHeap:           "/debug/pprof/heap?debug=1",
-		TextPprofMutex:          "/debug/pprof/mutex?debug=1",
-		TextPprofProfile:        "/debug/pprof/profile?debug=1",
-		TextPprofThreadCreate:   "/debug/pprof/threadcreate?debug=1",
-		TextPprofTrace:          "/debug/pprof/trace?debug=1",
-		TextPprofSymbol:         "/debug/pprof/symbol?debug=1",
-		FullGoroutineStackDump:  "/debug/pprof/goroutine?debug=2",
-		VisualPprofCPU:          "/debug/visual-pprof/" + profileCPU.String(),
-		VisualPprofHeap:         "/debug/visual-pprof/" + profileHeap.String(),
-		VisualPprofBlock:        "/debug/visual-pprof/" + profileBlock.String(),
-		VisualPprofMutex:        "/debug/visual-pprof/" + profileMutex.String(),
-		VisualPprofAllocs:       "/debug/visual-pprof/" + profileAllocs.String(),
-		VisualPprofGoroutine:    "/debug/visual-pprof/" + profileGoroutine.String(),
-		VisualPprofThreadCreate: "/debug/visual-pprof/" + profileThreadCreate.String(),
+		BasicStats:                      "/debug/stats",
+		TextPprofIndex:                  "/debug/pprof/",
+		TextPprofAllocs:                 "/debug/pprof/allocs?debug=1",
+		TextPprofBlock:                  "/debug/pprof/block?debug=1",
+		TextPprofCmdline:                "/debug/pprof/cmdline?debug=1",
+		TextPprofGoroutine:              "/debug/pprof/goroutine?debug=1",
+		TextPprofHeap:                   "/debug/pprof/heap?debug=1",
+		TextPprofMutex:                  "/debug/pprof/mutex?debug=1",
+		TextPprofProfile:                "/debug/pprof/profile?debug=1",
+		TextPprofThreadCreate:           "/debug/pprof/threadcreate?debug=1",
+		TextPprofTrace:                  "/debug/pprof/trace?debug=1",
+		TextPprofSymbol:                 "/debug/pprof/symbol?debug=1",
+		TextPprofFullGoroutineStackDump: "/debug/pprof/goroutine?debug=2",
+		VisualPprofCPU:                  "/debug/visual-pprof/" + profileCPU.String(),
+		VisualPprofHeap:                 "/debug/visual-pprof/" + profileHeap.String(),
+		VisualPprofBlock:                "/debug/visual-pprof/" + profileBlock.String(),
+		VisualPprofMutex:                "/debug/visual-pprof/" + profileMutex.String(),
+		VisualPprofAllocs:               "/debug/visual-pprof/" + profileAllocs.String(),
+		VisualPprofGoroutine:            "/debug/visual-pprof/" + profileGoroutine.String(),
+		VisualPprofThreadCreate:         "/debug/visual-pprof/" + profileThreadCreate.String(),
 	}
 )
 
@@ -118,6 +118,7 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.TextPprofThreadCreate}}" target="_blank">Text pprof threadcreate</a></p>
 		<p><a href="{{.TextPprofTrace}}" target="_blank">Text pprof trace</a></p>
 		<p><a href="{{.TextPprofSymbol}}" target="_blank">Text pprof symbol</a></p>
+		<p><a href="{{.TextPprofFullGoroutineStackDump}}" target="_blank">Text pprof full goroutine stack dump</a></p>
 		<p><a href="{{.VisualPprofCPU}}" target="_blank">Visual pprof CPU (wait 10+ seconds)</a></p>
 		<p><a href="{{.VisualPprofHeap}}" target="_blank">Visual pprof heap</a></p>
 		<p><a href="{{.VisualPprofBlock}}" target="_blank">Visual pprof block</a></p>
