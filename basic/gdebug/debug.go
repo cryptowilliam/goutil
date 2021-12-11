@@ -106,7 +106,6 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
   </head>
   <body>
 	<div style="width:45%; height:95%; display: inline-block; vertical-align: top;">
-		<p><a href="{{.BasicStats}}" target="_blank">Basic stats information</a></p>
 		<p><a href="{{.TextPprofIndex}}" target="_blank">Text pprof index</a></p>
 		<p><a href="{{.TextPprofAllocs}}" target="_blank">Text pprof allocs</a></p>
 		<p><a href="{{.TextPprofBlock}}" target="_blank">Text pprof block</a></p>
@@ -128,6 +127,7 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.VisualPprofAllocs}}" target="_blank">Visual pprof allocs</a></p>
 		<p><a href="{{.VisualPprofGoroutine}}" target="_blank">Visual pprof Go routine</a></p>
 		<p><a href="{{.VisualPprofThreadCreate}}" target="_blank">Visual pprof thread create</a></p>
+		<p><a href="{{.BasicStats}}" target="_blank">Basic stats information</a></p>
 	</div>
 	<br>
 	<p>
