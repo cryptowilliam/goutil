@@ -52,7 +52,7 @@ var (
 		VisualPprofBlock:        "/debug/visual-pprof/" + profileBlock.String(),
 		VisualPprofMutex:        "/debug/visual-pprof/" + profileMutex.String(),
 		VisualPprofAllocs:       "/debug/visual-pprof/" + profileAllocs.String(),
-		VisualPprofGoroutine:    "/debug/visual-pprof/" + profileGoRoutine.String(),
+		VisualPprofGoroutine:    "/debug/visual-pprof/" + profileGoroutine.String(),
 		VisualPprofThreadCreate: "/debug/visual-pprof/" + profileThreadCreate.String(),
 	}
 )
@@ -123,7 +123,7 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.VisualPprofBlock}}" target="_blank">Visual pprof block</a></p>
 		<p><a href="{{.VisualPprofMutex}}" target="_blank">Visual pprof mutex</a></p>
 		<p><a href="{{.VisualPprofAllocs}}" target="_blank">Visual pprof allocs</a></p>
-		<p><a href="{{.VisualPprofGoRoutine}}" target="_blank">Visual pprof Go routine</a></p>
+		<p><a href="{{.VisualPprofGoroutine}}" target="_blank">Visual pprof Go routine</a></p>
 		<p><a href="{{.VisualPprofThreadCreate}}" target="_blank">Visual pprof thread create</a></p>
 	</div>
 	<br>

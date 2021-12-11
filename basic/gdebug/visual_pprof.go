@@ -35,7 +35,7 @@ var (
 	profileBlock        = profile("block") // Stack traces that led to blocking on synchronization primitives.
 	profileMutex        = profile("mutex") // Stack traces of holders of contended mutexes.
 	profileAllocs       = profile("allocs")
-	profileGoRoutine    = profile("goroutine")
+	profileGoroutine    = profile("goroutine")
 	profileThreadCreate = profile("threadcreate") // Stack traces that led to the creation of new OS threads.
 )
 
@@ -81,7 +81,7 @@ func captureProfile(profile profile, cpuCapDur time.Duration, blockCapRate int) 
 		}
 		return f.Name(), nil
 
-	case profileHeap, profileBlock, profileMutex, profileAllocs, profileGoRoutine, profileThreadCreate:
+	case profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
 		f, err := newTemp()
 		if err != nil {
 			return "", err
@@ -101,7 +101,7 @@ func captureProfile(profile profile, cpuCapDur time.Duration, blockCapRate int) 
 
 func convertProfile(s string) (profile, error) {
 	switch profile(s) {
-	case profileCPU, profileHeap, profileBlock, profileMutex, profileAllocs, profileGoRoutine, profileThreadCreate:
+	case profileCPU, profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
 		return profile(s), nil
 	default:
 		return profileCPU, gerrors.New("invalid profile %s", s)
