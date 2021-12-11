@@ -144,6 +144,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	}
 	c.log.Debgf("pprof capture file: %s", profPath)
 
+	// TODO: use github.com/google/pprof/ apis instead of exec.Command, I'm not sure this is feasible.
 	// convert .prof file to image
 	imgType := "png"
 	imgPath := profPath + "." + imgType
