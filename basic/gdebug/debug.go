@@ -8,6 +8,12 @@ import (
 )
 
 var (
+	pathToBasicStats              = "/debug/stats"
+	pathToTextPprofIndex          = "/debug/pprof/"
+	pathToTextPprofCmdline        = "/debug/pprof/cmdline"
+	pathToTextPprofProfile        = "/debug/pprof/profile"
+	pathToTextPprofSymbol         = "/debug/pprof/symbol"
+	pathToTextPprofTrace          = "/debug/pprof/trace"
 	pathToVisualPprofCPU          = "/debug/visual-pprof/" + profileCPU.String()
 	pathToVisualPprofHeap         = "/debug/visual-pprof/" + profileHeap.String()
 	pathToVisualPprofBlock        = "/debug/visual-pprof/" + profileBlock.String()
@@ -19,7 +25,12 @@ var (
 
 func serveIndexPage(w http.ResponseWriter, r *http.Request) {
 	var v = struct {
+		BasicStats              string
 		TextPprofIndex          string
+		TextPprofCmdline        string
+		TextPprofProfile        string
+		TextPprofSymbol         string
+		TextPprofTrace          string
 		VisualPprofCPU          string
 		VisualPprofHeap         string
 		VisualPprofBlock        string
@@ -28,7 +39,12 @@ func serveIndexPage(w http.ResponseWriter, r *http.Request) {
 		VisualPprofGoRoutine    string
 		VisualPprofThreadCreate string
 	}{
-		TextPprofIndex:          "/debug/pprof/",
+		BasicStats:              pathToBasicStats,
+		TextPprofIndex:          pathToTextPprofIndex,
+		TextPprofCmdline:        pathToTextPprofCmdline,
+		TextPprofProfile:        pathToTextPprofProfile,
+		TextPprofSymbol:         pathToTextPprofSymbol,
+		TextPprofTrace:          pathToTextPprofTrace,
 		VisualPprofCPU:          pathToVisualPprofCPU,
 		VisualPprofHeap:         pathToVisualPprofHeap,
 		VisualPprofBlock:        pathToVisualPprofBlock,
@@ -49,14 +65,14 @@ func ListenAndServe(listen string) error {
 	r.HandleFunc("/", serveIndexPage)
 
 	// basic stats
-	r.HandleFunc("/debug/stats", statsHandler)
+	r.HandleFunc(pathToBasicStats, statsHandler)
 
 	// text profile
-	r.HandleFunc("/debug/pprof/", pprof.Index)
-	r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	r.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	r.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	r.HandleFunc(pathToTextPprofIndex, pprof.Index)
+	r.HandleFunc(pathToTextPprofCmdline, pprof.Cmdline)
+	r.HandleFunc(pathToTextPprofProfile, pprof.Profile)
+	r.HandleFunc(pathToTextPprofSymbol, pprof.Symbol)
+	r.HandleFunc(pathToTextPprofTrace, pprof.Trace)
 
 	// visual profile
 	vp, err := newVisualizePprof(glog.DefaultLogger)
@@ -85,14 +101,19 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
   </head>
   <body>
 	<div style="width:95%; height:95%; display: inline-block; vertical-align: top;">
-		<p><a href="Text pprof entry -> {{.TextPprofIndex}}" target="_blank">{{.TextPprofIndex}}</a></p>
-		<p><a href="Visual pprof CPU (wait 10+ seconds) -> {{.VisualPprofCPU}}" target="_blank">{{.VisualPprofCPU}}</a></p>
-		<p><a href="Visual pprof heap -> {{.VisualPprofHeap}}" target="_blank">{{.VisualPprofHeap}}</a></p>
-		<p><a href="Visual pprof block -> {{.VisualPprofBlock}}" target="_blank">{{.VisualPprofBlock}}</a></p>
-		<p><a href="Visual pprof mutex -> {{.VisualPprofMutex}}" target="_blank">{{.VisualPprofMutex}}</a></p>
-		<p><a href="Visual pprof allocs -> {{.VisualPprofAllocs}}" target="_blank">{{.VisualPprofAllocs}}</a></p>
-		<p><a href="Visual pprof Go routine -> {{.VisualPprofGoRoutine}}" target="_blank">{{.VisualPprofGoRoutine}}</a></p>
-		<p><a href="Visual pprof thread create -> {{.VisualPprofThreadCreate}}" target="_blank">{{.VisualPprofThreadCreate}}</a></p>
+		<p><a href="{{.BasicStats}}" target="_blank">Basic stats information -> {{.BasicStats}}</a></p>
+		<p><a href="{{.TextPprofIndex}}" target="_blank">Text pprof index -> {{.TextPprofIndex}}</a></p>
+		<p><a href="{{.TextPprofCmdline}}" target="_blank">Text pprof cmdline -> {{.TextPprofCmdline}}</a></p>
+		<p><a href="{{.TextPprofProfile}}" target="_blank">Text pprof profile -> {{.TextPprofProfile}}</a></p>
+		<p><a href="{{.TextPprofSymbol}}" target="_blank">Text pprof symbol -> {{.TextPprofSymbol}}</a></p>
+		<p><a href="{{.TextPprofTrace}}" target="_blank">Text pprof trace -> {{.TextPprofTrace}}</a></p>
+		<p><a href="{{.VisualPprofCPU}}" target="_blank">Visual pprof CPU (wait 10+ seconds) -> {{.VisualPprofCPU}}</a></p>
+		<p><a href="{{.VisualPprofHeap}}" target="_blank">Visual pprof heap -> {{.VisualPprofHeap}}</a></p>
+		<p><a href="{{.VisualPprofBlock}}" target="_blank">Visual pprof block -> {{.VisualPprofBlock}}</a></p>
+		<p><a href="{{.VisualPprofMutex}}" target="_blank">Visual pprof mutex -> {{.VisualPprofMutex}}</a></p>
+		<p><a href="{{.VisualPprofAllocs}}" target="_blank">Visual pprof allocs -> {{.VisualPprofAllocs}}</a></p>
+		<p><a href="{{.VisualPprofGoRoutine}}" target="_blank">Visual pprof Go routine -> {{.VisualPprofGoRoutine}}</a></p>
+		<p><a href="{{.VisualPprofThreadCreate}}" target="_blank">Visual pprof thread create -> {{.VisualPprofThreadCreate}}</a></p>
 	</div>
   </body>
 </html>
