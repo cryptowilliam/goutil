@@ -66,24 +66,24 @@ func serveIndexPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // control profile with runtime interfaces.
-func startProfile(start bool) {
+func enableProfile(enable bool) {
 	// SetBlockProfileRate controls the fraction of goroutine blocking events
 	// that are reported in the blocking profile. The profiler aims to sample
 	// an average of one blocking event per rate nanoseconds spent blocked.
 	//
 	// To include every blocking event in the profile, pass rate = 1.
 	// To turn off profiling entirely, pass rate <= 0.
-	blockRate := gternary.If(start).Int(1, 0)
+	blockRate := gternary.If(enable).Int(1, 0)
 	runtime.SetBlockProfileRate(blockRate)
 
-	mutexFraction := gternary.If(start).Int(-1, 0)
+	mutexFraction := gternary.If(enable).Int(10, 0)
 	runtime.SetMutexProfileFraction(mutexFraction)
 }
 
 func ListenAndServe(listen string) error {
 	r := http.NewServeMux()
-	startProfile(true)
-	defer startProfile(false)
+	enableProfile(true)
+	defer enableProfile(false)
 
 	// index page
 	r.HandleFunc("/", serveIndexPage)
