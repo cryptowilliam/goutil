@@ -82,6 +82,9 @@ func enableProfile(enable bool) {
 	runtime.SetMutexProfileFraction(mutexFraction)
 }
 
+// ListenAndServe starts a debug server with web ui.
+// Visit http://listen to see it.
+// Note: don't start it if not necessary.
 func ListenAndServe(listen string) error {
 	r := http.NewServeMux()
 	enableProfile(true)
