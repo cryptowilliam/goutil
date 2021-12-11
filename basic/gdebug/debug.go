@@ -150,7 +150,7 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.VisualPprofMutex}}" target="_blank">Visual pprof mutex</a></p>
 		<p><a href="{{.VisualPprofAllocs}}" target="_blank">Visual pprof allocs</a></p>
 		<p><a href="{{.VisualPprofGoroutine}}" target="_blank">Visual pprof goroutine</a></p>
-		<p><a href="{{.VisualPprofThreadCreate}}" target="_blank">Visual pprof thread create</a></p>
+		<p><a href="{{.VisualPprofThreadCreate}}" target="_blank">Visual pprof threadcreate</a></p>
 		<p><a href="{{.BasicStats}}" target="_blank">Basic stats information</a></p>
 	</div>
 	<br>
