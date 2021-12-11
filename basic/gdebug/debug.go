@@ -76,7 +76,7 @@ func enableProfile(enable bool) {
 	blockRate := gternary.If(enable).Int(1, 0)
 	runtime.SetBlockProfileRate(blockRate)
 
-	mutexFraction := gternary.If(enable).Int(10, 0)
+	mutexFraction := gternary.If(enable).Int(1, 0)
 	runtime.SetMutexProfileFraction(mutexFraction)
 }
 
