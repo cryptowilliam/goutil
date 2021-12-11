@@ -65,7 +65,9 @@ func serveIndexPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// control profile with runtime interfaces.
+// control part profiles with runtime interfaces.
+// CPU profile is not included but only started when user want, because
+// CPU profile requires an opened file stream to store the data.
 func enableProfile(enable bool) {
 	// SetBlockProfileRate controls the fraction of goroutine blocking events
 	// that are reported in the blocking profile. The profiler aims to sample
