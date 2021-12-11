@@ -19,27 +19,27 @@ import (
 )
 
 type (
-	// Profile represents a pprof profile.
-	Profile string
+	// profile represents a pprof profile.
+	profile string
 
-	// VisualizePprof uses official `go tool pprof` web UI to show visualized pprof data.
-	VisualizePprof struct {
+	// visualizePprof uses official `go tool pprof` web UI to show visualized pprof data.
+	visualizePprof struct {
 		log      glog.Interface
 		selfPath string
 	}
 )
 
 var (
-	ProfileCPU          = Profile("cpu")
-	ProfileHeap         = Profile("heap")
-	ProfileBlock        = Profile("block") // Stack traces that led to blocking on synchronization primitives.
-	ProfileMutex        = Profile("mutex") // Stack traces of holders of contended mutexes.
-	ProfileAllocs       = Profile("allocs")
-	ProfileGoRoutine    = Profile("goroutine")
-	ProfileThreadCreate = Profile("threadcreate") // Stack traces that led to the creation of new OS threads.
+	profileCPU          = profile("cpu")
+	profileHeap         = profile("heap")
+	profileBlock        = profile("block") // Stack traces that led to blocking on synchronization primitives.
+	profileMutex        = profile("mutex") // Stack traces of holders of contended mutexes.
+	profileAllocs       = profile("allocs")
+	profileGoRoutine    = profile("goroutine")
+	profileThreadCreate = profile("threadcreate") // Stack traces that led to the creation of new OS threads.
 )
 
-func (p Profile) String() string {
+func (p profile) String() string {
 	return string(p)
 }
 
@@ -57,13 +57,13 @@ func newTemp() (*os.File, error) {
 //
 // If zero value is provided, it will include every blocking event
 // in the profile.
-func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) (string, error) {
-	if profile == ProfileBlock && blockCapRate > 0 {
+func captureProfile(profile profile, cpuCapDur time.Duration, blockCapRate int) (string, error) {
+	if profile == profileBlock && blockCapRate > 0 {
 		runtime.SetBlockProfileRate(blockCapRate)
 	}
 
 	switch profile {
-	case ProfileCPU:
+	case profileCPU:
 		if cpuCapDur <= 0 {
 			cpuCapDur = 30 * time.Second
 		}
@@ -81,7 +81,7 @@ func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) 
 		}
 		return f.Name(), nil
 
-	case ProfileHeap, ProfileBlock, ProfileMutex, ProfileAllocs, ProfileGoRoutine, ProfileThreadCreate:
+	case profileHeap, profileBlock, profileMutex, profileAllocs, profileGoRoutine, profileThreadCreate:
 		f, err := newTemp()
 		if err != nil {
 			return "", err
@@ -99,25 +99,25 @@ func captureProfile(profile Profile, cpuCapDur time.Duration, blockCapRate int) 
 	}
 }
 
-func convertProfile(s string) (Profile, error) {
-	switch Profile(s) {
-	case ProfileCPU, ProfileHeap, ProfileBlock, ProfileMutex, ProfileAllocs, ProfileGoRoutine, ProfileThreadCreate:
-		return Profile(s), nil
+func convertProfile(s string) (profile, error) {
+	switch profile(s) {
+	case profileCPU, profileHeap, profileBlock, profileMutex, profileAllocs, profileGoRoutine, profileThreadCreate:
+		return profile(s), nil
 	default:
-		return ProfileCPU, gerrors.New("invalid Profile %s", s)
+		return profileCPU, gerrors.New("invalid profile %s", s)
 	}
 }
 
-func newVisualizePprof(log glog.Interface) (*VisualizePprof, error) {
+func newVisualizePprof(log glog.Interface) (*visualizePprof, error) {
 	selfPid := gproc.GetPidOfMyself()
 	selfPath, err := gproc.GetExePathFromPid(int(selfPid))
 	if err != nil {
 		return nil, err
 	}
-	return &VisualizePprof{log: log, selfPath: selfPath}, nil
+	return &visualizePprof{log: log, selfPath: selfPath}, nil
 }
 
-func (c *VisualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg string) {
+func (c *visualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg string) {
 	if err == nil {
 		return
 	}
@@ -128,7 +128,7 @@ func (c *VisualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg st
 	}
 }
 
-func (c *VisualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
+func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request) {
 	c.log.Infof("accept visual pprof request %s", r.URL.String())
 	ss := strings.Split(r.URL.Path, "debug/visual-pprof/")
 	if len(ss) == 0 {
