@@ -6,12 +6,12 @@ import (
 	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/cryptowilliam/goutil/crypto/gbase"
-	"github.com/cryptowilliam/goutil/sys/gcmd"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/cryptowilliam/goutil/sys/gproc"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
 	"runtime/pprof"
 	"strings"
@@ -147,8 +147,9 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	// convert .prof file to image
 	imgType := "png"
 	imgPath := profPath + "." + imgType
-	cmdline := fmt.Sprintf("go tool pprof -%s '%s' '%s' > '%s'", imgType, c.selfPath, profPath, imgPath)
-	result, err := gcmd.ExecShell(cmdline)
+	//cmdline := fmt.Sprintf("go tool pprof -%s '%s' '%s' > '%s'", imgType, c.selfPath, profPath, imgPath)
+	//result, err := gcmd.ExecShell(cmdline)
+	result, err := exec.Command("go", "tool", "pprof", "-"+imgType, "-output", imgPath, c.selfPath, profPath).CombinedOutput()
 	if err != nil {
 		c.replyError(w, err, fmt.Sprintf("execute shell returns %s, error", result))
 		return
