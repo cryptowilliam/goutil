@@ -144,7 +144,7 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.TextPprofFullGoroutineStackDump}}" target="_blank">Text pprof full goroutine stack dump</a></p>
 	</div>
 	<div style="width:45%; height:95%; display: inline-block; vertical-align: top;">
-		<p><a href="{{.VisualPprofCPU}}" target="_blank">Visual pprof CPU (wait 10+ seconds)</a></p>
+		<p><a href="{{.VisualPprofCPU}}" target="_blank">Visual pprof cpu (wait 10+ seconds)</a></p>
 		<p><a href="{{.VisualPprofHeap}}" target="_blank">Visual pprof heap</a></p>
 		<p><a href="{{.VisualPprofBlock}}" target="_blank">Visual pprof block</a></p>
 		<p><a href="{{.VisualPprofMutex}}" target="_blank">Visual pprof mutex</a></p>
