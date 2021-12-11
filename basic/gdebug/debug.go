@@ -126,6 +126,21 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.VisualPprofGoRoutine}}" target="_blank">Visual pprof Go routine</a></p>
 		<p><a href="{{.VisualPprofThreadCreate}}" target="_blank">Visual pprof thread create</a></p>
 	</div>
+	<br>
+	<p>
+	Profile Descriptions:
+	<ul>
+	<li><div class=profile-name>allocs: </div> A sampling of all past memory allocations</li>
+	<li><div class=profile-name>block: </div> Stack traces that led to blocking on synchronization primitives</li>
+	<li><div class=profile-name>cmdline: </div> The command line invocation of the current program</li>
+	<li><div class=profile-name>goroutine: </div> Stack traces of all current goroutines</li>
+	<li><div class=profile-name>heap: </div> A sampling of memory allocations of live objects. You can specify the gc GET parameter to run GC before taking the heap sample.</li>
+	<li><div class=profile-name>mutex: </div> Stack traces of holders of contended mutexes</li>
+	<li><div class=profile-name>profile: </div> CPU profile. You can specify the duration in the seconds GET parameter. After you get the profile file, use the go tool pprof command to investigate the profile.</li>
+	<li><div class=profile-name>threadcreate: </div> Stack traces that led to the creation of new OS threads</li>
+	<li><div class=profile-name>trace: </div> A trace of execution of the current program. You can specify the duration in the seconds GET parameter. After you get the trace file, use the go tool trace command to investigate the trace.</li>
+	</ul>
+	</p>
   </body>
 </html>
 `))
