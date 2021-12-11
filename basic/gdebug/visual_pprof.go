@@ -146,6 +146,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "capture profile error")
 		return
 	}
+	c.log.Debgf("pprof capture file: %s", profPath)
 
 	// convert .prof file to image
 	imgType := "png"
