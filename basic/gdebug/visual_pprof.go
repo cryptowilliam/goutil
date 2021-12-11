@@ -137,7 +137,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "convert profile error")
 		return
 	}
-	profPath, err := captureProfile(profile, 10*time.Second, 0)
+	profPath, err := captureProfile(profile, 10*time.Second, 1)
 	if err != nil {
 		c.replyError(w, err, "capture profile error")
 		return
