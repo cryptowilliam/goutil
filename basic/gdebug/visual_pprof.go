@@ -51,17 +51,17 @@ func newTemp() (*os.File, error) {
 	return f, nil
 }
 
-// `blockCapRate` is the fraction of goroutine blocking events that
-// are reported in the blocking profile. The profiler aims to
-// sample an average of one blocking event per rate nanoseconds spent blocked.
-//
-// If zero value is provided, it will include every blocking event
-// in the profile.
-func captureProfile(profile profile, cpuCapDur time.Duration, blockCapRate int) (string, error) {
-	runtime.SetBlockProfileRate(1)
-	/*if profile == profileBlock && blockCapRate > 0 {
-		runtime.SetBlockProfileRate(blockCapRate)
-	}*/
+func captureProfile(profile profile, cpuCapDur time.Duration) (string, error) {
+	// SetBlockProfileRate controls the fraction of goroutine blocking events
+	// that are reported in the blocking profile. The profiler aims to sample
+	// an average of one blocking event per rate nanoseconds spent blocked.
+	//
+	// To include every blocking event in the profile, pass rate = 1.
+	// To turn off profiling entirely, pass rate <= 0.
+	if profile == profileBlock {
+		runtime.SetBlockProfileRate(1)
+		defer runtime.SetBlockProfileRate(0)
+	}
 
 	switch profile {
 	case profileCPU:
@@ -138,7 +138,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "convert profile error")
 		return
 	}
-	profPath, err := captureProfile(profile, 10*time.Second, 0)
+	profPath, err := captureProfile(profile, 10*time.Second)
 	if err != nil {
 		c.replyError(w, err, "capture profile error")
 		return
