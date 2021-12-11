@@ -105,7 +105,7 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
     <title id="">Debug System</title>
   </head>
   <body>
-	<div style="width:95%; height:95%; display: inline-block; vertical-align: top;">
+	<div style="width:45%; height:95%; display: inline-block; vertical-align: top;">
 		<p><a href="{{.BasicStats}}" target="_blank">Basic stats information</a></p>
 		<p><a href="{{.TextPprofIndex}}" target="_blank">Text pprof index</a></p>
 		<p><a href="{{.TextPprofAllocs}}" target="_blank">Text pprof allocs</a></p>
@@ -119,6 +119,8 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.TextPprofTrace}}" target="_blank">Text pprof trace</a></p>
 		<p><a href="{{.TextPprofSymbol}}" target="_blank">Text pprof symbol</a></p>
 		<p><a href="{{.TextPprofFullGoroutineStackDump}}" target="_blank">Text pprof full goroutine stack dump</a></p>
+	</div>
+	<div style="width:45%; height:95%; display: inline-block; vertical-align: top;">
 		<p><a href="{{.VisualPprofCPU}}" target="_blank">Visual pprof CPU (wait 10+ seconds)</a></p>
 		<p><a href="{{.VisualPprofHeap}}" target="_blank">Visual pprof heap</a></p>
 		<p><a href="{{.VisualPprofBlock}}" target="_blank">Visual pprof block</a></p>
