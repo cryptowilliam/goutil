@@ -2,9 +2,11 @@ package gdebug
 
 import (
 	"github.com/cryptowilliam/goutil/basic/glog"
+	"github.com/cryptowilliam/goutil/container/gternary"
 	"html/template"
 	"net/http"
 	"net/http/pprof"
+	"runtime"
 )
 
 type (
@@ -63,8 +65,25 @@ func serveIndexPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// control profile with runtime interfaces.
+func startProfile(start bool) {
+	// SetBlockProfileRate controls the fraction of goroutine blocking events
+	// that are reported in the blocking profile. The profiler aims to sample
+	// an average of one blocking event per rate nanoseconds spent blocked.
+	//
+	// To include every blocking event in the profile, pass rate = 1.
+	// To turn off profiling entirely, pass rate <= 0.
+	blockRate := gternary.If(start).Int(1, 0)
+	runtime.SetBlockProfileRate(blockRate)
+
+	mutexFraction := gternary.If(start).Int(-1, 0)
+	runtime.SetMutexProfileFraction(mutexFraction)
+}
+
 func ListenAndServe(listen string) error {
 	r := http.NewServeMux()
+	startProfile(true)
+	defer startProfile(false)
 
 	// index page
 	r.HandleFunc("/", serveIndexPage)
