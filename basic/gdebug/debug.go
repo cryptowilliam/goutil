@@ -1,12 +1,14 @@
 package gdebug
 
 import (
+	"context"
 	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/container/gternary"
 	"html/template"
 	"net/http"
-	"net/http/pprof"
+	pprof "net/http/pprof"
 	"runtime"
+	rpprof "runtime/pprof"
 )
 
 type (
@@ -77,6 +79,8 @@ func enableProfile(enable bool) {
 	// To turn off profiling entirely, pass rate <= 0.
 	blockRate := gternary.If(enable).Int(1, 0)
 	runtime.SetBlockProfileRate(blockRate)
+	
+	rpprof.SetGoroutineLabels(rpprof.WithLabels(context.Background(), rpprof.Labels("t", "active")))
 
 	mutexFraction := gternary.If(enable).Int(1, 0)
 	runtime.SetMutexProfileFraction(mutexFraction)
