@@ -85,14 +85,14 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
   </head>
   <body>
 	<div style="width:95%; height:95%; display: inline-block; vertical-align: top;">
-		<p><a href="{{.TextPprofIndex}}" target="_blank">{{.TextPprofIndex}}</a></p>
-		<p><a href="{{.VisualPprofCPU}}" target="_blank">{{.VisualPprofCPU}}</a></p>
-		<p><a href="{{.VisualPprofHeap}}" target="_blank">{{.VisualPprofHeap}}</a></p>
-		<p><a href="{{.VisualPprofBlock}}" target="_blank">{{.VisualPprofBlock}}</a></p>
-		<p><a href="{{.VisualPprofMutex}}" target="_blank">{{.VisualPprofMutex}}</a></p>
-		<p><a href="{{.VisualPprofAllocs}}" target="_blank">{{.VisualPprofAllocs}}</a></p>
-		<p><a href="{{.VisualPprofGoRoutine}}" target="_blank">{{.VisualPprofGoRoutine}}</a></p>
-		<p><a href="{{.VisualPprofThreadCreate}}" target="_blank">{{.VisualPprofThreadCreate}}</a></p>
+		<p><a href="Text pprof entry -> {{.TextPprofIndex}}" target="_blank">{{.TextPprofIndex}}</a></p>
+		<p><a href="Visual pprof CPU (wait 10+ seconds) -> {{.VisualPprofCPU}}" target="_blank">{{.VisualPprofCPU}}</a></p>
+		<p><a href="Visual pprof heap -> {{.VisualPprofHeap}}" target="_blank">{{.VisualPprofHeap}}</a></p>
+		<p><a href="Visual pprof block -> {{.VisualPprofBlock}}" target="_blank">{{.VisualPprofBlock}}</a></p>
+		<p><a href="Visual pprof mutex -> {{.VisualPprofMutex}}" target="_blank">{{.VisualPprofMutex}}</a></p>
+		<p><a href="Visual pprof allocs -> {{.VisualPprofAllocs}}" target="_blank">{{.VisualPprofAllocs}}</a></p>
+		<p><a href="Visual pprof Go routine -> {{.VisualPprofGoRoutine}}" target="_blank">{{.VisualPprofGoRoutine}}</a></p>
+		<p><a href="Visual pprof thread create -> {{.VisualPprofThreadCreate}}" target="_blank">{{.VisualPprofThreadCreate}}</a></p>
 	</div>
   </body>
 </html>
