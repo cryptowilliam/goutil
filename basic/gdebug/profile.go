@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/sys/gproc"
-	"github.com/goccy/go-graphviz"
 	"github.com/google/pprof/driver"
 	"github.com/google/pprof/profile"
 	"runtime"
@@ -193,7 +192,7 @@ func (p *Profile) ToSvg() ([]byte, error) {
 
 // ToPng convert profile to PNG image.
 // FIXME: output image is totally different from "go tool pprof -png -output imagePath binaryPath profilePath"
-func (p *Profile) ToPng() ([]byte, error) {
+/*func (p *Profile) ToPng() ([]byte, error) {
 	dotBuf, err := p.ToDotGraph()
 	if err != nil {
 		return nil, err
@@ -207,4 +206,4 @@ func (p *Profile) ToPng() ([]byte, error) {
 		return nil, err
 	}
 	return pngBuf.Bytes(), nil
-}
+}*/
