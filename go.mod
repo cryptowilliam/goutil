@@ -11,6 +11,7 @@ require (
 	github.com/SentimensRG/sigctx v0.0.0-20171003180858-c19b774db63b
 	github.com/StevenZack/openurl v0.0.0-20190430065139-b25363f65ff8
 	github.com/VividCortex/godaemon v1.0.0
+	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1290
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/anacrolix/utp v0.1.0
@@ -36,7 +37,6 @@ require (
 	github.com/extrame/xls v0.0.1
 	github.com/fatih/structs v1.1.0
 	github.com/frankenbeanies/randhex v0.0.0-20191121050539-48f4de439ea4
-	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/gabriel-vasile/mimetype v1.4.0
 	github.com/getlantern/appdir v0.0.0-20200615192800-a0ef1968f4da
 	github.com/getlantern/osversion v0.0.0-20190510010111-432ecec19031
@@ -49,9 +49,11 @@ require (
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/go-vgo/robotgo v0.100.2
 	github.com/gocarina/gocsv v0.0.0-20211020200912-82fc2684cc48
+	github.com/goccy/go-graphviz v0.0.9
 	github.com/golang/snappy v0.0.4
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/gopacket v1.1.19
+	github.com/google/pprof v0.0.0-20211204230040-2007db6d4f53
 	github.com/google/uuid v1.1.5
 	github.com/gorilla/websocket v1.4.2
 	github.com/goware/urlx v0.3.1
@@ -90,7 +92,6 @@ require (
 	github.com/prestonTao/upnp v0.0.0-20150206124352-f4370df5e109
 	github.com/r3labs/diff v1.1.0
 	github.com/radovskyb/watcher v1.0.7
-	github.com/rakyll/autopprof v0.1.0
 	github.com/richardlehane/characterize v1.0.0
 	github.com/ross-spencer/sfclassic v0.0.0-20190809170605-5e8ee763688f
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca
@@ -107,9 +108,7 @@ require (
 	github.com/takama/daemon v1.0.0
 	github.com/taruti/langdetect v0.0.0-20160316071627-327bfa898307
 	github.com/tealeg/xlsx v1.0.5
-	github.com/templexxx/xorsimd v0.4.1
 	github.com/tidwall/gjson v1.10.2
-	github.com/tjfoc/gmsm v1.4.1
 	github.com/tkuchiki/parsetime v0.3.0
 	github.com/tuotoo/qrcode v0.0.0-20190222102259-ac9c44189bf2
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
@@ -145,7 +144,6 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/StevenZack/tools v1.13.11 // indirect
-	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/aead/poly1305 v0.0.0-20180717145839-3fee0db0b635 // indirect
 	github.com/ameshkov/dnscrypt/v2 v2.2.3 // indirect
 	github.com/ameshkov/dnsstamps v1.0.3 // indirect
@@ -176,6 +174,7 @@ require (
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
 	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
 	github.com/extrame/ole2 v0.0.0-20160812065207-d69429661ad7 // indirect
+	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17 // indirect
 	github.com/gen2brain/shm v0.0.0-20200228170931-49f9650110c5 // indirect
@@ -209,6 +208,7 @@ require (
 	github.com/headzoo/surf v1.0.1 // indirect
 	github.com/headzoo/ut v0.0.0-20181013193318-a13b5a7a02ca // indirect
 	github.com/huandu/xstrings v1.3.1 // indirect
+	github.com/ianlancetaylor/demangle v0.0.0-20210905161508-09a460cdf81d // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20180606194806-57d518f124b0 // indirect
@@ -260,11 +260,11 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
-	github.com/templexxx/cpu v0.0.1 // indirect
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
 	github.com/templexxx/xor v0.0.0-20191217153810-f85b25db303b // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/tkuchiki/go-timezone v0.2.2 // indirect

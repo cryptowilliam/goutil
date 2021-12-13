@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/glog"
+	"github.com/cryptowilliam/goutil/container/grand"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/cryptowilliam/goutil/crypto/gbase"
 	"github.com/cryptowilliam/goutil/sys/gfs"
@@ -12,36 +13,18 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"runtime"
-	"runtime/pprof"
 	"strings"
 	"time"
 )
 
 type (
-	// profile represents a pprof profile.
-	profile string
-
 	// visualizePprof uses official `go tool pprof` web UI to show visualized pprof data.
 	visualizePprof struct {
 		log      glog.Interface
 		selfPath string
+		useGoTool bool
 	}
 )
-
-var (
-	profileCPU          = profile("cpu")
-	profileHeap         = profile("heap")
-	profileBlock        = profile("block") // Stack traces that led to blocking on synchronization primitives.
-	profileMutex        = profile("mutex") // Stack traces of holders of contended mutexes.
-	profileAllocs       = profile("allocs")
-	profileGoroutine    = profile("goroutine")
-	profileThreadCreate = profile("threadcreate") // Stack traces that led to the creation of new OS threads.
-)
-
-func (p profile) String() string {
-	return string(p)
-}
 
 func newTemp() (*os.File, error) {
 	f, err := ioutil.TempFile("", "profile-")
@@ -51,66 +34,13 @@ func newTemp() (*os.File, error) {
 	return f, nil
 }
 
-// `blockCapRate` is the fraction of goroutine blocking events that
-// are reported in the blocking profile. The profiler aims to
-// sample an average of one blocking event per rate nanoseconds spent blocked.
-//
-// If zero value is provided, it will include every blocking event
-// in the profile.
-func captureProfile(profile profile, cpuCapDur time.Duration, blockCapRate int) (string, error) {
-	if profile == profileBlock && blockCapRate > 0 {
-		runtime.SetBlockProfileRate(blockCapRate)
-	}
-
-	switch profile {
-	case profileCPU:
-		if cpuCapDur <= 0 {
-			cpuCapDur = 30 * time.Second
-		}
-		f, err := newTemp()
-		if err != nil {
-			return "", err
-		}
-		defer f.Close()
-		if err := pprof.StartCPUProfile(f); err != nil {
-			return "", err
-		}
-		time.Sleep(cpuCapDur)
-		pprof.StopCPUProfile()
-		return f.Name(), nil
-
-	case profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
-		f, err := newTemp()
-		if err != nil {
-			return "", err
-		}
-		defer f.Close()
-		if err := pprof.Lookup(profile.String()).WriteTo(f, 2); err != nil {
-			return "", err
-		}
-		return f.Name(), nil
-
-	default:
-		return "", gerrors.New("unsupported profile %s", profile.String())
-	}
-}
-
-func convertProfile(s string) (profile, error) {
-	switch profile(s) {
-	case profileCPU, profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
-		return profile(s), nil
-	default:
-		return profileCPU, gerrors.New("invalid profile %s", s)
-	}
-}
-
 func newVisualizePprof(log glog.Interface) (*visualizePprof, error) {
 	selfPid := gproc.GetPidOfMyself()
 	selfPath, err := gproc.GetExePathFromPid(int(selfPid))
 	if err != nil {
 		return nil, err
 	}
-	return &visualizePprof{log: log, selfPath: selfPath}, nil
+	return &visualizePprof{log: log, selfPath: selfPath, useGoTool: false}, nil
 }
 
 func (c *visualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg string) {
@@ -137,26 +67,46 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		c.replyError(w, err, "convert profile error")
 		return
 	}
-	profPath, err := captureProfile(profile, 10*time.Second, 1)
-	if err != nil {
-		c.replyError(w, err, "capture profile error")
-		return
-	}
-	c.log.Debgf("pprof capture file: %s", profPath)
 
-	// TODO: use github.com/google/pprof/ apis instead of exec.Command, I'm not sure this is feasible.
-	// convert .prof file to image
 	imgType := "png"
-	imgPath := profPath + "." + imgType
-	result, err := exec.Command("go", "tool", "pprof", "-"+imgType, "-output", imgPath, c.selfPath, profPath).CombinedOutput()
-	if err != nil {
-		c.replyError(w, err, fmt.Sprintf("execute shell returns %s, error", result))
-		return
-	}
-	imgBuf, err := gfs.FileToBytes(imgPath)
-	if err != nil {
-		c.replyError(w, err, "read svg error")
-		return
+	imgPath := "profile-" + grand.RandomString(10) + "." + imgType
+	var imgBuf []byte
+	if c.useGoTool {
+		profPath, err := CaptureToFile(profile, 10*time.Second, 1)
+		if err != nil {
+			c.replyError(w, err, "capture profile error")
+			return
+		}
+		c.log.Debgf("pprof capture file: %s", profPath)
+
+		// convert .prof file to image
+		result, err := exec.Command("go", "tool", "pprof", "-"+imgType, "-output", imgPath, c.selfPath, profPath).CombinedOutput()
+		if err != nil {
+			c.replyError(w, err, fmt.Sprintf("execute shell returns %s, error", result))
+			return
+		}
+		imgBuf, err = gfs.FileToBytes(imgPath)
+		if err != nil {
+			c.replyError(w, err, "read svg error")
+			return
+		}
+	} else {
+		prof, err := Capture(profile, 10*time.Second, 1)
+		if err != nil {
+			c.replyError(w, err, "capture profile error")
+			return
+		}
+		if imgType == "svg" {
+			imgBuf, err = prof.ToSvg()
+		} else if imgType == "png" {
+			imgBuf, err = prof.ToPng()
+		} else {
+		}
+		err = gerrors.New("unknown image type %s", imgType)
+		if err != nil {
+			c.replyError(w, err, "handle svg error")
+			return
+		}
 	}
 
 	// convert image file to html source
