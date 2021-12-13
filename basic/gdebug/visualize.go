@@ -35,8 +35,7 @@ func newTemp() (*os.File, error) {
 }
 
 func newVisualizePprof(log glog.Interface) (*visualizePprof, error) {
-	selfPid := gproc.GetPidOfMyself()
-	selfPath, err := gproc.GetExePathFromPid(int(selfPid))
+	selfPath, err := gproc.SelfPath()
 	if err != nil {
 		return nil, err
 	}
