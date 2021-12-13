@@ -92,7 +92,7 @@ func CaptureToFile(profile ProfileName, cpuCapDur time.Duration, blockCapRate in
 	}
 
 	switch profile {
-	case "cpu":
+	case profileCPU:
 		if cpuCapDur <= 0 {
 			cpuCapDur = 30 * time.Second
 		}
