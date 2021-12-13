@@ -3,7 +3,6 @@ package gdebug
 import (
 	"bytes"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/sys/gproc"
 	"github.com/google/pprof/driver"
 	"github.com/google/pprof/profile"
 	"runtime"
@@ -146,15 +145,10 @@ func (p *Profile) ToDotGraph() ([]byte, error) {
 		return nil, err
 	}
 
-	selfPath, err := gproc.SelfPath()
-	if err != nil {
-		return nil, err
-	}
-
 	result := bytes.Buffer{}
-	err = driver.PProf(&driver.Options{
+	err := driver.PProf(&driver.Options{
 		Fetch:   &fetcher{b: buf.Bytes()},
-		Flagset: newFlagSet("-dot", "-output="+selfPath+".dot"),
+		Flagset: newFlagSet("-dot"),
 		UI:      &fakeUI{},
 		Writer:  &writer{&result},
 	})
@@ -172,15 +166,10 @@ func (p *Profile) ToSvg() ([]byte, error) {
 		return nil, err
 	}
 
-	selfPath, err := gproc.SelfPath()
-	if err != nil {
-		return nil, err
-	}
-
 	result := bytes.Buffer{}
-	err = driver.PProf(&driver.Options{
+	err := driver.PProf(&driver.Options{
 		Fetch:   newFetcher(buf.Bytes()),
-		Flagset: newFlagSet("-svg", "-output="+selfPath+".dot"),
+		Flagset: newFlagSet("-svg"),
 		UI:      newFakeUI(),
 		Writer:  newWriter(&result),
 	})
@@ -189,21 +178,3 @@ func (p *Profile) ToSvg() ([]byte, error) {
 	}
 	return result.Bytes(), nil
 }
-
-// ToPng convert profile to PNG image.
-// FIXME: output image is totally different from "go tool pprof -png -output imagePath binaryPath profilePath"
-/*func (p *Profile) ToPng() ([]byte, error) {
-	dotBuf, err := p.ToDotGraph()
-	if err != nil {
-		return nil, err
-	}
-	graph, err := graphviz.ParseBytes(dotBuf)
-	if err != nil {
-		return nil, err
-	}
-	pngBuf := bytes.Buffer{}
-	if err = graphviz.New().Render(graph, graphviz.PNG, &pngBuf); err != nil {
-		return nil, err
-	}
-	return pngBuf.Bytes(), nil
-}*/
