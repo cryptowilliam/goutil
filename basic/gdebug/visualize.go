@@ -101,8 +101,8 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		} else if imgType == "png" {
 			imgBuf, err = prof.ToPng()
 		} else {
+			err = gerrors.New("unknown image type %s", imgType)
 		}
-		err = gerrors.New("unknown image type %s", imgType)
 		if err != nil {
 			c.replyError(w, err, "handle svg error")
 			return
