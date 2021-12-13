@@ -99,7 +99,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		if imgType == "svg" {
 			imgBuf, err = prof.ToSvg()
 		} else if imgType == "png" {
-			imgBuf, err = prof.ToPng()
+			//imgBuf, err = prof.ToPng()
 		} else {
 			err = gerrors.New("unknown image type %s", imgType)
 		}
