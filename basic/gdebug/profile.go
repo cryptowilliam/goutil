@@ -166,6 +166,7 @@ func (p *Profile) ToDotGraph() ([]byte, error) {
 }
 
 // ToSvg convert profile to SVG image.
+// FIXME: output image is totally different from "go tool pprof"
 func (p *Profile) ToSvg() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if err := (*profile.Profile)(p).Write(&buf); err != nil {
@@ -191,6 +192,7 @@ func (p *Profile) ToSvg() ([]byte, error) {
 }
 
 // ToPng convert profile to PNG image.
+// FIXME: output image is totally different from "go tool pprof"
 func (p *Profile) ToPng() ([]byte, error) {
 	dotBuf, err := p.ToDotGraph()
 	if err != nil {
