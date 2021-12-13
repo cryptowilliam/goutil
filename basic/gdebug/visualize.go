@@ -40,7 +40,7 @@ func newVisualizePprof(log glog.Interface) (*visualizePprof, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &visualizePprof{log: log, selfPath: selfPath, useGoTool: false}, nil
+	return &visualizePprof{log: log, selfPath: selfPath, useGoTool: true}, nil
 }
 
 func (c *visualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg string) {
