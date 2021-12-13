@@ -68,7 +68,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	imgType := "svg"
+	imgType := "png"
 	imgPath := "profile-" + grand.RandomString(10) + "." + imgType
 	var imgBuf []byte
 	if c.useGoTool {
