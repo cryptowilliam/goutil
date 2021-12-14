@@ -7,9 +7,7 @@ import (
 	"github.com/cryptowilliam/goutil/container/grand"
 	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/cryptowilliam/goutil/sys/gproc"
-	"io/ioutil"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -18,13 +16,11 @@ import (
 type (
 	// visualizePprof uses official `go tool pprof` web UI to show visualized pprof data.
 	visualizePprof struct {
-		log      glog.Interface
-		selfPath string
+		log       glog.Interface
+		selfPath  string
 		useGoTool bool
 	}
 )
-
-
 
 func newVisualizePprof(log glog.Interface) (*visualizePprof, error) {
 	selfPath, err := gproc.SelfPath()
@@ -104,7 +100,6 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	}
 	fmt.Println("after w.Write")
 }
-
 
 // Use go tool inside http UI server, it is more powerful but hard to manage,
 // maybe it will be enabled later.

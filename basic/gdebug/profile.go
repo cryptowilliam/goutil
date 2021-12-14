@@ -12,36 +12,9 @@ import (
 	"time"
 )
 
-
 type (
 	Profile profile.Profile
-
-	// ProfileName represents a pprof profile.
-	ProfileName string
 )
-
-var (
-	profileCPU          = ProfileName("cpu")
-	profileHeap         = ProfileName("heap")
-	profileBlock        = ProfileName("block") // Stack traces that led to blocking on synchronization primitives.
-	profileMutex        = ProfileName("mutex") // Stack traces of holders of contended mutexes.
-	profileAllocs       = ProfileName("allocs")
-	profileGoroutine    = ProfileName("goroutine")
-	profileThreadCreate = ProfileName("threadcreate") // Stack traces that led to the creation of new OS threads.
-)
-
-func (p ProfileName) String() string {
-	return string(p)
-}
-
-func convertProfile(s string) (ProfileName, error) {
-	switch ProfileName(s) {
-	case profileCPU, profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
-		return ProfileName(s), nil
-	default:
-		return profileCPU, gerrors.New("invalid ProfileName %s", s)
-	}
-}
 
 func newTemp() (*os.File, error) {
 	f, err := ioutil.TempFile("", "profile-")
@@ -52,9 +25,9 @@ func newTemp() (*os.File, error) {
 }
 
 // Capture captures profile and returns content.
-func Capture(profile ProfileName, cpuCapDur time.Duration) (*Profile, error) {
+func Capture(profile string, cpuCapDur time.Duration) (*Profile, error) {
 	switch profile {
-	case profileCPU:
+	case "profile":
 		if cpuCapDur <= 0 {
 			cpuCapDur = 30 * time.Second
 		}
@@ -67,23 +40,24 @@ func Capture(profile ProfileName, cpuCapDur time.Duration) (*Profile, error) {
 		gfs.BytesToFile(f.Bytes(), fmt.Sprintf("cpu-profile-%s.txt", time.Now().String()))
 		return ParseProfile(f.Bytes())
 
-	case profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
+	case "heap", "block", "mutex", "allocs", "goroutine", "threadcreate":
 		f := &bytes.Buffer{}
-		if err := pprof.Lookup(profile.String()).WriteTo(f, 2); err != nil {
+		if err := pprof.Lookup(profile).WriteTo(f, 2); err != nil {
 			return nil, err
 		}
-		gfs.BytesToFile(f.Bytes(), fmt.Sprintf("%s-profile-%s.txt", profile.String(), time.Now().String()))
+		gfs.BytesToFile(f.Bytes(), fmt.Sprintf("%s-profile-%s.txt", profile, time.Now().String()))
 		return ParseProfile(f.Bytes())
 
 	default:
-		return nil, gerrors.New("unsupported ProfileName %s", profile.String())
+		return nil, gerrors.New("unsupported ProfileName %s", profile)
 	}
 }
 
 // CaptureToFile captures profile and save it to file.
-func CaptureToFile(profile ProfileName, cpuCapDur time.Duration) (string, error) {
+// Note: go tool pprof required.
+func CaptureToFile(profile string, cpuCapDur time.Duration) (string, error) {
 	switch profile {
-	case profileCPU:
+	case "profile":
 		if cpuCapDur <= 0 {
 			cpuCapDur = 30 * time.Second
 		}
@@ -99,19 +73,19 @@ func CaptureToFile(profile ProfileName, cpuCapDur time.Duration) (string, error)
 		pprof.StopCPUProfile()
 		return f.Name(), nil
 
-	case profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
+	case "heap", "block", "mutex", "allocs", "goroutine", "threadcreate":
 		f, err := newTemp()
 		if err != nil {
 			return "", err
 		}
 		defer f.Close()
-		if err := pprof.Lookup(profile.String()).WriteTo(f, 2); err != nil {
+		if err := pprof.Lookup(profile).WriteTo(f, 2); err != nil {
 			return "", err
 		}
 		return f.Name(), nil
 
 	default:
-		return "", gerrors.New("unsupported ProfileName %s", profile.String())
+		return "", gerrors.New("unsupported ProfileName %s", profile)
 	}
 }
 
@@ -129,6 +103,7 @@ func VerifyProfile(b []byte) error {
 	_, err := profile.ParseData(b)
 	return err
 }
+
 /*
 // ToDotGraph convert profile to dot graph,
 // which is an image format created by Graphviz.

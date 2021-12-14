@@ -20,12 +20,13 @@ import (
 type (
 	svgServer struct {
 		listenPort int
-		log glog.Interface
-		selfPath string
-		useGoTool bool
+		log        glog.Interface
+		selfPath   string
+		useGoTool  bool
 	}
 )
 
+// Note: Graphviz required
 func newSvgServer(listenPort int, log glog.Interface) (*svgServer, error) {
 	selfPath, err := gproc.SelfPath()
 	if err != nil {
@@ -53,11 +54,13 @@ func (s *svgServer) serve(w http.ResponseWriter, r *http.Request) {
 		s.replyError(w, err, "")
 		return
 	}
-	profile, err := convertProfile(strings.ToLower(ss[len(ss)-1]))
+	profile := strings.ToLower(ss[len(ss)-1])
+	err := error(nil)
+	/*profile, err := convertProfile(strings.ToLower(ss[len(ss)-1]))
 	if err != nil {
 		s.replyError(w, err, "convert profile error")
 		return
-	}
+	}*/
 
 	imgPath := "profile-" + grand.RandomString(10) + ".svg"
 	var imgBuf []byte
@@ -93,6 +96,7 @@ func (s *svgServer) serve(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Note: Graphviz required
 // fetch text profile content from "profileHttpUrl" and convert it to SVG image.
 func (s *svgServer) httpProfileToSVG(profileHttpUrl string) ([]byte, error) {
 	tempFile := filepath.Join(os.TempDir(), grand.RandomString(20))
@@ -103,6 +107,7 @@ func (s *svgServer) httpProfileToSVG(profileHttpUrl string) ([]byte, error) {
 	f.Close()
 	defer os.Remove(tempFile)
 
+	// Note: Graphviz required
 	// "-output=****" is only used to avoid reports error, don't delete it.
 	result := bytes.Buffer{}
 	err = driver.PProf(&driver.Options{
