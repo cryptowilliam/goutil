@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/sys/gfs"
-	"github.com/cryptowilliam/goutil/sys/gproc"
-	"github.com/google/pprof/driver"
 	"github.com/google/pprof/profile"
+	"io/ioutil"
+	"os"
 	"runtime/pprof"
 	"time"
 )
@@ -41,6 +41,14 @@ func convertProfile(s string) (ProfileName, error) {
 	default:
 		return profileCPU, gerrors.New("invalid ProfileName %s", s)
 	}
+}
+
+func newTemp() (*os.File, error) {
+	f, err := ioutil.TempFile("", "profile-")
+	if err != nil {
+		return nil, gerrors.New("Cannot create new temp profile file: %v", err)
+	}
+	return f, nil
 }
 
 // Capture captures profile and returns content.
@@ -121,7 +129,7 @@ func VerifyProfile(b []byte) error {
 	_, err := profile.ParseData(b)
 	return err
 }
-
+/*
 // ToDotGraph convert profile to dot graph,
 // which is an image format created by Graphviz.
 func (p *Profile) ToDotGraph() ([]byte, error) {
@@ -166,6 +174,7 @@ func (p *Profile) ToSvg() ([]byte, error) {
 	result := bytes.Buffer{}
 	err = driver.PProf(&driver.Options{
 		Fetch:   newFetcher(buf.Bytes()),
+//-output=*** is necessary, it no output argument, will report error
 		Flagset: newFlagSet("-svg", "-output="+tempPath, "-source_path="+selfPath),
 		UI:      newFakeUI(),
 		Writer:  newWriter(&result),
@@ -175,3 +184,4 @@ func (p *Profile) ToSvg() ([]byte, error) {
 	}
 	return result.Bytes(), nil
 }
+*/

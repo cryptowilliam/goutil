@@ -3,6 +3,7 @@ package gdebug
 import (
 	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/container/gternary"
+	"github.com/cryptowilliam/goutil/net/gnet"
 	"html/template"
 	"net/http"
 	pprof "net/http/pprof"
@@ -86,6 +87,11 @@ func enableProfile(enable bool) {
 // Visit http://listen to see it.
 // Note: don't start it if not necessary.
 func ListenAndServe(listen string) error {
+	us, err := gnet.ParseUrl(listen)
+	if err != nil {
+		return err
+	}
+
 	r := http.NewServeMux()
 	enableProfile(true)
 	defer enableProfile(false)
@@ -104,17 +110,17 @@ func ListenAndServe(listen string) error {
 	r.HandleFunc(aps.TextPprofTrace, pprof.Trace)
 
 	// visual profile
-	vp, err := newVisualizePprof(glog.DefaultLogger)
+	vp, err := newSvgServer(us.Host.Port, glog.DefaultLogger)
 	if err != nil {
 		return err
 	}
-	r.HandleFunc(aps.VisualPprofCPU, vp.serveVisualPprof)
-	r.HandleFunc(aps.VisualPprofHeap, vp.serveVisualPprof)
-	r.HandleFunc(aps.VisualPprofBlock, vp.serveVisualPprof)
-	r.HandleFunc(aps.VisualPprofMutex, vp.serveVisualPprof)
-	r.HandleFunc(aps.VisualPprofAllocs, vp.serveVisualPprof)
-	r.HandleFunc(aps.VisualPprofGoroutine, vp.serveVisualPprof)
-	r.HandleFunc(aps.VisualPprofThreadCreate, vp.serveVisualPprof)
+	r.HandleFunc(aps.VisualPprofCPU, vp.serve)
+	r.HandleFunc(aps.VisualPprofHeap, vp.serve)
+	r.HandleFunc(aps.VisualPprofBlock, vp.serve)
+	r.HandleFunc(aps.VisualPprofMutex, vp.serve)
+	r.HandleFunc(aps.VisualPprofAllocs, vp.serve)
+	r.HandleFunc(aps.VisualPprofGoroutine, vp.serve)
+	r.HandleFunc(aps.VisualPprofThreadCreate, vp.serve)
 
 	// index page
 	http.Handle("/", r)

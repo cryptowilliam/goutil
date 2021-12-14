@@ -24,13 +24,7 @@ type (
 	}
 )
 
-func newTemp() (*os.File, error) {
-	f, err := ioutil.TempFile("", "profile-")
-	if err != nil {
-		return nil, gerrors.New("Cannot create new temp profile file: %v", err)
-	}
-	return f, nil
-}
+
 
 func newVisualizePprof(log glog.Interface) (*visualizePprof, error) {
 	selfPath, err := gproc.SelfPath()
