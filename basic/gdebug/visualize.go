@@ -45,8 +45,8 @@ func (c *visualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg st
 		return
 	}
 	err = gerrors.Wrap(err, wrapMsg)
+	c.log.Erro(err)
 	if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
-		c.log.Erro(err)
 		c.log.Erro(errWrite)
 	}
 }
@@ -99,8 +99,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	_, err = w.Write(imgBuf)
-	if err != nil {
+	if _, err = w.Write(imgBuf); err != nil {
 		c.log.Erro(err)
 	}
 }
