@@ -84,7 +84,11 @@ func (s *svgServer) serve(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		imgBuf, err = s.httpProfileToSVG(fmt.Sprintf("http://localhost:%d/debug/pprof/%s?debug=1", s.listenPort, profile))
+		fetchUrl := fmt.Sprintf("http://localhost:%d/debug/pprof/%s", s.listenPort, profile)
+		if profile != "threadcreate" {
+			fetchUrl += "?debug=1"
+		}
+		imgBuf, err = s.httpProfileToSVG(fetchUrl)
 		if err != nil {
 			s.replyError(w, err, "handle svg error")
 			return
