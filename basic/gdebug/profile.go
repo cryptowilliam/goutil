@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/sys/gfs"
+	"github.com/cryptowilliam/goutil/sys/gproc"
 	"github.com/google/pprof/driver"
 	"github.com/google/pprof/profile"
 	"runtime/pprof"
@@ -157,10 +158,15 @@ func (p *Profile) ToSvg() ([]byte, error) {
 	tempPath := tempFile.Name()
 	tempFile.Close()
 
+	selfPath, err := gproc.SelfPath()
+	if err != nil {
+		return nil, err
+	}
+
 	result := bytes.Buffer{}
 	err = driver.PProf(&driver.Options{
 		Fetch:   newFetcher(buf.Bytes()),
-		Flagset: newFlagSet("-svg", "-output="+tempPath),
+		Flagset: newFlagSet("-svg", "-output="+tempPath, "-source_path="+selfPath),
 		UI:      newFakeUI(),
 		Writer:  newWriter(&result),
 	})
