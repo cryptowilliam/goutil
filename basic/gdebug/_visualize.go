@@ -35,9 +35,7 @@ func (c *visualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg st
 		return
 	}
 	err = gerrors.Wrap(err, wrapMsg)
-	fmt.Println("before err log")
 	c.log.Erro(err)
-	fmt.Println("after err log")
 	if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
 		c.log.Erro(errWrite)
 	}
@@ -79,42 +77,19 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 			return
 		}
 	} else {
-		fmt.Println("before capture")
 		prof, err := Capture(profile, 10*time.Second)
 		if err != nil {
 			c.replyError(w, err, "capture profile error")
 			return
 		}
-		fmt.Println("after capture")
 		imgBuf, err = prof.ToSvg()
 		if err != nil {
 			c.replyError(w, err, "handle svg error")
 			return
 		}
-		fmt.Println("after ToSvg")
 	}
 
-	fmt.Println("before w.Write")
 	if _, err = w.Write(imgBuf); err != nil {
 		c.log.Erro(err)
 	}
-	fmt.Println("after w.Write")
 }
-
-// Use go tool inside http UI server, it is more powerful but hard to manage,
-// maybe it will be enabled later.
-/*cmd := exec.Command("go", "tool", "pprof", "-http="+c.listen, filePath)
-if err := cmd.Run(); err != nil {
-	err = gerrors.Wrap(err, "start pprof UI error")
-	c.log.Erro(err)
-	if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
-		c.log.Erro(err)
-	}
-} else {
-	c.historyPidList = append(c.historyPidList, cmd.Process.Pid)
-	info := fmt.Sprintf("start pprof UI at %s", c.listen)
-	c.log.Infof(info)
-	if _, errWrite := w.Write([]byte(info)); errWrite != nil {
-		c.log.Erro(err)
-	}
-}*/

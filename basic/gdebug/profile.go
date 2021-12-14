@@ -16,15 +16,8 @@ type (
 	Profile profile.Profile
 )
 
-func newTemp() (*os.File, error) {
-	f, err := ioutil.TempFile("", "profile-")
-	if err != nil {
-		return nil, gerrors.New("Cannot create new temp profile file: %v", err)
-	}
-	return f, nil
-}
-
 // Capture captures profile and returns content.
+// FIXME I am not sure its result equals to web page output results.
 func Capture(profile string, cpuCapDur time.Duration) (*Profile, error) {
 	switch profile {
 	case "profile":
@@ -55,7 +48,16 @@ func Capture(profile string, cpuCapDur time.Duration) (*Profile, error) {
 
 // CaptureToFile captures profile and save it to file.
 // Note: go tool pprof required.
+// FIXME I am not sure its result equals to web page output results.
 func CaptureToFile(profile string, cpuCapDur time.Duration) (string, error) {
+	 newTemp := func() (*os.File, error) {
+		f, err := ioutil.TempFile("", "profile-")
+		if err != nil {
+			return nil, gerrors.New("Cannot create new temp profile file: %v", err)
+		}
+		return f, nil
+	}
+
 	switch profile {
 	case "profile":
 		if cpuCapDur <= 0 {
@@ -160,3 +162,12 @@ func (p *Profile) ToSvg() ([]byte, error) {
 	return result.Bytes(), nil
 }
 */
+
+// comes from net/http/pprof func Index(w http.ResponseWriter, r *http.Request)
+func getProfileCount() map[string]int {
+	result := make(map[string]int)
+	for _, p := range pprof.Profiles() {
+		result[p.Name()] = p.Count()
+	}
+	return result
+}

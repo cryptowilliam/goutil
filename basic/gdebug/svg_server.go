@@ -56,15 +56,11 @@ func (s *svgServer) serve(w http.ResponseWriter, r *http.Request) {
 	}
 	profile := strings.ToLower(ss[len(ss)-1])
 	err := error(nil)
-	/*profile, err := convertProfile(strings.ToLower(ss[len(ss)-1]))
-	if err != nil {
-		s.replyError(w, err, "convert profile error")
-		return
-	}*/
 
-	imgPath := "profile-" + grand.RandomString(10) + ".svg"
 	var imgBuf []byte
 	if s.useGoTool {
+		imgPath := "profile-" + grand.RandomString(10) + ".svg"
+		defer os.Remove(imgPath)
 		profPath, err := CaptureToFile(profile, 10*time.Second)
 		if err != nil {
 			s.replyError(w, err, "capture profile error")
