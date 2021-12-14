@@ -12,9 +12,31 @@ import (
 	"time"
 )
 
+/*
+Another manual method to use go tool pprof usage
+
+----- Program to debug side -----
+Start official pprof server in net/http/pprof
+
+----- Computer with go development env -----
+`go tool pprof http://xxx:yyy/debug/pprof/heap?debug=1`
+than, input
+`web`
+It will start browser to open svg report generated from pprof http server
+*/
+
 type (
 	Profile profile.Profile
 )
+
+// comes from net/http/pprof func Index(w http.ResponseWriter, r *http.Request)
+func getProfileCount() map[string]int {
+	result := make(map[string]int)
+	for _, p := range pprof.Profiles() {
+		result[p.Name()] = p.Count()
+	}
+	return result
+}
 
 // Capture captures profile and returns content.
 // FIXME I am not sure its result equals to web page output results.
@@ -162,12 +184,3 @@ func (p *Profile) ToSvg() ([]byte, error) {
 	return result.Bytes(), nil
 }
 */
-
-// comes from net/http/pprof func Index(w http.ResponseWriter, r *http.Request)
-func getProfileCount() map[string]int {
-	result := make(map[string]int)
-	for _, p := range pprof.Profiles() {
-		result[p.Name()] = p.Count()
-	}
-	return result
-}
