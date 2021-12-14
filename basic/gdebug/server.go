@@ -152,13 +152,13 @@ var indexPageTmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<p><a href="{{.TextFullGoroutineStackDump}}" target="_blank">Text full goroutine stack dump</a></p>
 	</div>
 	<div style="width:45%; height:95%; display: inline-block; vertical-align: top;">
-		<p><a href="{{.VisualProfile}}" target="_blank">Visual pprof profile</a></p>
-		<p><a href="{{.VisualHeap}}" target="_blank">Visual pprof heap</a></p>
-		<p><a href="{{.VisualBlock}}" target="_blank">Visual pprof block</a></p>
-		<p><a href="{{.VisualMutex}}" target="_blank">Visual pprof mutex</a></p>
-		<p><a href="{{.VisualAllocs}}" target="_blank">Visual pprof allocs</a></p>
-		<p><a href="{{.VisualGoroutine}}" target="_blank">Visual pprof goroutine</a></p>
-		<p><a href="{{.VisualThreadCreate}}" target="_blank">Visual pprof threadcreate</a></p>
+		<p><a href="{{.VisualProfile}}" target="_blank">Visual profile</a></p>
+		<p><a href="{{.VisualHeap}}" target="_blank">Visual heap</a></p>
+		<p><a href="{{.VisualBlock}}" target="_blank">Visual block</a></p>
+		<p><a href="{{.VisualMutex}}" target="_blank">Visual mutex</a></p>
+		<p><a href="{{.VisualAllocs}}" target="_blank">Visual allocs</a></p>
+		<p><a href="{{.VisualGoroutine}}" target="_blank">Visual goroutine</a></p>
+		<p><a href="{{.VisualThreadCreate}}" target="_blank">Visual threadcreate</a></p>
 
 		<p><a href="{{.BasicStats}}" target="_blank">Basic stats information</a></p>
 	</div>
