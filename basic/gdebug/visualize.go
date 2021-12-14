@@ -89,16 +89,19 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 			return
 		}
 	} else {
+		fmt.Println("before capture")
 		prof, err := Capture(profile, 10*time.Second)
 		if err != nil {
 			c.replyError(w, err, "capture profile error")
 			return
 		}
+		fmt.Println("after capture")
 		imgBuf, err = prof.ToSvg()
 		if err != nil {
 			c.replyError(w, err, "handle svg error")
 			return
 		}
+		fmt.Println("after ToSvg")
 	}
 
 	fmt.Println("before w.Write")
