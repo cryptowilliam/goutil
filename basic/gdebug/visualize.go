@@ -37,7 +37,7 @@ func newVisualizePprof(log glog.Interface) (*visualizePprof, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &visualizePprof{log: log, selfPath: selfPath, useGoTool: true}, nil
+	return &visualizePprof{log: log, selfPath: selfPath, useGoTool: false}, nil
 }
 
 func (c *visualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg string) {
@@ -68,7 +68,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	imgPath := "profile-" + grand.RandomString(10) + ".svg"
 	var imgBuf []byte
 	if c.useGoTool {
-		profPath, err := CaptureToFile(profile, 10*time.Second, 1)
+		profPath, err := CaptureToFile(profile, 10*time.Second)
 		if err != nil {
 			c.replyError(w, err, "capture profile error")
 			return
@@ -87,7 +87,7 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 			return
 		}
 	} else {
-		prof, err := Capture(profile, 10*time.Second, 1)
+		prof, err := Capture(profile, 10*time.Second)
 		if err != nil {
 			c.replyError(w, err, "capture profile error")
 			return
@@ -103,8 +103,6 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		c.log.Erro(err)
 	}
-
-
 }
 
 

@@ -2,13 +2,15 @@ package gdebug
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
+	"github.com/cryptowilliam/goutil/sys/gfs"
 	"github.com/google/pprof/driver"
 	"github.com/google/pprof/profile"
-	"runtime"
 	"runtime/pprof"
 	"time"
 )
+
 
 type (
 	Profile profile.Profile
@@ -41,17 +43,7 @@ func convertProfile(s string) (ProfileName, error) {
 }
 
 // Capture captures profile and returns content.
-// `blockCapRate` is the fraction of goroutine blocking events that
-// are reported in the blocking profile. The profiler aims to
-// sample an average of one blocking event per rate nanoseconds spent blocked.
-//
-// If zero value is provided, it will include every blocking event
-// in the profile.
-func Capture(profile ProfileName, cpuCapDur time.Duration, blockCapRate int) (*Profile, error) {
-	if profile == profileBlock && blockCapRate > 0 {
-		runtime.SetBlockProfileRate(blockCapRate)
-	}
-
+func Capture(profile ProfileName, cpuCapDur time.Duration) (*Profile, error) {
 	switch profile {
 	case profileCPU:
 		if cpuCapDur <= 0 {
@@ -63,6 +55,7 @@ func Capture(profile ProfileName, cpuCapDur time.Duration, blockCapRate int) (*P
 		}
 		time.Sleep(cpuCapDur)
 		pprof.StopCPUProfile()
+		gfs.BytesToFile(f.Bytes(), fmt.Sprintf("cpu-profile-%s.txt", time.Now().String()))
 		return ParseProfile(f.Bytes())
 
 	case profileHeap, profileBlock, profileMutex, profileAllocs, profileGoroutine, profileThreadCreate:
@@ -70,6 +63,7 @@ func Capture(profile ProfileName, cpuCapDur time.Duration, blockCapRate int) (*P
 		if err := pprof.Lookup(profile.String()).WriteTo(f, 2); err != nil {
 			return nil, err
 		}
+		gfs.BytesToFile(f.Bytes(), fmt.Sprintf("%s-profile-%s.txt", profile.String(), time.Now().String()))
 		return ParseProfile(f.Bytes())
 
 	default:
@@ -78,17 +72,7 @@ func Capture(profile ProfileName, cpuCapDur time.Duration, blockCapRate int) (*P
 }
 
 // CaptureToFile captures profile and save it to file.
-// `blockCapRate` is the fraction of goroutine blocking events that
-// are reported in the blocking profile. The profiler aims to
-// sample an average of one blocking event per rate nanoseconds spent blocked.
-//
-// If zero value is provided, it will include every blocking event
-// in the profile.
-func CaptureToFile(profile ProfileName, cpuCapDur time.Duration, blockCapRate int) (string, error) {
-	if profile == profileBlock && blockCapRate > 0 {
-		runtime.SetBlockProfileRate(blockCapRate)
-	}
-
+func CaptureToFile(profile ProfileName, cpuCapDur time.Duration) (string, error) {
 	switch profile {
 	case profileCPU:
 		if cpuCapDur <= 0 {
