@@ -223,5 +223,6 @@ Profile Descriptions:
 <li><div class=profile-name>trace: </div> A trace of execution of the current program. You can specify the duration in the seconds GET parameter. After you get the trace file, use the go tool trace command to investigate the trace.</li>
 </ul>
 </p>
+<p>Visualized pprof requires Graphviz.</p>
 </body>
 </html>`))
