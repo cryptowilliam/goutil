@@ -45,7 +45,9 @@ func (c *visualizePprof) replyError(w http.ResponseWriter, err error, wrapMsg st
 		return
 	}
 	err = gerrors.Wrap(err, wrapMsg)
+	fmt.Println("before err log")
 	c.log.Erro(err)
+	fmt.Println("after err log")
 	if _, errWrite := w.Write([]byte(err.Error())); errWrite != nil {
 		c.log.Erro(errWrite)
 	}
