@@ -1,5 +1,7 @@
 package gchan
 
+import "github.com/cryptowilliam/goutil/basic/gerrors"
+
 // reference: https://go101.org/article/channel-closing.html
 
 var errClosedChan = gerrors.New("closed chan")
