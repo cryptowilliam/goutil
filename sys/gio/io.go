@@ -2,6 +2,7 @@ package gio
 
 import (
 	"bytes"
+	"github.com/cryptowilliam/goutil/safe/gchan"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -34,7 +35,7 @@ func StreamExchange(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
 	}
 
 	// start tunnel & wait for tunnel termination
-	streamCopy := func(dst io.Writer, src io.ReadCloser) {
+	streamCopy := func(dst io.Writer, src io.ReadCloser, chClose chan struct{}) {
 		if _, err := genericCopy(dst, src); err != nil {
 			if err != nil {
 				errNotify(err)
@@ -42,10 +43,23 @@ func StreamExchange(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
 		}
 		s1.Close()
 		s2.Close()
+		close(chClose)
 	}
 
-	go streamCopy(s2, s1)
-	streamCopy(s1, s2)
+	chClose21 := make(chan struct{}, 1)
+	chClose12 := make(chan struct{}, 1)
+	go streamCopy(s2, s1, chClose21)
+	go streamCopy(s1, s2, chClose12)
+
+	// continue if any copy routine exits
+	select {
+	case <- chClose21:
+	case <- chClose12:
+	}
+
+	// close all streamCopy go routines if anyone has not been closed yet
+	gchan.SafeCloseChanStruct(chClose21)
+	gchan.SafeCloseChanStruct(chClose12)
 }
 
 // Forked from standard library io.Copy
