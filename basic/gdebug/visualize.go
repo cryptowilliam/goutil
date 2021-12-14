@@ -99,9 +99,11 @@ func (c *visualizePprof) serveVisualPprof(w http.ResponseWriter, r *http.Request
 		}
 	}
 
+	fmt.Println("before w.Write")
 	if _, err = w.Write(imgBuf); err != nil {
 		c.log.Erro(err)
 	}
+	fmt.Println("after w.Write")
 }
 
 
