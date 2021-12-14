@@ -2,7 +2,6 @@ package gio
 
 import (
 	"bytes"
-	"github.com/cryptowilliam/goutil/safe/gchan"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -56,10 +55,6 @@ func StreamExchange(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
 	case <- chClose21:
 	case <- chClose12:
 	}
-
-	// close all streamCopy go routines if anyone has not been closed yet
-	gchan.SafeCloseChanStruct(chClose21)
-	gchan.SafeCloseChanStruct(chClose12)
 }
 
 // Forked from standard library io.Copy
