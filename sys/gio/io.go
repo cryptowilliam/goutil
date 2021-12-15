@@ -11,10 +11,9 @@ import (
 
 type SetDeadlineCallback func(t time.Time) error
 type CopiedSizeCallback func(size int64)
-
 type ErrNotify func(err error)
 
-func StreamExchange(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
+func TwoWayCopy(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
 	// Memory optimized io.Copy function specified for this library
 	const bufSize = 4096
 	genericCopy := func(dst io.Writer, src io.Reader) (written int64, err error) {
