@@ -23,7 +23,7 @@ var (
 	ErrTimeout         = errors.New("timeout")
 	ErrWouldBlock      = errors.New("operation would block on IO")
 	ErrInvalidCommand  = "invalid command 0x%x"
-	ErrInvalidVersion  = "invalid version %d"
+	ErrInvalidVersion  = "invalid version %d from %s"
 )
 
 type writeRequest struct {
@@ -331,7 +331,7 @@ func (s *Session) recvLoop() {
 			if hdr.Version() != byte(s.config.Version) {
 				// s.notifyProtoError(ErrInvalidProtocol)
 				//fmt.Println(fmt.Sprintf("recv ver:%d, cmd:%d, data-len:%d, sid:%d", hdr.Version(), hdr.Cmd(), hdr.Length(), hdr.StreamID()))
-				s.notifyProtoError(gerrors.New(ErrInvalidVersion, hdr.Version()))
+				s.notifyProtoError(gerrors.New(ErrInvalidVersion, hdr.Version(), s.RemoteAddr().String()))
 				return
 			}
 			sid := hdr.StreamID()
