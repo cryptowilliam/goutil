@@ -24,3 +24,7 @@ func TestIsEpochBeginning(t *testing.T) {
 		return
 	}
 }
+
+func TestUptime(t *testing.T) {
+	fmt.Println(Uptime().String())
+}

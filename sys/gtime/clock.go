@@ -20,6 +20,8 @@ func NewClock(clockName string) (Clock, error) {
 		return GetNtpClockONLINE()
 	case "mock":
 		return NewMockClock(time.Now(), time.UTC), nil
+	case "mono":
+		return NewMonoClock(), nil
 	}
 	return nil, gerrors.Errorf("unsupported clock name %s", clockName)
 }

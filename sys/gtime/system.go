@@ -1,18 +1,24 @@
 package gtime
 
 import (
-	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/shirou/gopsutil/host"
-	"runtime"
 	"time"
+	_ "unsafe" // required to use //go:linkname
 )
 
-func GetSystemUptime() (uint64, error) {
+/*func Uptime() (uint64, error) {
 	if runtime.GOOS == "windows" {
 		return 0, gerrors.New(runtime.GOOS + " not supported for now")
 	} else {
 		return host.Uptime()
 	}
+}*/
+
+//go:noescape
+//go:linkname nanotime runtime.nanotime
+func nanotime() int64
+
+func Uptime() time.Duration {
+	return NsecToDuration(nanotime())
 }
 
 // 不可以用tm.Seconds() 和 tm.Nanoseconds()作为判断标准，
