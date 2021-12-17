@@ -7,29 +7,44 @@
 <img src="mux.jpg" alt="smux" height="120px" /> 
 
 [1]: https://godoc.org/github.com/xtaci/smux?status.svg
+
 [2]: https://godoc.org/github.com/xtaci/smux
+
 [3]: https://img.shields.io/badge/license-MIT-blue.svg
+
 [4]: LICENSE
+
 [5]: https://travis-ci.org/xtaci/smux.svg?branch=master
+
 [6]: https://travis-ci.org/xtaci/smux
+
 [7]: https://goreportcard.com/badge/github.com/xtaci/smux
+
 [8]: https://goreportcard.com/report/github.com/xtaci/smux
+
 [9]: https://codecov.io/gh/xtaci/smux/branch/master/graph/badge.svg
+
 [10]: https://codecov.io/gh/xtaci/smux
+
 [11]: https://sourcegraph.com/github.com/xtaci/smux/-/badge.svg
+
 [12]: https://sourcegraph.com/github.com/xtaci/smux?badge
 
 ## Introduction
 
-gmux makes underlying net.Conn to upper level multiplexing connection, and user could open thousands of logical streams from the upper level multiplexing connection.
+gmux makes underlying net.Conn to upper level multiplexing connection, and user could open thousands of logical streams
+from the upper level multiplexing connection.
 
-gmux ( **N**amed **MU**ltiple**X**ing) is a multiplexing library for Golang. It relies on an underlying connection to provide reliability and ordering, such as TCP or [KCP](https://github.com/xtaci/kcp-go), and provides stream-oriented multiplexing. The original intention of this library is to power the connection management for [kcp-go](https://github.com/xtaci/kcp-go).
+gmux ( **N**amed **MU**ltiple**X**ing) is a multiplexing library for Golang. It relies on an underlying connection to
+provide reliability and ordering, such as TCP or [KCP](https://github.com/xtaci/kcp-go), and provides stream-oriented
+multiplexing. The original intention of this library is to power the connection management
+for [kcp-go](https://github.com/xtaci/kcp-go).
 
 ## Features
 
 1. ***Token bucket*** controlled receiving, which provides smoother bandwidth graph(see picture below).
 2. Session-wide receive buffer, shared among streams, **fully controlled** overall memory usage.
-3. Minimized header(8Bytes), maximized payload. 
+3. Minimized header(8Bytes), maximized payload.
 4. Well-tested on millions of devices in [kcptun](https://github.com/xtaci/kcptun).
 5. Builtin fair queue traffic shaping.
 6. Per-stream sliding window to control congestion.(protocol version 2+).
@@ -41,6 +56,7 @@ gmux ( **N**amed **MU**ltiple**X**ing) is a multiplexing library for Golang. It 
 For complete documentation, see the associated [Godoc](https://godoc.org/github.com/xtaci/smux).
 
 ## Benchmark
+
 ```
 $ go test -v -run=^$ -bench .
 goos: darwin
