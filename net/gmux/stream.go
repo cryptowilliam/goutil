@@ -25,8 +25,10 @@ type Stream struct {
 	chReadEvent chan struct{}
 
 	// flag the stream has closed
-	die     chan struct{}
-	dieOnce sync.Once
+	die            chan struct{}
+	dieOnce        sync.Once
+	closeNotifier  CloseNotifier
+	closeNotifyCtx interface{}
 
 	// FIN command
 	chFinEvent   chan struct{}
@@ -431,6 +433,11 @@ func (s *Stream) writeV2(b []byte) (n int, err error) {
 	}
 }
 
+func (s *Stream) SetCloseNotifier(notifier CloseNotifier, ctx interface{}) {
+	s.closeNotifier = notifier
+	s.closeNotifyCtx = ctx
+}
+
 // Close implements net.Conn
 func (s *Stream) Close() error {
 	var once bool
@@ -439,6 +446,10 @@ func (s *Stream) Close() error {
 		close(s.die)
 		once = true
 	})
+
+	if s.closeNotifier != nil {
+		s.closeNotifier(s, s.closeNotifyCtx)
+	}
 
 	if once {
 		_, err = s.sess.writeFrame(newFrame(byte(s.sess.config.Version), cmdFIN, s.id))
