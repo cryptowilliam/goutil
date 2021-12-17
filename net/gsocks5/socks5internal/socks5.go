@@ -170,7 +170,7 @@ func (s *Server) ServeConn(conn net.Conn) error {
 
 	// Process the client request
 	if err := s.handleRequest(request, conn); err != nil {
-		s.config.Logger.Printf("[INFO] waiting for jumpbox(dest %s) to be available...close it", request.DestAddr.FQDN)
+		s.config.Logger.Printf("[INFO] waiting for jumpbox(dest %s, remote %s) to be available...close it", request.DestAddr.FQDN, request.RemoteAddr.String())
 		conn.Close()
 		return err
 	}
