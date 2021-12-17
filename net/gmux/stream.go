@@ -2,6 +2,7 @@ package gmux
 
 import (
 	"encoding/binary"
+	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"io"
 	"net"
 	"sync"
@@ -38,6 +39,11 @@ type Stream struct {
 	readDeadline  atomic.Value
 	writeDeadline atomic.Value
 
+	// no data timeout
+	// it is different from deadlines
+	noDataTimeout time.Duration
+	noDataTicker *time.Ticker
+
 	// per stream sliding window control
 	numRead    uint32 // number of consumed bytes
 	numWritten uint32 // count num of bytes written
@@ -61,6 +67,8 @@ func newStream(id uint32, streamName string, frameSize int, sess *Session) *Stre
 	s.die = make(chan struct{})
 	s.chFinEvent = make(chan struct{})
 	s.peerWindow = initialPeerWindow // set to initial window size
+	s.noDataTimeout = 5 * time.Minute
+	s.noDataTicker = time.NewTicker(s.noDataTimeout)
 	return s
 }
 
@@ -76,8 +84,21 @@ func (s *Stream) Name() string {
 
 // Read implements net.Conn
 func (s *Stream) Read(b []byte) (n int, err error) {
+	// check if stream no data timeout
+	select {
+	case <- s.noDataTicker.C:
+		return 0, gerrors.New("no data timeout")
+	default:
+	}
+
 	for {
 		n, err = s.tryRead(b)
+
+		// reset no data timeout ticker
+		if n > 0 && err == nil {
+			s.noDataTicker.Reset(s.noDataTimeout)
+		}
+
 		if err == ErrWouldBlock {
 			if ew := s.waitRead(); ew != nil {
 				return 0, ew
@@ -183,6 +204,13 @@ func (s *Stream) WriteTo(w io.Writer) (n int64, err error) {
 	}
 
 	for {
+		// check if stream no data timeout
+		select {
+		case <- s.noDataTicker.C:
+			return 0, gerrors.New("no data timeout")
+		default:
+		}
+
 		var buf []byte
 		s.bufferLock.Lock()
 		if len(s.buffers) > 0 {
@@ -200,6 +228,11 @@ func (s *Stream) WriteTo(w io.Writer) (n int64, err error) {
 				n += int64(nw)
 			}
 
+			// reset no data timeout ticker
+			if nw > 0 && ew == nil {
+				s.noDataTicker.Reset(s.noDataTimeout)
+			}
+
 			if ew != nil {
 				return n, ew
 			}
@@ -211,6 +244,13 @@ func (s *Stream) WriteTo(w io.Writer) (n int64, err error) {
 
 func (s *Stream) writeTov2(w io.Writer) (n int64, err error) {
 	for {
+		// check if stream no data timeout
+		select {
+		case <- s.noDataTicker.C:
+			return 0, gerrors.New("no data timeout")
+		default:
+		}
+
 		var notifyConsumed uint32
 		var buf []byte
 		s.bufferLock.Lock()
@@ -233,6 +273,11 @@ func (s *Stream) writeTov2(w io.Writer) (n int64, err error) {
 			defaultAllocator.Put(buf)
 			if nw > 0 {
 				n += int64(nw)
+			}
+
+			// reset no data timeout ticker
+			if nw > 0 && ew == nil {
+				s.noDataTicker.Reset(s.noDataTimeout)
 			}
 
 			if ew != nil {
@@ -316,6 +361,13 @@ func (s *Stream) Write(b []byte) (n int, err error) {
 		deadline = timer.C
 	}
 
+	// check if stream no data timeout
+	select {
+	case <- s.noDataTicker.C:
+		return 0, gerrors.New("no data timeout")
+	default:
+	}
+
 	// check if stream has closed
 	select {
 	case <-s.die:
@@ -342,6 +394,9 @@ func (s *Stream) Write(b []byte) (n int, err error) {
 		}
 	}
 
+	// reset no data timeout ticker
+	s.noDataTicker.Reset(s.noDataTimeout)
+
 	return sent, nil
 }
 
@@ -349,6 +404,13 @@ func (s *Stream) writeV2(b []byte) (n int, err error) {
 	// check empty input
 	if len(b) == 0 {
 		return 0, nil
+	}
+
+	// check if stream no data timeout
+	select {
+	case <- s.noDataTicker.C:
+		return 0, gerrors.New("no data timeout")
+	default:
 	}
 
 	// check if stream has closed
@@ -407,6 +469,11 @@ func (s *Stream) writeV2(b []byte) (n int, err error) {
 				sent += n
 				if err != nil {
 					return sent, err
+				}
+
+				// reset no data timeout ticker
+				if n > 0 && err == nil {
+					s.noDataTicker.Reset(s.noDataTimeout)
 				}
 			}
 		}
