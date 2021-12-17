@@ -232,7 +232,7 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 		e := <-errCh
 		if e != nil {
 			// return from this function closes target (and conn).
-			return e
+			return gerrors.Wrap(e, "go proxy(...) error")
 		}
 	}
 	return nil
