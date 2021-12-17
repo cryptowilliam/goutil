@@ -25,6 +25,9 @@ type (
 		readBuf          *list.List
 		chReadEvent      chan struct{}
 		readDeadline     time.Time
+		// Note:
+		// When no data timeout error is triggered in the Read or Write function and been returned,
+		// io.Copy will also end because of Read/Write/WriteTo returns error, thus freeing up more resources.
 		noDataTimeout time.Duration // long time no data read/write timeout duration, it is different from read write deadline
 		noDataTicker  *time.Ticker // long time no data read/write timeout ticker
 	}

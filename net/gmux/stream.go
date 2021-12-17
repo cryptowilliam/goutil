@@ -39,6 +39,9 @@ type Stream struct {
 	readDeadline  atomic.Value
 	writeDeadline atomic.Value
 
+	// Note:
+	// When no data timeout error is triggered in the Read or Write function and been returned,
+	// io.Copy will also end because of Read/Write/WriteTo returns error, thus freeing up more resources.
 	// no data timeout
 	// it is different from deadlines
 	noDataTimeout time.Duration
