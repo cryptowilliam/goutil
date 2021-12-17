@@ -12,51 +12,51 @@ import (
 
 type (
 	allPaths struct {
-		BasicStats                        string
-		TextIndex                    string
-		TextAllocs                   string
-		TextBlock                    string
-		TextCmdline                  string
-		TextGoroutine                string
-		TextHeap                     string
-		TextMutex                    string
-		TextProfile                  string
-		TextThreadCreate             string
-		TextTrace                    string
-		TextSymbol                   string
-		TextFullGoroutineStackDump   string
-		VisualProfile                string
-		VisualHeap                   string
-		VisualBlock                  string
-		VisualMutex                  string
-		VisualAllocs                 string
-		VisualGoroutine              string
-		VisualThreadCreate           string
+		BasicStats                 string
+		TextIndex                  string
+		TextAllocs                 string
+		TextBlock                  string
+		TextCmdline                string
+		TextGoroutine              string
+		TextHeap                   string
+		TextMutex                  string
+		TextProfile                string
+		TextThreadCreate           string
+		TextTrace                  string
+		TextSymbol                 string
+		TextFullGoroutineStackDump string
+		VisualProfile              string
+		VisualHeap                 string
+		VisualBlock                string
+		VisualMutex                string
+		VisualAllocs               string
+		VisualGoroutine            string
+		VisualThreadCreate         string
 	}
 )
 
 var (
 	aps = allPaths{
-		BasicStats:                        "/debug/stats",
-		TextIndex:                    "/debug/pprof/",
-		TextAllocs:                   "/debug/pprof/allocs?debug=1",
-		TextBlock:                    "/debug/pprof/block?debug=1",
-		TextCmdline:                  "/debug/pprof/cmdline?debug=1",
-		TextGoroutine:                "/debug/pprof/goroutine?debug=1",
-		TextHeap:                     "/debug/pprof/heap?debug=1",
-		TextMutex:                    "/debug/pprof/mutex?debug=1",
-		TextProfile:                  "/debug/pprof/profile?debug=1",
-		TextThreadCreate:             "/debug/pprof/threadcreate?debug=1",
-		TextTrace:                    "/debug/pprof/trace?debug=1",
-		TextSymbol:                   "/debug/pprof/symbol?debug=1",
-		TextFullGoroutineStackDump:   "/debug/pprof/goroutine?debug=2",
-		VisualProfile:                "/debug/visual-pprof/profile",
-		VisualHeap:                   "/debug/visual-pprof/heap",
-		VisualBlock:                  "/debug/visual-pprof/block",
-		VisualMutex:                  "/debug/visual-pprof/mutex",
-		VisualAllocs:                 "/debug/visual-pprof/allocs",
-		VisualGoroutine:              "/debug/visual-pprof/goroutine",
-		VisualThreadCreate:           "/debug/visual-pprof/threadcreate",
+		BasicStats:                 "/debug/stats",
+		TextIndex:                  "/debug/pprof/",
+		TextAllocs:                 "/debug/pprof/allocs?debug=1",
+		TextBlock:                  "/debug/pprof/block?debug=1",
+		TextCmdline:                "/debug/pprof/cmdline?debug=1",
+		TextGoroutine:              "/debug/pprof/goroutine?debug=1",
+		TextHeap:                   "/debug/pprof/heap?debug=1",
+		TextMutex:                  "/debug/pprof/mutex?debug=1",
+		TextProfile:                "/debug/pprof/profile?debug=1",
+		TextThreadCreate:           "/debug/pprof/threadcreate?debug=1",
+		TextTrace:                  "/debug/pprof/trace?debug=1",
+		TextSymbol:                 "/debug/pprof/symbol?debug=1",
+		TextFullGoroutineStackDump: "/debug/pprof/goroutine?debug=2",
+		VisualProfile:              "/debug/visual-pprof/profile",
+		VisualHeap:                 "/debug/visual-pprof/heap",
+		VisualBlock:                "/debug/visual-pprof/block",
+		VisualMutex:                "/debug/visual-pprof/mutex",
+		VisualAllocs:               "/debug/visual-pprof/allocs",
+		VisualGoroutine:            "/debug/visual-pprof/goroutine",
+		VisualThreadCreate:         "/debug/visual-pprof/threadcreate",
 	}
 )
 

@@ -72,7 +72,7 @@ func Capture(profile string, cpuCapDur time.Duration) (*Profile, error) {
 // Note: go tool pprof required.
 // FIXME I am not sure its result equals to web page output results.
 func CaptureToFile(profile string, cpuCapDur time.Duration) (string, error) {
-	 newTemp := func() (*os.File, error) {
+	newTemp := func() (*os.File, error) {
 		f, err := ioutil.TempFile("", "profile-")
 		if err != nil {
 			return nil, gerrors.New("Cannot create new temp profile file: %v", err)
