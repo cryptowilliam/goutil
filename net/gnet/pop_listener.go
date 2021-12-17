@@ -6,6 +6,7 @@ import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/safe/gwg"
 	"github.com/cryptowilliam/goutil/sys/galloc"
+	"github.com/cryptowilliam/goutil/sys/gtime"
 	"github.com/pkg/errors"
 	"net"
 	"strings"
@@ -18,12 +19,14 @@ type (
 	// It implements net.Conn, makes PacketConn used like a net.Conn.
 	PopConn struct {
 		sync.RWMutex
-		l          *PopListener
-		localAddr  net.Addr
-		remoteAddr net.Addr
-		readBuf    *list.List
-		chReadEvent chan struct{}
-		readDeadline time.Time
+		l                *PopListener
+		localAddr        net.Addr
+		remoteAddr       net.Addr
+		readBuf          *list.List
+		chReadEvent      chan struct{}
+		readDeadline     time.Time
+		noDataTimeout time.Duration // long time no data read/write timeout duration, it is different from read write deadline
+		noDataTicker  *time.Ticker // long time no data read/write timeout ticker
 	}
 
 	// PopListener is packet-oriented protocols listener.
@@ -36,9 +39,13 @@ type (
 		connList  sync.Map
 		chDie     chan struct{}
 		chAccepts chan *PopConn
-		chReadErr     chan error
+		chReadErr chan error
 		wg        *sync.WaitGroup
 	}
+)
+
+var (
+	monoClock = gtime.NewMonoClock()
 )
 
 func ListenPop(network, addr string) (*PopListener, error) {
@@ -104,6 +111,8 @@ func (l *PopListener) readRoutine() {
 					conn.remoteAddr = rmtAddr
 					conn.chReadEvent = make(chan struct{}, 1)
 					conn.l = l
+					conn.noDataTimeout = 5 * time.Minute
+					conn.noDataTicker = time.NewTicker(conn.noDataTimeout)
 					l.chAccepts <- conn
 				}
 
@@ -126,7 +135,7 @@ func (l *PopListener) Accept() (net.Conn, error) {
 	select {
 	case <-l.chDie:
 		return nil, nil
-	case err := <- l.chReadErr:
+	case err := <-l.chReadErr:
 		return nil, err
 	case newConn := <-l.chAccepts:
 		return newConn, nil
@@ -150,14 +159,14 @@ func (c *PopConn) Read(b []byte) (int, error) {
 	for {
 		// deadline for current reading operation
 		var timeout *time.Timer
-		var chTimeout <-chan time.Time
+		var chDeadlineTimeout <-chan time.Time
 		if !c.readDeadline.IsZero() {
 			if time.Now().After(c.readDeadline) {
 				return 0, errors.WithStack(fmt.Errorf("read timeout"))
 			}
 			delay := time.Until(c.readDeadline)
 			timeout = time.NewTimer(delay)
-			chTimeout = timeout.C
+			chDeadlineTimeout = timeout.C
 		}
 
 		select {
@@ -169,6 +178,9 @@ func (c *PopConn) Read(b []byte) (int, error) {
 			}
 			frontBuf := c.readBuf.Front().Value.([]byte)
 			copyLen := copy(b, frontBuf)
+			if copyLen > 0 {
+				c.noDataTicker.Reset(c.noDataTimeout)
+			}
 			if copyLen >= len(frontBuf) {
 				c.readBuf.Remove(c.readBuf.Front())
 				return copyLen, nil
@@ -177,14 +189,25 @@ func (c *PopConn) Read(b []byte) (int, error) {
 				c.readBuf.Front().Value = frontBuf
 				return copyLen, nil
 			}
-		case <-chTimeout:
-			return 0, errors.WithStack(fmt.Errorf("read timeout"))
+		case <-chDeadlineTimeout:
+			return 0, errors.WithStack(fmt.Errorf("deadline timeout"))
+		case <-c.noDataTicker.C: // it is different from read write deadline timeout
+			return 0, errors.WithStack(fmt.Errorf("no data timeout"))
 		}
 	}
 }
 
 func (c *PopConn) Write(b []byte) (n int, err error) {
-	return c.l.ls.WriteTo(b, c.remoteAddr)
+	select {
+	case <-c.noDataTicker.C:
+		return 0, errors.WithStack(fmt.Errorf("no data timeout"))
+	default:
+		n, err = c.l.ls.WriteTo(b, c.remoteAddr)
+		if n > 0 && err == nil {
+			c.noDataTicker.Reset(c.noDataTimeout)
+		}
+		return n, err
+	}
 }
 
 func (c *PopConn) Close() error {
