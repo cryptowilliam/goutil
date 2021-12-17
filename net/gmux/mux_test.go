@@ -76,11 +76,11 @@ func TestConfig(t *testing.T) {
 	}
 
 	var bts buffer
-	if _, err := Server(&bts, config); err == nil {
+	if _, err := NewServer(&bts, config); err == nil {
 		t.Fatal("server started with wrong config")
 	}
 
-	if _, err := Client(&bts, config); err == nil {
+	if _, err := NewClient(&bts, config); err == nil {
 		t.Fatal("client started with wrong config")
 	}
 }
