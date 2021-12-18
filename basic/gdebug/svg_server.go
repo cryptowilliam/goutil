@@ -47,9 +47,6 @@ func (s *svgServer) replyError(w http.ResponseWriter, err error, wrapMsg string)
 }
 
 func (s *svgServer) serve(w http.ResponseWriter, r *http.Request) {
-	// FIXME: I'm not sure if this is right
-	defer r.Body.Close()
-
 	s.log.Infof("accept visual pprof request %s", r.URL.String())
 	ss := strings.Split(r.URL.Path, "debug/visual-pprof/")
 	if len(ss) == 0 {
