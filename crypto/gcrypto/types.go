@@ -23,7 +23,8 @@ type (
 	}
 
 	CipherRWCMaker interface {
-		Make(rwc io.ReadWriteCloser, readNonce bool, nonceCodec EqLenCipher) (CipherRWC, error)
+		NonceSize() int
+		Make(rwc io.ReadWriteCloser, readNonce *bool, specificNonce []byte, nonceCodec EqLenCipher) (CipherRWC, error)
 	}
 
 	// CipherRWC defines the interface for encryption algorithms where

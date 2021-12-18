@@ -139,6 +139,10 @@ func NewMono256Maker(b64alphabet string) (gcrypto.CipherRWCMaker, error) {
 	return &Mono256Maker{cipher: NewMono256(encAlphabet)}, nil
 }
 
-func (m *Mono256Maker) Make(rwc io.ReadWriteCloser, readNonce bool, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
+func (m *Mono256Maker) NonceSize() int {
+	return 0
+}
+
+func (m *Mono256Maker) Make(rwc io.ReadWriteCloser, readNonce *bool, specificNonce []byte, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
 	return gcrypto.NewEqLenCipherRWC(m.cipher, rwc), nil
 }

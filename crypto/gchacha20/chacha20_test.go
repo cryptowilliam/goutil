@@ -3,6 +3,7 @@ package gchacha20
 import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/gtest"
+	"github.com/cryptowilliam/goutil/basic/gvar"
 	"log"
 	"os"
 	"testing"
@@ -18,19 +19,18 @@ func TestChaCha20RWC_Read_Write(t *testing.T) {
 	tempFile, err := os.CreateTemp("", filepath)
 	gtest.Assert(t, gerrors.Wrap(err, "create temp error"))
 	defer tempFile.Close()
-	chachaW, err := makerW.Make(tempFile, false, nil)
+	chachaW, err := makerW.Make(tempFile, &gvar.False, nil, nil)
 	gtest.Assert(t, gerrors.Wrap(err, "make error"))
 	n, err := chachaW.Write([]byte(plain))
 	gtest.Assert(t, gerrors.Wrap(err, "write error"))
 	log.Println("write size", n)
-
 
 	_, err = tempFile.Seek(0, 0)
 	gtest.Assert(t, gerrors.Wrap(err, "seek error"))
 	makerR, err := NewChaCha20Maker(passphrase)
 	gtest.Assert(t, err)
 	gtest.Assert(t, gerrors.Wrap(err, "open temp error"))
-	chachaR, err := makerR.Make(tempFile, true, nil)
+	chachaR, err := makerR.Make(tempFile, &gvar.True, nil, nil)
 	gtest.Assert(t, gerrors.Wrap(err, "m2 make error"))
 	var readBuf = make([]byte, 1024)
 	n, err = chachaR.Read(readBuf)

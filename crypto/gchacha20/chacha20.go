@@ -33,9 +33,10 @@ type (
 
 	// ChaCha20Maker is a stream style ChaCha20-poly-1305 codec generator.
 	ChaCha20Maker struct {
-		chaR chacha20.Cipher
-		chaW chacha20.Cipher
-		key []byte
+		chaR             chacha20.Cipher
+		chaW             chacha20.Cipher
+		key              []byte
+		correctNonceSize int
 	}
 
 	// ChaCha20RWC is a stream style ChaCha20-poly-1305 codec.
@@ -65,7 +66,6 @@ func NewChaCha20WithKey(key []byte) (*ChaCha20Cipher, error) {
 	return result, nil
 }
 
-
 // Encrypt encrypts the given data using ChaCha20-Poly1305 with the given passphrase.
 // The passphrase can be a user provided value, and is hashed using scrypt before being used.
 // It implements `VarLenCipher` interface.
@@ -94,7 +94,6 @@ func (c ChaCha20Cipher) Encrypt(b []byte) ([]byte, error) {
 
 	return writer.Bytes(), nil
 }
-
 
 // Decrypt decrypts the given encrypted data using ChaCha20-Poly1305 with the given passphrase.
 // The passphrase can be a user provided value, and is hashed using scrypt before being used.
@@ -146,55 +145,73 @@ func NewMakerWithKey(key []byte) (gcrypto.CipherRWCMaker, error) {
 		return nil, fmt.Errorf("invalid key")
 	}
 
+	correctNonceSize, err := getNonceSize(key)
+	if err != nil {
+		return nil, err
+	}
+
 	result := &ChaCha20Maker{}
 	result.key = key
+	result.correctNonceSize = correctNonceSize
 	return result, nil
 }
 
+func (m *ChaCha20Maker) NonceSize() int {
+	return m.correctNonceSize
+}
+
 // Make wraps io.ReadWriteCloser and generate a CipherRWC.
-func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce bool, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
+// readNonce:
+// nil: use specificNonce as nonce
+// true: read nonce from other side
+// false: generate random nonce and write to other side
+func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce *bool, specificNonce []byte, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
 	if rwc == nil {
 		return nil, gerrors.New("nil rwc")
 	}
-
-	// read or write nonce
 	correctNonceSize, err := getNonceSize(m.key)
 	if err != nil {
 		return nil, err
 	}
 	var nonce []byte
-	if readNonce { // Read nonce from writer side.
-		nonce = make([]byte, correctNonceSize)
-		_, err = io.ReadFull(rwc, nonce)
-		if err != nil {
-			return nil, err
-		}
-		if nonceCodec != nil {
-			if err := nonceCodec.Decrypt(nonce); err != nil {
-				return nil, err
-			}
-		}
-	} else { // Don't read nonce, should generate and write nonce.
-		nonce, err = generateNonce(m.key)
-		if err != nil {
-			return nil, err
-		}
-		if nonceCodec != nil {
-			if err := nonceCodec.Encrypt(nonce); err != nil {
-				return nil, err
-			}
-		}
-		n, err := rwc.Write(nonce[:correctNonceSize])
-		if err != nil {
-			return nil, err
-		}
-		if n != correctNonceSize {
-			return nil, gerrors.New("write nonce size %d != correct nonce size %d", n, correctNonceSize)
-		}
-	}
 
-	// TODO delete it
-	copy(nonce, m.key)
+	// read or write nonce
+	if readNonce != nil {
+		if *readNonce { // Read nonce from writer side.
+			nonce = make([]byte, correctNonceSize)
+			_, err = io.ReadFull(rwc, nonce)
+			if err != nil {
+				return nil, err
+			}
+			if nonceCodec != nil {
+				if err := nonceCodec.Decrypt(nonce); err != nil {
+					return nil, err
+				}
+			}
+		} else { // Don't read nonce, should generate and write nonce.
+			nonce, err = generateNonce(m.key)
+			if err != nil {
+				return nil, err
+			}
+			if nonceCodec != nil {
+				if err := nonceCodec.Encrypt(nonce); err != nil {
+					return nil, err
+				}
+			}
+			n, err := rwc.Write(nonce[:correctNonceSize])
+			if err != nil {
+				return nil, err
+			}
+			if n != correctNonceSize {
+				return nil, gerrors.New("write nonce size %d != correct nonce size %d", n, correctNonceSize)
+			}
+		}
+	} else {
+		if len(specificNonce) != correctNonceSize {
+			return nil, gerrors.New("specific nonce size %d != correct size %d", len(specificNonce), correctNonceSize)
+		}
+		copy(nonce, specificNonce)
+	}
 
 	chaR, err := chacha20.NewUnauthenticatedCipher(m.key, nonce)
 	if err != nil {
