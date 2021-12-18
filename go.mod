@@ -49,7 +49,6 @@ require (
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/go-vgo/robotgo v0.100.2
 	github.com/gocarina/gocsv v0.0.0-20211020200912-82fc2684cc48
-	github.com/goccy/go-graphviz v0.0.9
 	github.com/golang/snappy v0.0.4
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/gopacket v1.1.19
@@ -174,7 +173,6 @@ require (
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
 	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
 	github.com/extrame/ole2 v0.0.0-20160812065207-d69429661ad7 // indirect
-	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17 // indirect
 	github.com/gen2brain/shm v0.0.0-20200228170931-49f9650110c5 // indirect
