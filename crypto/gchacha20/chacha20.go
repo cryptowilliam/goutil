@@ -193,6 +193,9 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce bool, nonceCodec 
 		}
 	}
 
+	// TODO delete it
+	copy(nonce, m.key)
+
 	chaR, err := chacha20.NewUnauthenticatedCipher(m.key, nonce)
 	if err != nil {
 		return nil, err
