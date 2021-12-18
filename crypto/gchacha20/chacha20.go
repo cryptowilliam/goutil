@@ -169,11 +169,9 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce *bool, specificNo
 	if rwc == nil {
 		return nil, gerrors.New("nil rwc")
 	}
-	correctNonceSize, err := getNonceSize(m.key)
-	if err != nil {
-		return nil, err
-	}
 	var nonce []byte
+	correctNonceSize := m.NonceSize()
+	err := error(nil)
 
 	// read or write nonce
 	if readNonce != nil {
@@ -210,6 +208,7 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce *bool, specificNo
 		if len(specificNonce) != correctNonceSize {
 			return nil, gerrors.New("specific nonce size %d != correct size %d", len(specificNonce), correctNonceSize)
 		}
+		nonce = make([]byte, correctNonceSize)
 		copy(nonce, specificNonce)
 	}
 
