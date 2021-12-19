@@ -143,6 +143,6 @@ func (m *Mono256Maker) NonceSize() int {
 	return 0
 }
 
-func (m *Mono256Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout time.Duration, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
+func (m *Mono256Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout *time.Duration, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
 	return gcrypto.NewEqLenCipherRWC(m.cipher, rwc), nil
 }
