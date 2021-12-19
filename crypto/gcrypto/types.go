@@ -37,5 +37,6 @@ type (
 
 var (
 	CipherMono256 Cipher = "mono256"
-	CipherChaCha20 Cipher = "chacha20"
+	CipherChaCha20IETFPoly1305 Cipher = "chacha20-ietf-poly1305"
+	CipherXChaCha20Poly1305 Cipher = "xchacha20-poly1305"
 )
