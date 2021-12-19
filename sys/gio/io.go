@@ -347,6 +347,7 @@ func myReadAtLeast(r io.Reader, buf []byte, min int) (n int, err error) {
 	}
 	for n < min && err == nil {
 		var nn int
+		fmt.Println("r.Read begin")
 		nn, err = r.Read(buf[n:])
 		fmt.Println("r.Read size", nn, "data:", buf[n:])
 		n += nn
