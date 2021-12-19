@@ -203,6 +203,7 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce *bool, specificNo
 			if n != correctNonceSize {
 				return nil, gerrors.New("write nonce size %d != correct nonce size %d", n, correctNonceSize)
 			}
+			fmt.Println("write nonce:", nonce[:correctNonceSize])
 		}
 	} else {
 		if len(specificNonce) != correctNonceSize {
