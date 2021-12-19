@@ -849,6 +849,7 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 				l.sessions[addr.String()] = s
 				l.sessionLock.Unlock()
 				l.chAccepts <- s
+				fmt.Println("new session ready for accept")
 			}
 		}
 	}
