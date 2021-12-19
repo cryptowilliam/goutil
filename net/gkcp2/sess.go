@@ -842,7 +842,7 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 		fmt.Println(fmt.Sprintf("new session %d data from %s", len(data), addr.String()))
 		if s == nil && convRecovered { // new session
 			if len(l.chAccepts) < cap(l.chAccepts) { // do not let the new sessions overwhelm accept queue
-				fmt.Println("new session created")
+				fmt.Println("new session created with data", data)
 				s := newUDPSession(conv, l.dataShards, l.parityShards, l, l.conn, false, addr, l.block)
 				s.kcpInput(data)
 				l.sessionLock.Lock()
