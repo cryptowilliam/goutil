@@ -186,6 +186,7 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout *tim
 				return nil, err
 			}
 		}
+		fmt.Println("write nonce", nonce[:correctNonceSize])
 		n, err := rwc.Write(nonce[:correctNonceSize])
 		if err != nil {
 			return nil, err
@@ -195,6 +196,7 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout *tim
 		}
 	} else { // read nonce from writer side.
 		nonce = make([]byte, correctNonceSize)
+		fmt.Println("read nonce from rwc")
 		_, err = gio.ReadFull(rwc, nonce, timeout)
 		if err != nil {
 			return nil, err

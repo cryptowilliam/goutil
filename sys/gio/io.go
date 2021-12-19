@@ -2,6 +2,7 @@ package gio
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"io"
 	"io/ioutil"
@@ -327,7 +328,7 @@ func ReadAtLeast(r io.Reader, buf []byte, min int, timeout *time.Duration) (n in
 	go func() {
 		defer close(chDie)
 		// FIXME: is this will continue after ReadAtLeast exits?
-		n, err = io.ReadAtLeast(r, buf, min)
+		n, err = myReadAtLeast(r, buf, min)
 	}()
 
 	ticker := time.NewTicker(*timeout)
@@ -338,4 +339,22 @@ func ReadAtLeast(r io.Reader, buf []byte, min int, timeout *time.Duration) (n in
 	}
 
 	return n, err
+}
+
+func myReadAtLeast(r io.Reader, buf []byte, min int) (n int, err error) {
+	if len(buf) < min {
+		return 0, io.ErrShortBuffer
+	}
+	for n < min && err == nil {
+		var nn int
+		nn, err = r.Read(buf[n:])
+		fmt.Println("r.Read size", nn, "data:", buf[n:])
+		n += nn
+	}
+	if n >= min {
+		err = nil
+	} else if n > 0 && err == io.EOF {
+		err = io.ErrUnexpectedEOF
+	}
+	return
 }
