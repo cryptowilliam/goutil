@@ -3,8 +3,7 @@ package gkcp
 import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	//"github.com/xtaci/kcp-go"
-	kcp "github.com/cryptowilliam/goutil/net/gkcp2"
+	"github.com/xtaci/kcp-go"
 	"net"
 	"time"
 )

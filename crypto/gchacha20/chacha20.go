@@ -163,10 +163,11 @@ func (m *ChaCha20Maker) NonceSize() int {
 }
 
 // Make wraps io.ReadWriteCloser and generate a CipherRWC.
-// readNonce:
-// nil: use specificNonce as nonce
-// true: read nonce from other side
-// false: generate random nonce and write to other side
+// genNonce:
+// true: generate random nonce and write to other side
+// false: read nonce from other side
+// timeout:
+// it is recommended, used to avoid unexpected block of reader `rwc`.
 func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout *time.Duration, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
 	if rwc == nil {
 		return nil, gerrors.New("nil rwc")
@@ -186,7 +187,6 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout *tim
 				return nil, err
 			}
 		}
-		fmt.Println("write nonce", nonce[:correctNonceSize])
 		n, err := rwc.Write(nonce[:correctNonceSize])
 		if err != nil {
 			return nil, err
@@ -196,8 +196,7 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout *tim
 		}
 	} else { // read nonce from writer side.
 		nonce = make([]byte, correctNonceSize)
-		fmt.Println("read nonce from rwc")
-		_, err = gio.ReadFull(rwc, nonce, timeout)
+		_, err = gio.ReadFull(rwc, nonce, timeout) // timeout: avoid unexpected block of reader `rwc`
 		if err != nil {
 			return nil, err
 		}
