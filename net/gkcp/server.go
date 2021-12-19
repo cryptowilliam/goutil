@@ -1,7 +1,8 @@
 package gkcp
 
 import (
-	"github.com/xtaci/kcp-go"
+	//"github.com/xtaci/kcp-go"
+	kcp "github.com/cryptowilliam/goutil/net/gkcp2"
 	"net"
 )
 

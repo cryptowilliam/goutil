@@ -121,7 +121,7 @@ require (
 	github.com/zgs225/youdao v1.0.0
 	go.mongodb.org/mongo-driver v1.7.3
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/net v0.0.0-20211101193420-4a448f8816b3
+	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 	golang.org/x/oauth2 v0.0.0-20211028175245-ba495a64dcb5
 	golang.org/x/sys v0.0.0-20211102061401-a2f17f7b995c
 	golang.org/x/text v0.3.7

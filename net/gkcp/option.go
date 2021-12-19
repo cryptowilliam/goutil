@@ -2,7 +2,8 @@ package gkcp
 
 import (
 	"crypto/sha1"
-	"github.com/xtaci/kcp-go"
+	//"github.com/xtaci/kcp-go"
+	kcp "github.com/cryptowilliam/goutil/net/gkcp2"
 	"golang.org/x/crypto/pbkdf2"
 )
 
