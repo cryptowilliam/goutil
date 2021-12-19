@@ -2,6 +2,7 @@ package gcrypto
 
 import (
 	"io"
+	"time"
 )
 
 type (
@@ -24,7 +25,7 @@ type (
 
 	CipherRWCMaker interface {
 		NonceSize() int
-		Make(rwc io.ReadWriteCloser, readNonce *bool, specificNonce []byte, nonceCodec EqLenCipher) (CipherRWC, error)
+		Make(rwc io.ReadWriteCloser, genNonce bool, timeout time.Duration, nonceCodec EqLenCipher) (CipherRWC, error)
 	}
 
 	// CipherRWC defines the interface for encryption algorithms where

@@ -2,6 +2,7 @@ package gio
 
 import (
 	"bytes"
+	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -309,4 +310,28 @@ func BytesToReadCloser(b []byte) io.ReadCloser {
 
 func StringToReadCloser(s string) io.ReadCloser {
 	return ioutil.NopCloser(strings.NewReader(s))
+}
+
+// ReadFull is based on standard io library.
+func ReadFull(r io.Reader, buf []byte, timeout *time.Duration) (n int, err error) {
+	return ReadAtLeast(r, buf, len(buf), timeout)
+}
+
+// ReadAtLeast is based on standard io library.
+func ReadAtLeast(r io.Reader, buf []byte, min int, timeout *time.Duration) (n int, err error) {
+	chDie := make(chan struct{}, 1)
+	go func() {
+		defer close(chDie)
+		// FIXME: is this will continue after ReadAtLeast exits?
+		n, err = io.ReadAtLeast(r, buf, min)
+	}()
+
+	ticker := time.NewTicker(*timeout)
+	select {
+	case <-ticker.C:
+		return n, gerrors.ErrTimeout
+	case <- chDie:
+	}
+
+	return n, err
 }

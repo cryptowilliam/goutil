@@ -15,11 +15,13 @@ import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/crypto/gcrypto"
+	"github.com/cryptowilliam/goutil/sys/gio"
 	"golang.org/x/crypto/chacha20"
 	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/crypto/scrypt"
 	"io"
 	"io/ioutil"
+	"time"
 )
 
 type (
@@ -165,7 +167,7 @@ func (m *ChaCha20Maker) NonceSize() int {
 // nil: use specificNonce as nonce
 // true: read nonce from other side
 // false: generate random nonce and write to other side
-func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce *bool, specificNonce []byte, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
+func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, genNonce bool, timeout time.Duration, nonceCodec gcrypto.EqLenCipher) (gcrypto.CipherRWC, error) {
 	if rwc == nil {
 		return nil, gerrors.New("nil rwc")
 	}
@@ -174,43 +176,34 @@ func (m *ChaCha20Maker) Make(rwc io.ReadWriteCloser, readNonce *bool, specificNo
 	err := error(nil)
 
 	// read or write nonce
-	if readNonce != nil {
-		if *readNonce { // Read nonce from writer side.
-			nonce = make([]byte, correctNonceSize)
-			_, err = io.ReadFull(rwc, nonce)
-			if err != nil {
-				return nil, err
-			}
-			if nonceCodec != nil {
-				if err := nonceCodec.Decrypt(nonce); err != nil {
-					return nil, err
-				}
-			}
-		} else { // Don't read nonce, should generate and write nonce.
-			nonce, err = generateNonce(m.key)
-			if err != nil {
-				return nil, err
-			}
-			if nonceCodec != nil {
-				if err := nonceCodec.Encrypt(nonce); err != nil {
-					return nil, err
-				}
-			}
-			n, err := rwc.Write(nonce[:correctNonceSize])
-			if err != nil {
-				return nil, err
-			}
-			if n != correctNonceSize {
-				return nil, gerrors.New("write nonce size %d != correct nonce size %d", n, correctNonceSize)
-			}
-			fmt.Println("write nonce:", nonce[:correctNonceSize])
+	if genNonce { // generate and write nonce
+		nonce, err = generateNonce(m.key)
+		if err != nil {
+			return nil, err
 		}
-	} else {
-		if len(specificNonce) != correctNonceSize {
-			return nil, gerrors.New("specific nonce size %d != correct size %d", len(specificNonce), correctNonceSize)
+		if nonceCodec != nil {
+			if err := nonceCodec.Encrypt(nonce); err != nil {
+				return nil, err
+			}
 		}
+		n, err := rwc.Write(nonce[:correctNonceSize])
+		if err != nil {
+			return nil, err
+		}
+		if n != correctNonceSize {
+			return nil, gerrors.New("write nonce size %d != correct nonce size %d", n, correctNonceSize)
+		}
+	} else { // read nonce from writer side.
 		nonce = make([]byte, correctNonceSize)
-		copy(nonce, specificNonce)
+		_, err = gio.ReadFull(rwc, nonce, &timeout)
+		if err != nil {
+			return nil, err
+		}
+		if nonceCodec != nil {
+			if err = nonceCodec.Decrypt(nonce); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	chaR, err := chacha20.NewUnauthenticatedCipher(m.key, nonce)
