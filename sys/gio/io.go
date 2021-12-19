@@ -319,6 +319,10 @@ func ReadFull(r io.Reader, buf []byte, timeout *time.Duration) (n int, err error
 
 // ReadAtLeast is based on standard io library.
 func ReadAtLeast(r io.Reader, buf []byte, min int, timeout *time.Duration) (n int, err error) {
+	if timeout == nil {
+		return io.ReadAtLeast(r, buf, min)
+	}
+
 	chDie := make(chan struct{}, 1)
 	go func() {
 		defer close(chDie)
