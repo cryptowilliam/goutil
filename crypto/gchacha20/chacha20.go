@@ -1,5 +1,9 @@
 package gchacha20
 
+// ChaCha20 is a modification of Salsa20 published in 2008.
+// It uses a new round function that increases diffusion and increases
+// performance on some architectures.
+//
 // Attention should be paid to the fact that not only the same passphrase
 // should be used for decryption, but also the same random number (nonce).
 // If the random number used for decryption is different from that used for
@@ -31,15 +35,13 @@ import (
 type (
 	ChaCha20 struct{}
 
-	// ChaCha20Cipher is a modification of Salsa20 published in 2008.
-	// It uses a new round function that increases diffusion and increases
-	// performance on some architectures.
+	// ChaCha20Cipher is chacha20 encoder and decoder.
 	ChaCha20Cipher struct {
 		key     []byte
 		version gcrypto.Cipher
 	}
 
-	// ChaCha20Maker is a stream style ChaCha20-poly-1305 codec generator.
+	// ChaCha20Maker is a stream style ChaCha20 codec generator.
 	ChaCha20Maker struct {
 		key              []byte
 		version          gcrypto.Cipher // "chacha20-ietf-poly1305", "xchacha20-poly1305"
@@ -48,7 +50,7 @@ type (
 		correctNonceSize int
 	}
 
-	// ChaCha20RWC is a stream style ChaCha20-poly-1305 codec.
+	// ChaCha20RWC is a stream style ChaCha20 codec.
 	ChaCha20RWC struct {
 		csr *cipher.StreamReader
 		csw *cipher.StreamWriter
