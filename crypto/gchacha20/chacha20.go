@@ -9,7 +9,7 @@ package gchacha20
 // The length of the nonce determines the version of ChaCha20:
 // - 8 bytes:  ChaCha20 with a 64 bit nonce and a 2^64 * 64 byte period.
 // - 12 bytes: ChaCha20-IETF-Poly1305 with a 96 bit nonce in RFC 7539 and a 2^32 * 64 byte period.
-// - 24 bytes: XChaCha20-Poly1305 with a 192 bit nonce in RFC 8439 and a 2^64 * 64 byte period.
+// - 24 bytes: XChaCha20-Poly1305 with a 192 bit nonce in draft-irtf-cfrg-xchacha and a 2^64 * 64 byte period.
 
 import (
 	"bufio"
