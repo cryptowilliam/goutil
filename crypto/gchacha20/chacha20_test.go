@@ -1,9 +1,11 @@
 package gchacha20
 
 import (
+	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/basic/gtest"
 	"github.com/cryptowilliam/goutil/crypto/gcrypto"
+	"io"
 	"log"
 	"os"
 	"testing"
@@ -24,6 +26,13 @@ func TestChaCha20RWC_Read_Write(t *testing.T) {
 	n, err := chachaW.Write([]byte(plain))
 	gtest.Assert(t, gerrors.Wrap(err, "write error"))
 	log.Println("write size", n)
+
+	// print encrypted content
+	_, err = tempFile.Seek(0, 0)
+	gtest.Assert(t, gerrors.Wrap(err, "seek error"))
+	tempBuf, err := io.ReadAll(tempFile)
+	gtest.Assert(t, err)
+	fmt.Println(tempBuf)
 
 	_, err = tempFile.Seek(0, 0)
 	gtest.Assert(t, gerrors.Wrap(err, "seek error"))

@@ -313,24 +313,13 @@ func newChaCha20AEAD(key []byte, version gcrypto.Cipher) (cipher.AEAD, error) {
 
 func getNonceSize(version gcrypto.Cipher) (int, error) {
 	switch version {
-	case gcrypto.CipherChaCha20IETFPoly1305: // 12
-		/*block, err := chacha20poly1305.New(key)
-		if err != nil {
-			return 0, err
-		}
-		return block.NonceSize(), nil*/
-		return 12, nil
-	case gcrypto.CipherXChaCha20Poly1305: // 24
-		/*block, err := chacha20poly1305.NewX(key)
-		if err != nil {
-			return 0, err
-		}
-		return block.NonceSize(), nil*/
-		return 24, nil
+	case gcrypto.CipherChaCha20IETFPoly1305:
+		return chacha20poly1305.NonceSize, nil // 12
+	case gcrypto.CipherXChaCha20Poly1305:
+		return chacha20poly1305.NonceSizeX, nil // 24
 	default:
 		return 0, gerrors.New(errUnknownChaChaVer, version)
 	}
-
 }
 
 func generateNonce(key []byte, version gcrypto.Cipher) ([]byte, error) {
