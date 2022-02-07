@@ -1,6 +1,7 @@
 package gfs
 
 import (
+	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"os"
 	"path"
@@ -22,7 +23,7 @@ const (
 func FileSize(path string) (int64, error) {
 	fi, err := os.Stat(path)
 	if err != nil {
-		return 0, err
+		return 0, gerrors.Wrap(err, fmt.Sprintf("Stat(%s)", path))
 	}
 	if fi.IsDir() {
 		return 0, gerrors.Errorf("path(%s) is directory", path)
