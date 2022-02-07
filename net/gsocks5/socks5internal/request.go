@@ -228,7 +228,7 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 	// Start proxying
 	errCh := make(chan error, 2)
 	atomic.AddInt64(&s.config.aliveProxy, 2)
-	s.config.log.Infof("active proxy routines %d", atomic.LoadInt64(&s.config.aliveProxy))
+	s.config.Log.Infof("active proxy routines %d", atomic.LoadInt64(&s.config.aliveProxy))
 	go s.proxy(target, req.bufConn, errCh)
 	go s.proxy(conn, target, errCh)
 
@@ -388,7 +388,7 @@ type closeWriter interface {
 func (s *Server) proxy(dst io.Writer, src io.Reader, errCh chan error) {
 	defer func() {
 		atomic.AddInt64(&s.config.aliveProxy, -1)
-		s.config.log.Infof("active proxy routines %d", atomic.LoadInt64(&s.config.aliveProxy))
+		s.config.Log.Infof("active proxy routines %d", atomic.LoadInt64(&s.config.aliveProxy))
 	}()
 
 	// Use CopyTimeout to prevent zombie connections

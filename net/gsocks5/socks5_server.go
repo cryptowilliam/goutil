@@ -1,6 +1,7 @@
 package gsocks5
 
 import (
+	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/net/gnet"
 	"github.com/cryptowilliam/goutil/net/gsocks5/socks5internal"
 	"net"
@@ -10,6 +11,7 @@ type (
 	Server struct {
 		lis        net.Listener
 		srv        *socks5internal.Server
+		log		   glog.Interface
 		listenAddr string
 		dialer     gnet.DialWithCtxFunc
 		dnsResolver gnet.LookupIPWithCtxFunc
@@ -35,6 +37,10 @@ func (s *Server) SetCustomDNSResolver(dnsResolver gnet.LookupIPWithCtxFunc) {
 	s.dnsResolver = dnsResolver
 }
 
+func (s *Server) SetCustomLogger(log glog.Interface) {
+	s.log = log
+}
+
 // ListenAndServe start a tcp socks5 proxy server.
 // For now, non-tcp socks5 proxy server is not necessary, so there is no "network" param.
 // listenAddr example: "127.0.0.1:8000"
@@ -54,6 +60,11 @@ func (s *Server) Listen() error {
 	}
 	if s.dnsResolver != nil {
 		conf.Resolver = s.dnsResolver
+	}
+	if s.log != nil {
+		conf.Log = s.log
+	} else {
+		conf.Log = glog.DefaultLogger
 	}
 	err := error(nil)
 	s.srv, err = socks5internal.New(conf)

@@ -43,7 +43,7 @@ type Config struct {
 	// Defaults to stdout.
 	Logger *log.Logger
 
-	log glog.Interface
+	Log glog.Interface
 
 	// active proxy go routines count
 	aliveProxy int64
