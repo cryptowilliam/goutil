@@ -130,6 +130,7 @@ func ReplaceMySelfFile(newfilepath string) error {
 }
 
 // 还可以参考：https://github.com/rcrowley/goagain/blob/master/goagain.go#L77
+// https://stackoverflow.com/questions/68201595/how-to-restart-itself-in-go-daemon-process
 // Restart current process, with same parameters.
 func RestartMyself() error {
 	argv0, err := SelfPath()
