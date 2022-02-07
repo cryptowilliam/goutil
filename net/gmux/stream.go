@@ -44,8 +44,9 @@ type Stream struct {
 	// io.Copy will also end because of Read/Write/WriteTo returns error, thus freeing up more resources.
 	// no data timeout
 	// it is different from deadlines
-	noDataTimeout time.Duration
-	noDataTicker *time.Ticker
+	noDataTimeout           time.Duration
+	noDataTicker            *time.Ticker
+	noDataTimeoutModifiable int32
 
 	// per stream sliding window control
 	numRead    uint32 // number of consumed bytes
@@ -57,6 +58,11 @@ type Stream struct {
 	peerWindow   uint32        // peer window, initialized to 256KB, updated by peer
 	chUpdate     chan struct{} // notify of remote data consuming and window update
 }
+
+var (
+	defaultNoDataTimeout = 5 * time.Minute
+	errNoDataTimeout     = gerrors.New("no data timeout")
+)
 
 // newStream initiates a Stream struct
 func newStream(id uint32, streamName string, frameSize int, sess *Session) *Stream {
@@ -70,9 +76,29 @@ func newStream(id uint32, streamName string, frameSize int, sess *Session) *Stre
 	s.die = make(chan struct{})
 	s.chFinEvent = make(chan struct{})
 	s.peerWindow = initialPeerWindow // set to initial window size
-	s.noDataTimeout = 5 * time.Minute
+	s.noDataTimeout = defaultNoDataTimeout
 	s.noDataTicker = time.NewTicker(s.noDataTimeout)
+	s.noDataTimeoutModifiable = 1
 	return s
+}
+
+// InitNoDataTimeout only could be called once before Read/Write/WriteTo.
+func (s *Stream) InitNoDataTimeout(noDataTimeout time.Duration) error {
+	modifiable := atomic.LoadInt32(&s.noDataTimeoutModifiable)
+	if modifiable != 1 {
+		return gerrors.New("stream(%s) can't be modified more than one time", s.name)
+	}
+	atomic.StoreInt32(&s.noDataTimeoutModifiable, 0)
+
+	s.noDataTimeout = noDataTimeout
+	s.noDataTicker.Stop() // release old noDataTicker
+	s.noDataTicker = time.NewTicker(s.noDataTimeout)
+	return nil
+}
+
+// lock noDataTimeout
+func (s *Stream) lockNoDataTimeout() {
+	atomic.StoreInt32(&s.noDataTimeoutModifiable, 0)
 }
 
 // ID returns the unique stream ID.
@@ -87,10 +113,13 @@ func (s *Stream) Name() string {
 
 // Read implements net.Conn
 func (s *Stream) Read(b []byte) (n int, err error) {
+	// prevent modification of noDataTimeout after "Read/Write/WriteTo"
+	s.lockNoDataTimeout()
+
 	// check if stream no data timeout
 	select {
-	case <- s.noDataTicker.C:
-		return 0, gerrors.New("no data timeout")
+	case <-s.noDataTicker.C:
+		return 0, errNoDataTimeout
 	default:
 	}
 
@@ -202,6 +231,9 @@ func (s *Stream) tryReadv2(b []byte) (n int, err error) {
 
 // WriteTo implements io.WriteTo
 func (s *Stream) WriteTo(w io.Writer) (n int64, err error) {
+	// prevent modification of noDataTimeout after "Read/Write/WriteTo"
+	s.lockNoDataTimeout()
+
 	if s.sess.config.Version == 2 {
 		return s.writeTov2(w)
 	}
@@ -209,8 +241,8 @@ func (s *Stream) WriteTo(w io.Writer) (n int64, err error) {
 	for {
 		// check if stream no data timeout
 		select {
-		case <- s.noDataTicker.C:
-			return 0, gerrors.New("no data timeout")
+		case <-s.noDataTicker.C:
+			return 0, errNoDataTimeout
 		default:
 		}
 
@@ -249,8 +281,8 @@ func (s *Stream) writeTov2(w io.Writer) (n int64, err error) {
 	for {
 		// check if stream no data timeout
 		select {
-		case <- s.noDataTicker.C:
-			return 0, gerrors.New("no data timeout")
+		case <-s.noDataTicker.C:
+			return 0, errNoDataTimeout
 		default:
 		}
 
@@ -353,6 +385,9 @@ func (s *Stream) waitRead() error {
 // Note that the behavior when multiple goroutines write concurrently is not deterministic,
 // frames may interleave in random way.
 func (s *Stream) Write(b []byte) (n int, err error) {
+	// prevent modification of noDataTimeout after "Read/Write/WriteTo"
+	s.lockNoDataTimeout()
+
 	if s.sess.config.Version == 2 {
 		return s.writeV2(b)
 	}
@@ -366,8 +401,8 @@ func (s *Stream) Write(b []byte) (n int, err error) {
 
 	// check if stream no data timeout
 	select {
-	case <- s.noDataTicker.C:
-		return 0, gerrors.New("no data timeout")
+	case <-s.noDataTicker.C:
+		return 0, errNoDataTimeout
 	default:
 	}
 
@@ -411,8 +446,8 @@ func (s *Stream) writeV2(b []byte) (n int, err error) {
 
 	// check if stream no data timeout
 	select {
-	case <- s.noDataTicker.C:
-		return 0, gerrors.New("no data timeout")
+	case <-s.noDataTicker.C:
+		return 0, errNoDataTimeout
 	default:
 	}
 
@@ -510,6 +545,9 @@ func (s *Stream) SetCloseNotifier(notifier CloseNotifier, ctx interface{}) {
 
 // Close implements net.Conn
 func (s *Stream) Close() error {
+	// release noDataTicker
+	s.noDataTicker.Stop()
+
 	var once bool
 	var err error
 	s.dieOnce.Do(func() {

@@ -3,6 +3,7 @@ package gmux
 import (
 	"io"
 	"net"
+	"time"
 )
 
 type (
@@ -25,6 +26,7 @@ type (
 	StreamIF interface {
 		ID() uint32
 		Name() string
+		InitNoDataTimeout(noDataTimeout time.Duration) error
 		SetCloseNotifier(notifier CloseNotifier, ctx interface{})
 		net.Conn
 	}
