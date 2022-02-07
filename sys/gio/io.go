@@ -2,17 +2,49 @@ package gio
 
 import (
 	"bytes"
+	"errors"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"io"
 	"io/ioutil"
+	"net"
 	"strings"
 	"sync"
 	"time"
 )
 
-type SetDeadlineCallback func(t time.Time) error
-type CopiedSizeCallback func(size int64)
-type ErrNotify func(err error)
+type (
+	SetDeadlineCallback func(t time.Time) error
+	CopiedSizeCallback func(size int64)
+	ErrNotify func(err error)
+
+	TimeoutR struct {
+		rd io.ReadCloser
+		deadline time.Time
+	}
+
+	TimeoutW struct {
+		wd io.WriteCloser
+		deadline time.Time
+	}
+
+	TimeoutReadCloser interface {
+		io.ReadCloser
+		SetReadDeadline(t time.Time) error
+	}
+
+	TimeoutWriteCloser interface {
+		io.WriteCloser
+		SetWriteDeadline(t time.Time) error
+	}
+
+	TimeoutReadWriteCloser interface {
+		io.ReadWriteCloser
+		SetReadDeadline(t time.Time) error
+		SetWriteDeadline(t time.Time) error
+		SetDeadline(t time.Time) error
+	}
+)
+
 
 func TwoWayCopy(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
 	// Memory optimized io.Copy function specified for this library
@@ -57,40 +89,139 @@ func TwoWayCopy(s1, s2 io.ReadWriteCloser, errNotify ErrNotify) {
 	}
 }
 
-// Forked from standard library io.Copy
-func CopyTimeout(dst io.Writer, dstWriteCb SetDeadlineCallback, src io.Reader, srcReadCb SetDeadlineCallback, timeout time.Duration) (written int64, err error) {
-	buf := make([]byte, 32*1024)
-	var nr, nw int
-	var er, ew error
+func WrapTimeoutReader(r io.ReadCloser) TimeoutReadCloser {
+	return &TimeoutR{
+		rd: r,
+	}
+}
 
-	/*
-		// If the reader has a WriteTo method, use it to do the copy.
-		// Avoids an allocation and a copy.
-		if wt, ok := src.(WriterTo); ok {
-			return wt.WriteTo(dst)
-		}
-		// Similarly, if the writer has a ReadFrom method, use it to do the copy.
-		if rt, ok := dst.(ReaderFrom); ok {
-			return rt.ReadFrom(src)
-		}
-		if buf == nil {
-			buf = make([]byte, 32*1024)
-		}
-	*/
+func WrapTimeoutWriter(w io.WriteCloser) TimeoutWriteCloser {
+	return &TimeoutW{
+		wd: w,
+	}
+}
 
+func (r *TimeoutR) Read(p []byte) (n int, err error) {
+	tickerTimeout := time.NewTicker(time.Now().Sub(r.deadline))
+	chDone := make(chan struct{}, 1)
+
+	go func() {
+		n, err = r.rd.Read(p)
+		close(chDone)
+	}()
+
+	select {
+	case <- chDone:
+	case <- tickerTimeout.C:
+		if r.rd != nil {
+			err = r.rd.Close()
+			err = gerrors.Join(gerrors.ErrTimeout, err)
+		}
+	}
+
+	return n, err
+}
+
+func (r *TimeoutR) SetReadDeadline(t time.Time) error {
+	r.deadline = t
+	return nil
+}
+
+func (r *TimeoutR) Close() error {
+	return r.rd.Close()
+}
+
+func (w *TimeoutW) Write(p []byte) (n int, err error) {
+	chDone := make(chan struct{}, 1)
+
+	go func() {
+		n, err = w.wd.Write(p)
+		close(chDone)
+	}()
+
+	select {
+	case <- chDone:
+	case <- time.After(time.Now().Sub(w.deadline)):
+		if w.wd != nil {
+			err = w.wd.Close()
+			err = gerrors.Join(gerrors.ErrTimeout, err)
+		}
+	}
+
+	return n, err
+}
+
+func (w *TimeoutW) SetWriteDeadline(t time.Time) error {
+	w.deadline = t
+	return nil
+}
+
+func (w *TimeoutW) Close() error {
+	return w.wd.Close()
+}
+
+// Note: among the two, 'dst' and 'src', there must be at least one net.Conn
+// based on standard library io.copyBuffer
+func copyBufferTimeout(dst io.Writer, src io.Reader, buf []byte, noDataTimeout time.Duration) (written int64, err error) {
+	var errInvalidWrite = errors.New("invalid write result")
+	dstConn, dstOk := dst.(net.Conn)
+	srcConn, srcOk := src.(net.Conn)
+	if !dstOk && !srcOk {
+		return 0, gerrors.New("copyBufferTimeout only support at least one net.Conn")
+	}
+	readDeadline := time.Now().Add(noDataTimeout)
+	writeDeadline := time.Now().Add(noDataTimeout)
+
+	if buf == nil {
+		size := 32 * 1024
+		if l, ok := src.(*io.LimitedReader); ok && int64(size) > l.N {
+			if l.N < 1 {
+				size = 1
+			} else {
+				size = int(l.N)
+			}
+		}
+		buf = make([]byte, size)
+	}
 	for {
-		if timeout > 0 {
-			srcReadCb(time.Now().Add(timeout))
+
+		// set deadline for src
+		if srcOk {
+			if srdErr := srcConn.SetReadDeadline(readDeadline); srdErr != nil {
+				return written, srdErr
+			}
 		}
-		nr, er = src.Read(buf)
+
+		nr, er := src.Read(buf)
+
+		// reset readDeadline
 		if nr > 0 {
-			if timeout > 0 {
-				dstWriteCb(time.Now().Add(timeout))
+			readDeadline = time.Now().Add(noDataTimeout)
+		}
+
+		if nr > 0 {
+
+			// set deadline for dst
+			if dstOk {
+				if swdErr := dstConn.SetWriteDeadline(writeDeadline); swdErr != nil {
+					return written, swdErr
+				}
 			}
-			nw, ew = dst.Write(buf[0:nr])
+
+			nw, ew := dst.Write(buf[0:nr])
+
+			// reset writeDeadline
 			if nw > 0 {
-				written += int64(nw)
+				writeDeadline = time.Now().Add(noDataTimeout)
 			}
+
+			if nw < 0 || nr < nw {
+				nw = 0
+				if ew == nil {
+					ew = errInvalidWrite
+				}
+			}
+			written += int64(nw)
 			if ew != nil {
 				err = ew
 				break
@@ -100,15 +231,21 @@ func CopyTimeout(dst io.Writer, dstWriteCb SetDeadlineCallback, src io.Reader, s
 				break
 			}
 		}
-		if er == io.EOF {
-			break
-		}
 		if er != nil {
-			err = er
+			if er != io.EOF {
+				err = er
+			}
 			break
 		}
 	}
 	return written, err
+}
+
+// CopyTimeout is a Copy function with no data timeout parameter.
+// Note: among the two, 'dst' and 'src', there must be at least one net.Conn
+// More: https://groups.google.com/g/golang-nuts/c/byfD0YtIl0I
+func CopyTimeout(dst io.Writer, src io.Reader, noDataTimeout time.Duration) (written int64, err error) {
+	return copyBufferTimeout(dst, src, nil, noDataTimeout)
 }
 
 // A pool for stream copying
