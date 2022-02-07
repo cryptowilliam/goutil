@@ -5,10 +5,13 @@ import (
 	"github.com/cryptowilliam/goutil/basic/gerrors"
 	"github.com/cryptowilliam/goutil/container/ginterface"
 	"github.com/cryptowilliam/goutil/net/gnet"
+	"github.com/cryptowilliam/goutil/sys/gio"
 	"io"
 	"net"
 	"strconv"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"golang.org/x/net/context"
 )
@@ -224,8 +227,10 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 
 	// Start proxying
 	errCh := make(chan error, 2)
-	go proxy(target, req.bufConn, errCh)
-	go proxy(conn, target, errCh)
+	atomic.AddInt64(&s.config.aliveProxy, 2)
+	s.config.log.Infof("active proxy routines %d", atomic.LoadInt64(&s.config.aliveProxy))
+	go s.proxy(target, req.bufConn, errCh)
+	go s.proxy(conn, target, errCh)
 
 	// Wait
 	for i := 0; i < 2; i++ {
@@ -380,8 +385,15 @@ type closeWriter interface {
 
 // proxy is used to suffle data from src to destination, and sends errors
 // down a dedicated channel
-func proxy(dst io.Writer, src io.Reader, errCh chan error) {
-	_, err := io.Copy(dst, src)
+func (s *Server) proxy(dst io.Writer, src io.Reader, errCh chan error) {
+	defer func() {
+		atomic.AddInt64(&s.config.aliveProxy, -1)
+		s.config.log.Infof("active proxy routines %d", atomic.LoadInt64(&s.config.aliveProxy))
+	}()
+
+	// Use CopyTimeout to prevent zombie connections
+	noDataTimeout := 2 * time.Minute
+	_, err := gio.CopyTimeout(dst, src, noDataTimeout)
 	if tcpConn, ok := dst.(closeWriter); ok {
 		tcpConn.CloseWrite()
 	}

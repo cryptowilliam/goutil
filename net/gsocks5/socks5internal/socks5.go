@@ -3,12 +3,12 @@ package socks5internal
 import (
 	"bufio"
 	"fmt"
+	"github.com/cryptowilliam/goutil/basic/glog"
 	"github.com/cryptowilliam/goutil/net/gnet"
+	"golang.org/x/net/context"
 	"log"
 	"net"
 	"os"
-
-	"golang.org/x/net/context"
 )
 
 // Config is used to setup and configure a Server
@@ -42,6 +42,11 @@ type Config struct {
 	// Logger can be used to provide a custom log target.
 	// Defaults to stdout.
 	Logger *log.Logger
+
+	log glog.Interface
+
+	// active proxy go routines count
+	aliveProxy int64
 
 	// Optional function for dialing out
 	Dial func(ctx context.Context, network, addr string) (net.Conn, error)
