@@ -15,7 +15,7 @@ import (
 )
 
 type (
-	ChromeHeadless struct {
+	ChromeDP struct {
 	}
 )
 
@@ -24,15 +24,15 @@ var (
 	TaskFullHtml = "full-html"
 )
 
-func NewChrome() *ChromeHeadless {
-	return &ChromeHeadless{}
+func NewChromeDP() *ChromeDP {
+	return &ChromeDP{}
 }
 
 func bufToFile(buf []byte, pathToSave string) error {
 	return ioutil.WriteFile(pathToSave, buf, 0o644)
 }
 
-func (ch *ChromeHeadless) Screenshot(urlStr, proxy string, log glog.Interface, timeout time.Duration) ([]byte, error) {
+func (ch *ChromeDP) Screenshot(urlStr, proxy string, log glog.Interface, timeout time.Duration) ([]byte, error) {
 	result, err := ch.DoTask(urlStr, proxy, []string{TaskScreenshot}, log, timeout)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (ch *ChromeHeadless) Screenshot(urlStr, proxy string, log glog.Interface, t
 	return result[TaskScreenshot], nil
 }
 
-func (ch *ChromeHeadless) GetFullHtml(urlStr, proxy string, log glog.Interface, timeout time.Duration) ([]byte, error) {
+func (ch *ChromeDP) GetFullHtml(urlStr, proxy string, log glog.Interface, timeout time.Duration) ([]byte, error) {
 	// FIXME
 	// when get full html, must exec TaskScreenshot at the same time, otherwise it can't get full html source
 	// i don't why, just do it like this.
@@ -51,7 +51,7 @@ func (ch *ChromeHeadless) GetFullHtml(urlStr, proxy string, log glog.Interface, 
 	return result[TaskFullHtml], nil
 }
 
-func (ch *ChromeHeadless) DoTask(urlStr, proxy string, tasks []string, log glog.Interface, timeout time.Duration) (map[string][]byte, error) {
+func (ch *ChromeDP) DoTask(urlStr, proxy string, tasks []string, log glog.Interface, timeout time.Duration) (map[string][]byte, error) {
 	// fix urlStr, chromedp doesn't accept URL without "http://" or "https://"
 	if !strings.HasPrefix(strings.ToLower(urlStr), "http://") && !strings.HasPrefix(strings.ToLower(urlStr), "https://") {
 		urlStr = "http://"+urlStr
