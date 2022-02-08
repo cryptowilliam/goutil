@@ -169,13 +169,18 @@ func SelfDir() (string, error) {
 	return filepath.Dir(p), nil
 }
 
+// SelfPath returns full path of current process.
 func SelfPath() (string, error) {
-	return osext.Executable()
+	return os.Executable()
 }
 
-// returns last element of path: short filename
-func SelfBase() (string, error) {
-	return osext.Executable()
+// SelfShortName returns last element of path - short filename.
+func SelfShortName() (string, error) {
+	fullPath, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Base(fullPath), nil
 }
 
 func Terminate(pid ProcId) error {

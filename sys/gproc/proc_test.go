@@ -34,3 +34,7 @@ func TestGetPidCreateTime(t *testing.T) {
 	}
 	fmt.Println(idtms)
 }
+
+func TestSelfShortName(t *testing.T) {
+	fmt.Println(SelfShortName())
+}
