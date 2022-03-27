@@ -23,8 +23,12 @@ type QuicListener struct {
 	stream   quic.Stream
 }
 
+const (
+	alpn = "idontknow"
+)
+
 func Dial(raddr string) (*QuicConn, error) {
-	sess, err := quic.DialAddr(raddr, &tls.Config{InsecureSkipVerify: true}, nil)
+	sess, err := quic.DialAddr(raddr, &tls.Config{InsecureSkipVerify: true, NextProtos: []string{alpn}}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,21 +52,21 @@ func Listen(laddr string) (net.Listener, error) {
 func generateTLSConfig() *tls.Config {
 	key, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
-		panic(err)
+		panic(any(err))
 	}
 	template := x509.Certificate{SerialNumber: big.NewInt(1)}
 	certDER, err := x509.CreateCertificate(rand.Reader, &template, &template, &key.PublicKey, key)
 	if err != nil {
-		panic(err)
+		panic(any(err))
 	}
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
 
 	tlsCert, err := tls.X509KeyPair(certPEM, keyPEM)
 	if err != nil {
-		panic(err)
+		panic(any(err))
 	}
-	return &tls.Config{Certificates: []tls.Certificate{tlsCert}}
+	return &tls.Config{Certificates: []tls.Certificate{tlsCert}, NextProtos: []string{alpn}}
 }
 
 // Accept waits for and returns the next connection to the listener.
