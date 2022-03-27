@@ -1,6 +1,6 @@
 module github.com/cryptowilliam/goutil
 
-go 1.17
+go 1.18
 
 require (
 	github.com/AdguardTeam/dnsproxy v0.39.10
@@ -11,7 +11,6 @@ require (
 	github.com/SentimensRG/sigctx v0.0.0-20171003180858-c19b774db63b
 	github.com/StevenZack/openurl v0.0.0-20190430065139-b25363f65ff8
 	github.com/VividCortex/godaemon v1.0.0
-	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1290
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/anacrolix/utp v0.1.0
@@ -143,6 +142,7 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/StevenZack/tools v1.13.11 // indirect
+	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/aead/poly1305 v0.0.0-20180717145839-3fee0db0b635 // indirect
 	github.com/ameshkov/dnscrypt/v2 v2.2.3 // indirect
 	github.com/ameshkov/dnsstamps v1.0.3 // indirect
