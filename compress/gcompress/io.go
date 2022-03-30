@@ -61,6 +61,8 @@ func NewCompReadWriteCloser(compAlgo Comp, param *CompParam, rwc io.ReadWriteClo
 	}
 	rst.rwc = rwc
 	switch compAlgo {
+	case CompNone:
+		return nil, gerrors.New("can't create CompReadWriteCloser for 'none' algo")
 	case CompSnappy:
 		rst.r = snappy.NewReader(rwc)
 		rst.w = snappy.NewBufferedWriter(rwc)
