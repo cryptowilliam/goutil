@@ -2,6 +2,7 @@ package grand
 
 import (
 	"fmt"
+	"github.com/cryptowilliam/goutil/basic/gtest"
 	"testing"
 )
 
@@ -24,4 +25,10 @@ func TestRandomString(t *testing.T) {
 		t.Errorf("RandomString error")
 		return
 	}
+}
+
+func TestRandomBuffer(t *testing.T) {
+	buf := make([]byte, 10)
+	_, err := RandomBuffer(buf)
+	gtest.Assert(t, err)
 }

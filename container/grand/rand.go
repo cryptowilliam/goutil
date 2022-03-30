@@ -64,7 +64,7 @@ func RandomBool() bool {
 
 func RandomString(size int) string {
 	if size <= 0 {
-		panic(gerrors.New("invalid size %d", size))
+		panic(any(gerrors.New("invalid size %d", size)))
 	}
 	return randomdata.RandStringRunes(size)
 }
@@ -94,4 +94,8 @@ func RandomPassword(chars string, minLen, maxLen int) string {
 		result += string(chars[idx])
 	}
 	return result
+}
+
+func RandomBuffer(buf []byte) (int, error){
+	return rand.Read(buf)
 }
