@@ -34,5 +34,5 @@ func ToComp(algo string) (Comp, error) {
 			return v, nil
 		}
 	}
-	return CompNone, gerrors.New("unrecognized compress algorithm '%'", algo)
+	return CompNone, gerrors.New("unrecognized compress algorithm '%s'", algo)
 }
