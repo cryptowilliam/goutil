@@ -8,10 +8,10 @@ type (
 	}
 )
 
-func (p CompParam) Verify(algo CompAlgo) error {
+func (p CompParam) Verify(algo Comp) error {
 	switch algo {
 	// Flate level must in [-2, 9].
-	case CompAlgoFlate:
+	case CompFlate:
 		if p.Level < -2 || p.Level > 9 {
 			return gerrors.New("compress algorithm %s level %d is out of [-2, 9]", algo, p.Level)
 		}

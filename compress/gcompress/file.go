@@ -5,6 +5,6 @@ type (
 	}
 )
 
-func NewFileCompress(inputFilename, outputFilename string, algo CompAlgo) error {
+func NewFileCompress(inputFilename, outputFilename string, algo Comp) error {
 	return nil
 }

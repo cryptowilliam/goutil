@@ -18,7 +18,7 @@ import (
 type (
 	// CompReadWriteCloser implements io.ReadWriteCloser
 	CompReadWriteCloser struct {
-		algo  CompAlgo
+		algo  Comp
 		param *CompParam
 		rwc   io.ReadWriteCloser
 		r     io.Reader
@@ -50,7 +50,7 @@ func (c *CompReadWriteCloser) Close() error {
 }
 
 // NewCompReadWriteCloser create compress-orient ReadWriteCloser.
-func NewCompReadWriteCloser(compAlgo CompAlgo, param *CompParam, rwc io.ReadWriteCloser) (*CompReadWriteCloser, error) {
+func NewCompReadWriteCloser(compAlgo Comp, param *CompParam, rwc io.ReadWriteCloser) (*CompReadWriteCloser, error) {
 	rst := new(CompReadWriteCloser)
 	rst.algo = compAlgo
 	if param != nil {
@@ -61,27 +61,27 @@ func NewCompReadWriteCloser(compAlgo CompAlgo, param *CompParam, rwc io.ReadWrit
 	}
 	rst.rwc = rwc
 	switch compAlgo {
-	case CompAlgoSnappy:
+	case CompSnappy:
 		rst.r = snappy.NewReader(rwc)
 		rst.w = snappy.NewBufferedWriter(rwc)
-	case CompAlgoS2:
+	case CompS2:
 		rst.r = s2.NewReader(rwc)
 		rst.w = s2.NewWriter(rwc)
-	case CompAlgoGzip:
+	case CompGzip:
 		err := error(nil)
 		rst.r, err = gzip.NewReader(rwc)
 		if err != nil {
 			return nil, err
 		}
 		rst.w = gzip.NewWriter(rwc)
-	case CompAlgoPgZip:
+	case CompPgZip:
 		err := error(nil)
 		rst.r, err = pgzip.NewReader(rwc)
 		if err != nil {
 			return nil, err
 		}
 		rst.w = pgzip.NewWriter(rwc)
-	case CompAlgoZStd:
+	case CompZStd:
 		err := error(nil)
 		rst.r, err = zstd.NewReader(rwc)
 		if err != nil {
@@ -91,14 +91,14 @@ func NewCompReadWriteCloser(compAlgo CompAlgo, param *CompParam, rwc io.ReadWrit
 		if err != nil {
 			return nil, err
 		}
-	case CompAlgoZLib:
+	case CompZLib:
 		err := error(nil)
 		rst.r, err = zlib.NewReader(rwc)
 		if err != nil {
 			return nil, err
 		}
 		rst.w = zlib.NewWriter(rwc)
-	case CompAlgoFlate:
+	case CompFlate:
 		rst.r = flate.NewReader(rwc)
 		level := -1 // default level: -1
 		if param != nil {

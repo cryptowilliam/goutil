@@ -1,16 +1,17 @@
 package gcompress
 
 type (
-	CompAlgo string
+	Comp string
 )
 
 var (
-	CompAlgoSnappy CompAlgo = "snappy"
-	CompAlgoS2     CompAlgo = "s2"
-	CompAlgoZip    CompAlgo = "zip"
-	CompAlgoGzip   CompAlgo = "gzip"
-	CompAlgoPgZip  CompAlgo = "pgzip"
-	CompAlgoZStd   CompAlgo = "zstd"
-	CompAlgoZLib   CompAlgo = "zlib"
-	CompAlgoFlate  CompAlgo = "flate"
+	CompNone   Comp = "none"
+	CompSnappy Comp = "snappy"
+	CompS2     Comp = "s2"
+	CompZip    Comp = "zip"
+	CompGzip   Comp = "gzip"
+	CompPgZip  Comp = "pgzip"
+	CompZStd   Comp = "zstd"
+	CompZLib   Comp = "zlib"
+	CompFlate  Comp = "flate"
 )
