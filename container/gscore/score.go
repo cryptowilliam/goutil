@@ -1,5 +1,7 @@
 package gscore
 
+import "github.com/cryptowilliam/goutil/basic/gerrors"
+
 type sub struct {
 	scaleInTotal                              int // 此sub项目的占比，所有sub的这个值的总和必须等于100
 	value, valueOfZeroScore, valueOfFullScore float64

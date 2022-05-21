@@ -39,6 +39,8 @@ func (vm *VmYaegj) RunScript(script string) (gany.Val, error) {
 }
 
 // TODO 确定重复调用这个接口，比如映射两个不同的name、value对， 是可以正常执行的
+// 引入的指针和相关的自定义类型（非基础类型）都可以存取，但是默认不可以声明
+// 如果需要在脚本中主动声明Go Runtime中的自定义类型，目前知道的方法是在脚本中import该类型所在的包，
 // MapGoValueToScript allows script to access go runtime `value` with `name`.
 // Usually `value` is a pointer in the go runtime.
 func (vm *VmYaegj) MapGoValueToScript(name string, value interface{}) error {
@@ -65,16 +67,16 @@ func (vm *VmYaegj) MapScriptFuncToGo(funcName string) (Callable, error) {
 		return nil, err
 	}
 
-	return func(args ...any) ([]any, error) {
+	return func(args ...any) ([]gany.Val, error) {
 		var argsSlice []reflect.Value
 		for _, item := range args {
 			argsSlice = append(argsSlice, reflect.ValueOf(item))
 		}
 
 		resVals := fn.Call(argsSlice)
-		var res []any
+		var res []gany.Val
 		for _, item := range resVals {
-			res = append(res, item.Interface())
+			res = append(res, gany.NewVal(item))
 		}
 		return res, nil
 	}, nil

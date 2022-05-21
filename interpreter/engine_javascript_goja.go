@@ -33,20 +33,17 @@ func (vm *VmGoja) RunScript(script string) (gany.Val, error) {
 	return gany.NewVal(val.Export()), nil
 }
 
-// MapGoValueToScript allows script to access go runtime `value` with `name`.
-// Usually `value` is a pointer in the go runtime.
 func (vm *VmGoja) MapGoValueToScript(name string, value interface{}) error {
 	return vm.vmGoja.Set(name, value)
 }
 
-// MapScriptFuncToGo allows go runtime to access script function.
 func (vm *VmGoja) MapScriptFuncToGo(funcName string) (Callable, error) {
 	callable, ok := goja.AssertFunction(vm.vmGoja.Get(funcName))
 	if !ok {
 		return nil, gerrors.New("%s is not a valid function", funcName)
 	}
 
-	return func(args ...any) ([]any, error) {
+	return func(args ...any) ([]gany.Val, error) {
 		var items []goja.Value
 		for _, item := range args {
 			items = append(items, vm.toGojaValue(item))
@@ -55,6 +52,6 @@ func (vm *VmGoja) MapScriptFuncToGo(funcName string) (Callable, error) {
 		if err != nil {
 			return nil, err
 		}
-		return []any{retGoja.Export()}, nil
+		return []gany.Val{gany.NewVal(retGoja.Export())}, nil
 	}, nil
 }

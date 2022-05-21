@@ -2,7 +2,6 @@ package interpreter
 
 import (
 	"github.com/cryptowilliam/goutil/basic/gtest"
-	"github.com/cryptowilliam/goutil/container/gany"
 	"testing"
 )
 
@@ -33,7 +32,7 @@ func TestVm_GetScriptFunc(t *testing.T) {
 
 	testData["yaegi"] = `
 	func onReply(a int, b int) int {
-		return ctx.Bar(a + b).Double();
+		return ctx.Bar(a + b).Double()
 	}`
 
 	for engine, script := range testData {
@@ -66,9 +65,9 @@ func TestVm_GetScriptFunc(t *testing.T) {
 			gtest.PrintlnExit(t, err.Error())
 		}
 
-		numStr := gany.NewVal(res[0]).String()
+		numStr := res[0].String()
 		if numStr != "84" {
-			gtest.PrintlnExit(t, "result should be 84 but not %s", numStr)
+			gtest.PrintlnExit(t, "engine %s result should be 84 but not %s", engine, numStr)
 		}
 	}
 }
