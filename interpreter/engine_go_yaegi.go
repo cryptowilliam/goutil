@@ -38,6 +38,7 @@ func (vm *VmYaegj) RunScript(script string) (gany.Val, error) {
 	return valYaegi2Comm(val), nil
 }
 
+// TODO 确定重复调用这个接口，比如映射两个不同的name、value对， 是可以正常执行的
 // MapGoValueToScript allows script to access go runtime `value` with `name`.
 // Usually `value` is a pointer in the go runtime.
 func (vm *VmYaegj) MapGoValueToScript(name string, value interface{}) error {
@@ -70,11 +71,11 @@ func (vm *VmYaegj) MapScriptFuncToGo(funcName string) (Callable, error) {
 			argsSlice = append(argsSlice, reflect.ValueOf(item))
 		}
 
-		retVals := fn.Call(argsSlice)
-		var retAnys []any
-		for _, item := range retVals {
-			retAnys = append(retAnys, item.Interface())
+		resVals := fn.Call(argsSlice)
+		var res []any
+		for _, item := range resVals {
+			res = append(res, item.Interface())
 		}
-		return retAnys, nil
+		return res, nil
 	}, nil
 }
