@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/AdguardTeam/dnsproxy/upstream"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/container/ginterface"
+	"github.com/cryptowilliam/goutil/container/gany"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/miekg/dns"
 	"net"
@@ -152,7 +152,7 @@ func (dl *DNSClient) LookupIP(host string) ([]net.IP, error) {
 	}
 	var ipMap = make(map[string]net.IP)
 	for _, v := range reply.Answer {
-		if ginterface.Type(v) != ginterface.Type(&dns.A{}) {
+		if gany.Type(v) != gany.Type(&dns.A{}) {
 			continue
 		}
 		answer := v.(*dns.A)

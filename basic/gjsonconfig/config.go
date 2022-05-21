@@ -3,7 +3,7 @@ package gjsonconfig
 import (
 	"encoding/json"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/container/ginterface"
+	"github.com/cryptowilliam/goutil/container/gany"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"github.com/cryptowilliam/goutil/encoding/gjson"
 	"github.com/cryptowilliam/goutil/sys/gfs"
@@ -42,7 +42,7 @@ func DefaultUnmarshal(v interface{}) error {
 // Unmarshal read same dir json conf file and unmarshal to a struct
 // shortfn example: "*.json"
 func Unmarshal(filename string, v interface{}) error {
-	typeName, isPtr := ginterface.Parse(v)
+	typeName, isPtr := gany.Parse(v)
 	if !isPtr {
 		return gerrors.Errorf("pointer needed for json.Unmarshal, but type %s is NOT a pointer", typeName)
 	}

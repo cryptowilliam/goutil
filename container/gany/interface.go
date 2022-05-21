@@ -1,4 +1,4 @@
-package ginterface
+package gany
 
 import (
 	"encoding/json"
@@ -324,7 +324,7 @@ func ReCallItfc(retry int, method interface{}, params ...interface{}) interface{
 
 	invokeM := reflect.ValueOf(method)
 	if invokeM.Kind() != reflect.Func {
-		panic("method not a function")
+		panic(any("method not a function"))
 		return nil
 	}
 
@@ -353,7 +353,7 @@ _CALL:
 					log.Printf("Invoke Method(%s) Error , Begin Retry Call [%d] ...", invokeM.String(), retryC)
 					goto _CALL
 				} else {
-					panic("Invoke Method Fail ???" + invokeM.String())
+					panic(any("Invoke Method Fail ???" + invokeM.String()))
 				}
 			}
 		} else {

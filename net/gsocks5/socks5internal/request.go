@@ -3,7 +3,7 @@ package socks5internal
 import (
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/container/ginterface"
+	"github.com/cryptowilliam/goutil/container/gany"
 	"github.com/cryptowilliam/goutil/net/gnet"
 	"github.com/cryptowilliam/goutil/sys/gio"
 	"io"
@@ -211,14 +211,14 @@ func (s *Server) handleConnect(ctx context.Context, conn conn, req *Request) err
 	// Both TCP and UDP supported for request connection, sometimes UDP used when requesting like HTTP3(QUIC).
 	localIP := net.IP{}
 	localPort := 0
-	if ginterface.Type(target.LocalAddr()) == ginterface.Type(&net.TCPAddr{}) {
+	if gany.Type(target.LocalAddr()) == gany.Type(&net.TCPAddr{}) {
 		localIP = target.LocalAddr().(*net.TCPAddr).IP
 		localPort = target.LocalAddr().(*net.TCPAddr).Port
-	} else if ginterface.Type(target.LocalAddr()) == ginterface.Type(&net.UDPAddr{}) {
+	} else if gany.Type(target.LocalAddr()) == gany.Type(&net.UDPAddr{}) {
 		localIP = target.LocalAddr().(*net.UDPAddr).IP
 		localPort = target.LocalAddr().(*net.UDPAddr).Port
 	} else {
-		return gerrors.New("unsupported target connection addr %s", ginterface.Type(target.LocalAddr()))
+		return gerrors.New("unsupported target connection addr %s", gany.Type(target.LocalAddr()))
 	}
 	bind := AddrSpec{IP: localIP, Port: localPort}
 	if err := sendReply(conn, successReply, &bind); err != nil {

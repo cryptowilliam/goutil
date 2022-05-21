@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/container/ginterface"
+	"github.com/cryptowilliam/goutil/container/gany"
 )
 
 func Index(p []byte, toSearch byte) int {
@@ -19,7 +19,7 @@ func Index(p []byte, toSearch byte) int {
 func NumToBytes(n interface{}) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	err := error(nil)
-	nType := ginterface.Type(n)
+	nType := gany.Type(n)
 	switch nType {
 	case "uint8":
 		err = binary.Write(buf, binary.LittleEndian, n.(uint8))

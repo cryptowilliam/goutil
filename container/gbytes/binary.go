@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/container/ginterface"
+	"github.com/cryptowilliam/goutil/container/gany"
 	"unsafe"
 )
 
@@ -62,7 +62,7 @@ func BytesToNum(b []byte, numTypeSample interface{}) (interface{}, error) {
 	}
 	return num, nil*/
 
-	ntsType := ginterface.Type(numTypeSample)
+	ntsType := gany.Type(numTypeSample)
 	switch ntsType {
 	case "uint8":
 		if len(b) != 1 {

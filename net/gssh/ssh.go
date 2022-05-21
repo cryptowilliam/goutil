@@ -43,7 +43,7 @@ func Dial(address, username, password, privateKeyFile, passphrase string) (*Clie
 	return res, nil
 }
 
-// Execute your command and get your output as string.
+// RunCommand executes your command and get your output as string.
 func (c *Client) RunCommand(cmd string) (string, error) {
 	out, err := c.in.Run(cmd)
 	if err != nil {
@@ -52,12 +52,12 @@ func (c *Client) RunCommand(cmd string) (string, error) {
 	return string(out), nil
 }
 
-// Upload file with sftp.
+// UploadFile uploads file with sftp.
 func (c *Client) UploadFile(localFile, remoteFile string) error {
 	return c.in.Upload(localFile, remoteFile)
 }
 
-// Download file with sftp.
+// DownloadFile downloads file with sftp.
 func (c *Client) DownloadFile(remoteFile, localFile string) error {
 	return c.in.Download(remoteFile, localFile)
 }

@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/container/ginterface"
+	"github.com/cryptowilliam/goutil/container/gany"
 	"github.com/cryptowilliam/goutil/container/grange"
 	"github.com/cryptowilliam/goutil/container/gstring"
 	"go.mongodb.org/mongo-driver/bson"
@@ -255,10 +255,10 @@ func (c *Coll) minMax(itemPath string, typeSample interface{}, max bool) (interf
 				return nil, err
 			}
 
-			errTypeNotMatch := gerrors.Errorf("type(%s) wanted but in database it is not", ginterface.Type(typeSample))
-			errTypeNotSupported := gerrors.Errorf("type(%s) not supported in min/max query", ginterface.Type(typeSample))
+			errTypeNotMatch := gerrors.Errorf("type(%s) wanted but in database it is not", gany.Type(typeSample))
+			errTypeNotSupported := gerrors.Errorf("type(%s) not supported in min/max query", gany.Type(typeSample))
 
-			switch ginterface.Type(typeSample) {
+			switch gany.Type(typeSample) {
 			case "time.Time":
 				tm, ok := doc.Lookup(itemPath).TimeOK()
 				if !ok {
@@ -556,10 +556,10 @@ func (c *Cursor) DecodeId(typeSample interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	errTypeNotMatch := gerrors.Errorf("type(%s) wanted but in database it is not", ginterface.Type(typeSample))
-	errTypeNotSupported := gerrors.Errorf("type(%s) not supported in min/max query", ginterface.Type(typeSample))
+	errTypeNotMatch := gerrors.Errorf("type(%s) wanted but in database it is not", gany.Type(typeSample))
+	errTypeNotSupported := gerrors.Errorf("type(%s) not supported in min/max query", gany.Type(typeSample))
 
-	switch ginterface.Type(typeSample) {
+	switch gany.Type(typeSample) {
 	case "string":
 		str, ok := doc.Lookup("_id").StringValueOK()
 		if !ok {

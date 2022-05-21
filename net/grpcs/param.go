@@ -3,7 +3,7 @@ package grpcs
 import (
 	"encoding/gob"
 	"github.com/cryptowilliam/goutil/basic/gerrors"
-	"github.com/cryptowilliam/goutil/container/ginterface"
+	"github.com/cryptowilliam/goutil/container/gany"
 	"github.com/cryptowilliam/goutil/container/gstring"
 )
 
@@ -20,7 +20,7 @@ var (
 	TypeString      = ""
 	TypeStringSlice = []string{""}
 	TypeByteSlice   = []byte("")
-	TypeIF          = ginterface.UnInitIF
+	TypeIF          = gany.UnInitIF
 	TypeIFSlice     []interface{}
 	StringSlice     []string
 )
@@ -110,8 +110,8 @@ func (pc *ParamChecker) VerifyIn(function string, in Request) error {
 			return gerrors.New("function %s requires input param %s", function, requireKey)
 		}
 		// 'nil' means interface{} param, interface{} type param doesn't need to check type.
-		if ginterface.Type(requireVal) != ginterface.Type(nil) && ginterface.Type(requireVal) != ginterface.Type(paramVal) {
-			return gerrors.New("function %s input param %s require type %s, but %s got", function, requireKey, ginterface.Type(requireVal), ginterface.Type(paramVal))
+		if gany.Type(requireVal) != gany.Type(nil) && gany.Type(requireVal) != gany.Type(paramVal) {
+			return gerrors.New("function %s input param %s require type %s, but %s got", function, requireKey, gany.Type(requireVal), gany.Type(paramVal))
 		}
 	}
 	return nil
@@ -127,15 +127,15 @@ func (pc *ParamChecker) VerifyOut(function string, out *Reply, fuzzyNumSlice boo
 			return gerrors.New("function %s requires output param %s", function, requireKey)
 		}
 		// 'nil' means interface{} param, interface{} type param doesn't need to check type.
-		if ginterface.Type(requireVal) == ginterface.Type(nil) {
+		if gany.Type(requireVal) == gany.Type(nil) {
 			return nil
 		}
 
-		requireType, err := ginterface.TypeEx(requireVal)
+		requireType, err := gany.TypeEx(requireVal)
 		if err != nil {
 			return err
 		}
-		paramType, err := ginterface.TypeEx(paramVal)
+		paramType, err := gany.TypeEx(paramVal)
 		if err != nil {
 			return err
 		}

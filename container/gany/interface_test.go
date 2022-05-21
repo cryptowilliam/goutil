@@ -1,4 +1,4 @@
-package ginterface
+package gany
 
 import (
 	serr "errors"
