@@ -6,12 +6,9 @@ import (
 )
 
 type (
-	ctx struct {
-	}
+	ctx struct {}
 
-	bar struct {
-		Field int
-	}
+	bar struct {Field int}
 )
 
 func (f *ctx) Bar(field int) *bar {

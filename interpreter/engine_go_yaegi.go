@@ -8,7 +8,7 @@ import (
 )
 
 type (
-	VmYaegj struct {
+	vmYaegj struct {
 		vmYaegi *interp.Interpreter
 		customLib map[string]map[string]reflect.Value
 	}
@@ -18,8 +18,8 @@ func valYaegi2Comm(yaegiVal reflect.Value) gany.Val {
 	return gany.NewVal(yaegiVal)
 }
 
-func newVMYaegi() (*VmYaegj, error) {
-	res := &VmYaegj{vmYaegi: interp.New(interp.Options{})}
+func newVMYaegi() (*vmYaegj, error) {
+	res := &vmYaegj{vmYaegi: interp.New(interp.Options{})}
 	res.customLib = make(map[string]map[string]reflect.Value)
 	res.customLib["custom/custom"] = make(map[string]reflect.Value)
 
@@ -30,7 +30,7 @@ func newVMYaegi() (*VmYaegj, error) {
 	return res, nil
 }
 
-func (vm *VmYaegj) RunScript(script string) (gany.Val, error) {
+func (vm *vmYaegj) RunScript(script string) (gany.Val, error) {
 	val, err := vm.vmYaegi.Eval(script)
 	if err != nil {
 		return gany.ValNil, err
@@ -43,7 +43,7 @@ func (vm *VmYaegj) RunScript(script string) (gany.Val, error) {
 // 如果需要在脚本中主动声明Go Runtime中的自定义类型，目前知道的方法是在脚本中import该类型所在的包，
 // MapGoValueToScript allows script to access go runtime `value` with `name`.
 // Usually `value` is a pointer in the go runtime.
-func (vm *VmYaegj) MapGoValueToScript(name string, value interface{}) error {
+func (vm *vmYaegj) MapGoValueToScript(name string, value interface{}) error {
 	vm.customLib["custom/custom"][name] = reflect.ValueOf(value)
 	if err := vm.vmYaegi.Use(vm.customLib); err != nil {
 		return err
@@ -61,7 +61,7 @@ func (vm *VmYaegj) MapGoValueToScript(name string, value interface{}) error {
 }
 
 // MapScriptFuncToGo allows go runtime to access script function.
-func (vm *VmYaegj) MapScriptFuncToGo(funcName string) (Callable, error) {
+func (vm *vmYaegj) MapScriptFuncToGo(funcName string) (Callable, error) {
 	fn, err := vm.vmYaegi.Eval(funcName)
 	if err != nil {
 		return nil, err
